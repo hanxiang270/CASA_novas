@@ -54,16 +54,74 @@ import pandas as pd
 
 ```{python}
 #| echo: false
-host = 'https://orca.casa.ucl.ac.uk'
-path = '~jreades/data'
-file = '20240614-London-listings.parquet'
+from urllib.parse import urlparse
+import os
+import requests  
 
-if os.path.exists(file):
-  df = pd.read_parquet(file)
-else: 
-  df = pd.read_parquet(f'{host}/{path}/{file}')
-  df.to_parquet(file)
+def cache_data(src: str, dest: str) -> str:
+    """
+    Downloads and caches a remote file locally.
+
+    Parameters
+    ----------
+    src : str
+        The remote *source* for the file, any valid URL should work.
+    dest : str
+        The *destination* location to save the downloaded file.
+        
+    Returns
+    -------
+    str
+        A string representing the local location of the file.
+    """
+    url = urlparse(src)
+    fn = os.path.split(url.path)[-1]
+    dfn = os.path.join(dest, fn)
+
+    if not os.path.isfile(dfn) or os.stat(dfn).st_size < 250:
+        print(f"{dfn} not found, downloading!")
+
+        # Create directories if they don't exist
+        os.makedirs(dest, exist_ok=True)
+
+        try:
+            response = requests.get(src)
+            response.raise_for_status()  
+
+            with open(dfn, "wb") as file:
+                file.write(response.content)
+
+            print("\tDone downloading...")
+
+            f_size = os.stat(dfn).st_size
+            print(f"\tSize is {f_size / 1024**2:,.0f} MB ({f_size:,} bytes)")
+
+        except requests.exceptions.RequestException as e:
+            print(f"Failed to download file from {src}")
+            raise e
+
+    else:
+        print(f"Found {dfn} locally!")
+        f_size = os.stat(dfn).st_size
+        print(f"\tSize is {f_size / 1024**2:,.0f} MB ({f_size:,} bytes)")
+
+    return dfn
 ```
+```{python}
+#| echo: false
+host = 'https://data.insideairbnb.com'
+country = 'united-kingdom'
+state = 'england'
+city = 'london'
+ymd = '2024-09-06'
+url = f'{host}/{country}/{state}/{city}/{ymd}/data/listings.csv.gz'
+
+listings_raw = pd.read_csv(cache_data(url, os.path.join('data', 'raw')))
+
+print(f"Data frame is {listings_raw.shape[0]:,} x {listings_raw.shape[1]}")
+listings_raw.info(verbose=True)
+```
+
 
 ## 1. Who collected the InsideAirbnb data?
 
