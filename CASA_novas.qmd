@@ -134,7 +134,7 @@ listings_raw.info(verbose=True)
 
 ( 2 points; Answer due Week 7 )
 
-The Inside Airbnb data was primarily collected by Murray Cox, a Brooklyn based independent researcher who started the project in 2015. While Cox leads the initiative, a network of volunteers, activists, and researchers supports the data collection by providing local context, refining scraping tools, and organizing the raw data.
+The Inside Airbnb data was primarily collected by [Murray Cox](https://twitter.com/murrayscox), a Brooklyn based independent researcher who started the project in 2015. While Cox leads the initiative, a network of volunteers, activists, and researchers supports the data collection by providing local context, refining scraping tools, and organizing the raw data.
 
 :::
 
