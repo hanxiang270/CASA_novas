@@ -48,12 +48,15 @@ jupyter:
 
 ```{python}
 #| echo: false
+#Explanation: Import libraries
 import os
 import pandas as pd
 ```
 
 ```{python}
 #| echo: false
+#Explanation: This code chunk downloads a file from a given URL and saves it locally to a specified destination, caching it if it doesn't already exist or is too small, and returns the local file path.
+
 from urllib.parse import urlparse
 import os
 import requests  
@@ -109,6 +112,8 @@ def cache_data(src: str, dest: str) -> str:
 ```
 ```{python}
 #| echo: false
+#Explanation: The code constructs a URL to access a specific dataset from Inside Airbnb, downloads and caches the file, reads it into a Pandas DataFrame, and then prints the shape and detailed information
+
 host = 'https://data.insideairbnb.com'
 country = 'united-kingdom'
 state = 'england'
