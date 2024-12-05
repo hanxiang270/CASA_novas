@@ -1,7 +1,7 @@
 ---
-bibliography: bio.bib
+bibliography: CASA_novas_bib.bib
 csl: harvard-cite-them-right.csl
-title: Group Name's Group Project
+title: CASA_novas's Group Project
 execute:
   echo: false
   freeze: true
@@ -129,11 +129,10 @@ listings_raw.info(verbose=True)
 
 ( 2 points; Answer due Week 7 )
 
+The Inside Airbnb data was primarily collected by Murray Cox, a Brooklyn based independent researcher who started the project in 2015. While Cox leads the initiative, a network of volunteers, activists, and researchers supports the data collection by providing local context, refining scraping tools, and organizing the raw data.
+
 :::
 
-An inline citation example: As discussed on @insideairbnb, there are many...
-
-A parenthetical citation example: There are many ways to research Airbnb [see, for example, @insideairbnb]... 
 
 ## 2. Why did they collect the InsideAirbnb data?
 
@@ -141,19 +140,10 @@ A parenthetical citation example: There are many ways to research Airbnb [see, f
 
 ( 4 points; Answer due Week 7 )
 
+Inside Airbnb collected data to uncover the impact of short-term lets (STL) on residential communities, which may be hidden by Airbnb’s PR-driven data. In 2015, Airbnb purged over 1,000 listings from multiple-listing hosts just before taking a manipulated snapshot for its ‘transparency initiative’ [@cox_how_2020]. Without this exposure, Airbnb’s negative impact on local housing markets would have been underestimated. As a grassroots initiative, Inside Airbnb aims to resist dominant corporate narratives. With more transparent data, the accountability of Airbnb in gentrification, eviction, and the housing crisis can be revealed. This data supports researchers, policymakers, and marginalized communities in advocating for fairer STL regulations and social justice—an example of data for co-liberation [@dignazio_data_2020].
+
 :::
 
-```{python}
-#| output: asis
-print(f"One of way to embed output in the text looks like this: after cleaning, we were left with {df.shape[0]:,} rows of data.")
-```
-
-This way is also supposed to work (`{python} f"{df.shape[0]:,}" `) but I've found it less reliable.
-
-```{python}
-ax = df.host_listings_count.plot.hist(bins=50);
-ax.set_xlim([0,500]);
-```
 
 ## 3. How did they collect it?
 
