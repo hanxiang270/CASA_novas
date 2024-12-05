@@ -145,7 +145,7 @@ The Inside Airbnb data was primarily collected by Murray Cox, a Brooklyn based i
 
 ( 4 points; Answer due Week 7 )
 
-Inside Airbnb collected data to reveal the impact of short-term lets (STL) on residential communities, often obscured by Airbnb’s PR-driven data. In 2015, Airbnb purged over 1,000 listings from multi-listing hosts before presenting a manipulated snapshot under its ‘transparency initiative’ [@cox_how_2020]. Without this exposure, Airbnb’s harm to local housing markets would have been downplayed. As a grassroots project, Inside Airbnb challenges dominant corporate narratives by providing transparent data that highlights Airbnb’s role in gentrification, eviction, and the housing crisis. This empowers researchers, policymakers, and marginalized communities to advocate for fair STL regulations and social justice—exemplifying data for co-liberation [@dignazio_data_2020].
+Inside Airbnb collected data to reveal the impact of short-term lets (STL) on residential communities, often obscured by Airbnb’s PR-driven data. In 2015, Airbnb purged over 1,000 listings from multi-listing hosts before presenting a manipulated snapshot under its ‘transparency initiative’ [@cox_how_2020]. If this scandal had not been exposed, Airbnb’s harm to local housing markets would have been downplayed. As a grassroots project, Inside Airbnb challenges dominant corporate narratives by providing transparent data that highlights Airbnb’s role in gentrification, eviction, and the housing crisis. This empowers researchers, policymakers, and marginalized communities to collectively advocate for fair STL regulations and social justice—exemplifying 'data for co-liberation' [@dignazio_data_2020].
 :::
 
 
