@@ -110,6 +110,7 @@ def cache_data(src: str, dest: str) -> str:
 
     return dfn
 ```
+
 ```{python}
 #| echo: false
 #Explanation: The code constructs a URL to access a specific dataset from Inside Airbnb, downloads and caches the file, reads it into a Pandas DataFrame, and then prints the shape and detailed information
@@ -126,7 +127,6 @@ listings_raw = pd.read_csv(cache_data(url, os.path.join('data', 'raw')))
 print(f"Data frame is {listings_raw.shape[0]:,} x {listings_raw.shape[1]}")
 listings_raw.info(verbose=True)
 ```
-
 
 ## 1. Who collected the InsideAirbnb data?
 
@@ -163,6 +163,16 @@ Inside Airbnb collected data to reveal the impact of short-term lets (STL) on re
 
 ( 11 points; Answer due Week 9 )
 
+Fiorella note: This two references might be useful for this question and alligns with the answers we have drafted for last question (for example we mentioned that new datasets replace existing ones)
+
+This one could be linked to the abscense of metadata 
+"Despite the popularity of IA, the website only provides minimal information on the data collection process that was implemented to extract data from Airbnb" [@Alsudais:2021]. 
+
+This one is a good one about reproducibility:
+"Since IA releases a new version of the dataset for each location almost every month, the new version replaces an existing release. These updates throw into question the ability for one scholar using the latest release to reproduce results obtained by another researcher who used an older version of the dataset but did not specify the version used. To explore this problem further" [@Alsudais:2021]. 
+
+"This data source has some critical limitations: As with any online advertising, there is the potential for outdated or “bait and switch” listings (­advertising of properties that upon ­investigation are not actually available). Nor is it possible to determine whether properties listed have long been available for short-term holiday renting, or as conventional bed and breakfast accommodations that now use the Airbnb platform for marketing and booking." [@Gurran:2017]
+
 :::
 
 ## 5. What ethical considerations does the use of the InsideAirbnb data raise? 
@@ -171,6 +181,43 @@ Inside Airbnb collected data to reveal the impact of short-term lets (STL) on re
 
 ( 18 points; Answer due {{< var assess.group-date >}} )
 
+"Acts of counting and classification, especially as they relate to minoritized groups,
+must always balance harms and benefits. When data are collected about real people
+and their lives, risks ranging from exposure to violence are always present. But when
+deliberately considered, and when consent is obtained, counting can contribute to
+efforts to increase valuable and desired visibility." [@dignazio:2020ch4]
+
+"Context, and the informational infrastructure that it requires, should be a significant
+focus for open data advocates, philanthropic foundations, librarians, researchers, news
+organizations, and regulators in the future." [@dignazio:2020ch6]
+
+"The difficulty with the aggregation effect is that it makes it nearly impossible to manage data. The ways in which data can be combined to reveal more data are constantly evolving. This makes it very hard to assess whether revealing any piece of information will sometime later on, when combined with other data, reveal something sensitive" (Solove 2012: 9) in [@Crawford:2015].
+
+The result is data sets that can be overly intrusive, collect personally identifying information without informed consent, and may have serious unintended consequences, particularly when brought together with other kinds of personally identifying data [@Crawford:2015]
+
+"Even if most people were to read privacy policies routinely, people often lack enough expertise to adequately assess the consequences of agreeing to certain present uses or disclosures of their data" [@Solove:2012]
+
+Another problem is that even if
+people made rational decisions about sharing individual pieces of data
+in isolation, they greatly struggle to factor in how their data might be
+aggregated in the future. [@Solove:2012]
+
+In other words, little bits of innocuous data can say a lot
+in combination.42 I have referred to this as the “aggregation effect.”[@Solove:2012]
+
+This state of affairs makes it very hard to assess
+whether revealing any piece of information will sometime later on,
+when combined with other data, reveal something sensitive. [@Solove:2012]
+
+
+On London's regulations turning into prohibition:
+This legislation, titled the Greater London Council (General Powers) Act of 1973 prohibited short-term lets – defined as less than 90 days in the calendar year – for properties or parts of properties in the city. Those wishing to let properties for short periods would have to apply for planning permission for a change of use. [@Ferreri:2018]
+
+In Camden, officers have made use of the open access data scraping platform Inside Airbnb to detect multi-listings, and the data amassed by the platform have been used as a partial database to scope the extent of the issue and to build evidence for regulators to prosecute breaches. [@Ferreri:2018]
+
+In the absence of an official registry and notification process, access to detailed, geo-referenced and non-anonymised Airbnb data thus becomes a key element to monitor and enforce regulations about both multi-listings and the 90-days exception. [@Ferreri:2018]
+
+. While, in theory, municipalities should regulate the emergence of Airbnb through evidence-based policy making, in practice, they engage in a false dichotomy: some municipalities allow the business without imposing any regulation, while others ban it altogether.
 :::
 
 ## 6. With reference to the InsideAirbnb data (*i.e.* using numbers, figures, maps, and descriptive statistics), what does an analysis of Hosts and the types of properties that they list suggest about the nature of Airbnb lettings in London? 
@@ -198,3 +245,4 @@ Your QMD file should automatically download your BibTeX and CLS files and any ot
 Written in Markdown and generated from [Quarto](https://quarto.org/). Fonts used: [Spectral](https://fonts.google.com/specimen/Spectral) (mainfont), [Roboto](https://fonts.google.com/specimen/Roboto) (<span style="font-family:Sans-Serif;">sansfont</span>) and [JetBrains Mono](https://fonts.google.com/specimen/JetBrains%20Mono) (`monofont`). 
 
 ## References
+
