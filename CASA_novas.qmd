@@ -181,6 +181,15 @@ This one is a good one about reproducibility:
 
 ( 18 points; Answer due {{< var assess.group-date >}} )
 
+Initial ideas for answer, still needs to be written considering quotes stated below and other insights:
+
+As mentioned previously, the Inside Airbnb data relies on scraping publicly available information. Even though this information is public, hosts and guests may not have explicitly consented to their data being used for research.  
+
+Some people (maybe include percentage of people that have only one listing) really use Airbnb as an alternative to get extra income. Policymakers must be aware of this so their policies don’t focus on prohibiting the use of airbnb, but instead look for solutions that take in consideration vulnerable population that might need their airbnb income to support themselves. 
+
+
+Quotes:
+
 "Acts of counting and classification, especially as they relate to minoritized groups,
 must always balance harms and benefits. When data are collected about real people
 and their lives, risks ranging from exposure to violence are always present. But when
@@ -250,4 +259,3 @@ Your QMD file should automatically download your BibTeX and CLS files and any ot
 Written in Markdown and generated from [Quarto](https://quarto.org/). Fonts used: [Spectral](https://fonts.google.com/specimen/Spectral) (mainfont), [Roboto](https://fonts.google.com/specimen/Roboto) (<span style="font-family:Sans-Serif;">sansfont</span>) and [JetBrains Mono](https://fonts.google.com/specimen/JetBrains%20Mono) (`monofont`). 
 
 ## References
-
