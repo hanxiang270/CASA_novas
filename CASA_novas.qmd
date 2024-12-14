@@ -163,16 +163,6 @@ Inside Airbnb collected data to reveal the impact of short-term lets (STL) on re
 
 ( 11 points; Answer due Week 9 )
 
-Fiorella note: This two references might be useful for this question and alligns with the answers we have drafted for last question (for example we mentioned that new datasets replace existing ones)
-
-This one could be linked to the abscense of metadata 
-"Despite the popularity of IA, the website only provides minimal information on the data collection process that was implemented to extract data from Airbnb" [@Alsudais:2021]. 
-
-This one is a good one about reproducibility:
-"Since IA releases a new version of the dataset for each location almost every month, the new version replaces an existing release. These updates throw into question the ability for one scholar using the latest release to reproduce results obtained by another researcher who used an older version of the dataset but did not specify the version used. To explore this problem further" [@Alsudais:2021]. 
-
-"This data source has some critical limitations: As with any online advertising, there is the potential for outdated or “bait and switch” listings (­advertising of properties that upon ­investigation are not actually available). Nor is it possible to determine whether properties listed have long been available for short-term holiday renting, or as conventional bed and breakfast accommodations that now use the Airbnb platform for marketing and booking." [@Gurran:2017]
-
 :::
 
 ## 5. What ethical considerations does the use of the InsideAirbnb data raise? 
@@ -181,60 +171,562 @@ This one is a good one about reproducibility:
 
 ( 18 points; Answer due {{< var assess.group-date >}} )
 
-Initial ideas for answer, still needs to be written considering quotes stated below and other insights:
-
-As mentioned previously, the Inside Airbnb data relies on scraping publicly available information. Even though this information is public, hosts and guests may not have explicitly consented to their data being used for research.  
-
-Some people (maybe include percentage of people that have only one listing) really use Airbnb as an alternative to get extra income. Policymakers must be aware of this so their policies don’t focus on prohibiting the use of airbnb, but instead look for solutions that take in consideration vulnerable population that might need their airbnb income to support themselves. 
-
-
-Quotes:
-
-"Acts of counting and classification, especially as they relate to minoritized groups,
-must always balance harms and benefits. When data are collected about real people
-and their lives, risks ranging from exposure to violence are always present. But when
-deliberately considered, and when consent is obtained, counting can contribute to
-efforts to increase valuable and desired visibility." [@dignazio:2020ch4]
-
-"Context, and the informational infrastructure that it requires, should be a significant
-focus for open data advocates, philanthropic foundations, librarians, researchers, news
-organizations, and regulators in the future." [@dignazio:2020ch6]
-
-"The difficulty with the aggregation effect is that it makes it nearly impossible to manage data. The ways in which data can be combined to reveal more data are constantly evolving. This makes it very hard to assess whether revealing any piece of information will sometime later on, when combined with other data, reveal something sensitive" (Solove 2012: 9) in [@Crawford:2015].
-
-The result is data sets that can be overly intrusive, collect personally identifying information without informed consent, and may have serious unintended consequences, particularly when brought together with other kinds of personally identifying data [@Crawford:2015]
-
-"Even if most people were to read privacy policies routinely, people often lack enough expertise to adequately assess the consequences of agreeing to certain present uses or disclosures of their data" [@Solove:2012]
-
-Another problem is that even if
-people made rational decisions about sharing individual pieces of data
-in isolation, they greatly struggle to factor in how their data might be
-aggregated in the future. [@Solove:2012]
-
-In other words, little bits of innocuous data can say a lot
-in combination.42 I have referred to this as the “aggregation effect.”[@Solove:2012]
-
-This state of affairs makes it very hard to assess
-whether revealing any piece of information will sometime later on,
-when combined with other data, reveal something sensitive. [@Solove:2012]
-
-
-On London's regulations turning into prohibition:
-This legislation, titled the Greater London Council (General Powers) Act of 1973 prohibited short-term lets – defined as less than 90 days in the calendar year – for properties or parts of properties in the city. Those wishing to let properties for short periods would have to apply for planning permission for a change of use. [@Ferreri:2018]
-
-In Camden, officers have made use of the open access data scraping platform Inside Airbnb to detect multi-listings, and the data amassed by the platform have been used as a partial database to scope the extent of the issue and to build evidence for regulators to prosecute breaches. [@Ferreri:2018]
-
-In the absence of an official registry and notification process, access to detailed, geo-referenced and non-anonymised Airbnb data thus becomes a key element to monitor and enforce regulations about both multi-listings and the 90-days exception. [@Ferreri:2018]
-
-. While, in theory, municipalities should regulate the emergence of Airbnb through evidence-based policy making, in practice, they engage in a false dichotomy: some municipalities allow the business without imposing any regulation, while others ban it altogether. [@Quattrone:2018]
-
-
-The danger of over-regulating P2P or
-sharing ventures is that they have the possibility of stifling innovation [@Shabrina:2017]
 :::
 
 ## 6. With reference to the InsideAirbnb data (*i.e.* using numbers, figures, maps, and descriptive statistics), what does an analysis of Hosts and the types of properties that they list suggest about the nature of Airbnb lettings in London? 
+# Section A. Data Loading
+```{python}
+#| echo: false
+#Explanation: Import packages
+import os
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import statsmodels.api as sms
+import seaborn as sns
+from scipy.stats import chisquare
+```
 
+```{python}
+#| echo: false
+# Explanation: This code chunk downloads a file from a given URL and saves it locally to a specified destination, caching it if it doesn't already exist or is too small, and returns the local file path.
+
+from urllib.parse import urlparse
+import requests  
+
+def cache_data(src: str, dest: str) -> str:
+    """
+    Downloads and caches a remote file locally.
+
+    Parameters
+    ----------
+    src : str
+        The remote *source* for the file, any valid URL should work.
+    dest : str
+        The *destination* location to save the downloaded file.
+        
+    Returns
+    -------
+    str
+        A string representing the local location of the file.
+    """
+    url = urlparse(src)
+    fn = os.path.split(url.path)[-1]
+    dfn = os.path.join(dest, fn)
+
+    if not os.path.isfile(dfn) or os.stat(dfn).st_size < 250:
+        print(f"{dfn} not found, downloading!")
+
+        # Create directories if they don't exist
+        os.makedirs(dest, exist_ok=True)
+
+        try:
+            response = requests.get(src)
+            response.raise_for_status()  
+
+            with open(dfn, "wb") as file:
+                file.write(response.content)
+
+            print("\tDone downloading...")
+
+            f_size = os.stat(dfn).st_size
+            print(f"\tSize is {f_size / 1024**2:,.0f} MB ({f_size:,} bytes)")
+
+        except requests.exceptions.RequestException as e:
+            print(f"Failed to download file from {src}")
+            raise e
+
+    else:
+        print(f"Found {dfn} locally!")
+        f_size = os.stat(dfn).st_size
+        print(f"\tSize is {f_size / 1024**2:,.0f} MB ({f_size:,} bytes)")
+
+    return dfn
+```
+
+
+```{python}
+#| echo: false
+#Explanation: The code constructs a URL to access a specific dataset from Inside Airbnb, downloads and caches the file, reads it into a Pandas DataFrame, and then prints the shape and detailed information
+
+host = 'https://data.insideairbnb.com'
+country = 'united-kingdom'
+state = 'england'
+city = 'london'
+ymd = '2023-12-10'
+url = f'{host}/{country}/{state}/{city}/{ymd}/data/listings.csv.gz'
+
+listings_raw = pd.read_csv(cache_data(url, os.path.join('data', 'raw')))
+
+print(f"Data frame is {listings_raw.shape[0]:,} x {listings_raw.shape[1]}")
+listings_raw.info(verbose=True)
+```
+
+```{python}
+#| echo: false
+#Explanation: The code saves the dataset to a specified folder (Data/Raw) in the current working directory as a CSV file.
+
+path = os.path.join('Data', 'Raw') 
+fn = url.split('/')[-1] 
+print(f"Writing to: {fn}")
+
+if not os.path.exists(path):
+    print(f"Creating {path} under {os.getcwd()}")
+    os.makedirs(path)
+
+if not os.path.exists(os.path.join(path, fn)): 
+    listings_raw.to_csv(os.path.join(path, fn), index=False) 
+    print("Done.")
+```
+# Section B. Data Cleaning
+```{python}
+#| echo: false
+#Explanation: Randomly selects 5 rows from the DataFrame listings_raw using a fixed random seed for reproducibility.
+
+listings_raw.sample(10, random_state=42)
+
+#Observation on columns:
+#(1)Some columns contain predominantly null values, such as 'license' and 'description'.
+#(2)The 'property_type' and 'room_type' column should be in categorical format, not object.
+#(3)Some columns, such as 'price', should be in numeric format, not object.
+#Conclusion: To ensure the accuracy and reliability of our analysis, columns with predominantly null values will be dropped. Some 'object' columns will be converted to categorical and numeric formats.
+
+#Observation on rows: 
+#(1)Some rows contain more columns with null values than others.
+#(2)Some rows have null value in 'last_review' and a value of '0' in the 'availability_365' column, indicating that the property is not available.
+#Conclusion: To ensure the accuracy and reliability of our analysis, these rows will be removed in the upcoming cleaning process.
+```
+```{python}
+#| echo: false
+#Explanation: Column Cleaning 1 - Get the top 10 columns with the most null values
+
+top_10_columns = listings_raw.isnull().sum(axis=0).sort_values(ascending=False)[:10].index
+
+print("Number of null values in top 10 columns:")
+print(listings_raw[top_10_columns].isnull().sum())
+```
+```{python}
+#| echo: false
+#Explanation: Column Cleaning 1 - Drop the top 10 columns
+
+listings_raw = listings_raw.drop(columns=top_10_columns)
+
+print("\nNumber of null values in remaining columns after dropping the top 10 columns:")
+print(listings_raw.isnull().sum().sort_values(ascending=False)[:10])
+```
+```{python}
+#| echo: false
+#Explanation: Column Cleaning 2 - Convert 'room_type' and 'property_type' to categories.
+
+cats = ['property_type','room_type']
+
+for c in cats:
+    print(f"Converting {c}")
+    listings_raw[c] = listings_raw[c].astype('category')
+
+print(f"Now {cats[0]} is of type '{listings_raw[cats[0]].dtype}'", "\n") 
+print(listings_raw[cats[0]].cat.categories.values)
+
+print(f"Now {cats[1]} is of type '{listings_raw[cats[1]].dtype}'", "\n") 
+print(listings_raw[cats[1]].cat.categories.values)
+```
+```{python}
+#| echo: false
+#Explanation: Column Cleaning 3 - Convert 'price' to numeric format.
+
+money = ['price']
+
+for m in money:
+    print(f"Converting {m}")
+    listings_raw[m] = listings_raw[m].str.replace('$','', regex=False).str.replace(',','').astype('float')
+
+listings_raw.sample(10, random_state=42) [money]
+```
+```{python}
+#| echo: false
+# Explanation: Column Cleaning 4 - Convert other object columns to integer format.
+
+ints = ['id', 'host_id', 'host_listings_count', 'host_total_listings_count', 'accommodates', 
+        'beds', 'minimum_nights', 'maximum_nights', 'availability_365']
+
+for i in ints:
+    print(f"Converting {i}")
+    try:
+        listings_raw[i] = listings_raw[i].astype('float').astype('int')
+    except ValueError as e:
+        print(" - !!!Converting to unsigned 16-bit integer!!!")
+        listings_raw[i] = listings_raw[i].astype('float').astype(pd.UInt16Dtype())
+```
+```{python}
+#| echo: false
+# Explanation: Row Cleaning 1 - Exclude listings with unrealistic prices.
+
+count_price_expensive = (listings_raw['price'] > 2000).sum()
+print(f"Number of rows with price greater than 2000: {count_price_expensive}")
+
+count_price_zero = (listings_raw['price'] == 0).sum()
+print(f"Number of rows with price equal to 0: {count_price_zero}")
+
+count_price_missing = listings_raw['price'].isna().sum()
+print(f"Number of rows with missing price: {count_price_missing}")
+
+listings_raw = listings_raw[
+    ~(  # Negate the combined conditions
+        (listings_raw['price'] > 2000) |  
+        (listings_raw['price'] == 0) |   
+        (listings_raw['price'].isna())   
+    )
+]
+
+count_price_expensive = (listings_raw['price'] > 2000).sum()
+print(f"Number of rows with price greater than 2000 after cleaning: {count_price_expensive}")
+
+count_price_zero = (listings_raw['price'] == 0).sum()
+print(f"Number of rows with price equal to 0 after cleaning: {count_price_zero}")
+
+count_price_missing = listings_raw['price'].isna().sum()
+print(f"Number of rows with missing price after cleaning: {count_price_missing}")
+```
+```{python}
+#| echo: false
+# Explanation: Row Cleaning 2 - Calculate the number of missing values per row and plot a histogram of the distribution
+
+probs = listings_raw.isnull().sum(axis=1) 
+print(type(probs)) 
+probs.plot.hist(bins=30)
+```
+```{python}
+#| echo: false
+#Explanation: Row Cleaning 2 - Drop rows where there are 10 or more missing values
+
+cutoff = 10
+listings_raw.drop(probs[probs > cutoff].index, inplace=True)
+print(f"Have reduced data frame to: {listings_raw.shape[0]:,} rows and {listings_raw.shape[1]:,} columns")
+```
+```{python}
+#| echo: false
+#Explanation: Row Cleaning 3 - Drop rows where 'last_review' = Null
+
+dropped_rows = len(listings_raw) - len(listings_raw.dropna(subset=['last_review']))
+listings_raw = listings_raw.dropna(subset=['last_review'])
+print(f"Number of rows dropped: {dropped_rows}")
+```
+```{python}
+#| echo: false
+#Explanation: Data cleaning validation (Seeded Rows)
+
+listings_raw.sample(10, random_state=42)
+```
+```{python}
+#| echo: false
+#Explanation: Data cleaning validation (Column Type)
+
+listings_clean = listings_raw
+listings_clean.info()
+```
+```{python}
+#| echo: false
+#Explanation: Save the clean data locally
+
+path = os.path.join('Data','Clean')
+
+if not os.path.exists(path):
+    print(f"Creating {path} under {os.getcwd()}") 
+    os.makedirs(path)
+    
+listings_clean.to_csv(os.path.join(path,fn), index=False) 
+print("Done.")
+```
+# Section C. Question 6
+## EDA1: Are ‘Entire home/apt’ Properties Significantly More Than Others in London?
+As of December 2023, data from Inside Airbnb indicates that there are approximately 66,000 active listings in London. These listings are categorized into types such as Entire home/apartment, Private room, Shared room, and Hotel room, with Entire home/apartment listings having the most significant impact on local rental markets. These properties are often removed from the long-term rental (LTR) market to serve as short-term rentals (STRs), which reduces housing supply and drives up rents. In London, approximately 43,000 listings are Entire home/apartment, making up about 64.01% of all Airbnb listings. This represents a notable share compared to other room types, as shown in the bar chart below (Fig 1), which compares the counts of each listing type. Additionally, 40.09% of these hosts have more than one listing, indicating a commercial and speculative nature of Airbnb lettings in London that may disrupt the local LTR market.
+```{python}
+#| echo: false
+#Explanation: Calculate the total number of listings in the cleaned data frame
+
+num_rows = listings_clean.shape[0]
+print(f"Number of rows: {num_rows}")
+```
+```{python}
+#| echo: false
+#Explanation: Calculate the count of listings per room type & share of 'Entire home/apt'
+
+room_type_counts = listings_clean['room_type'].value_counts()
+
+print(room_type_counts)
+
+# Count the total number of listings for each room type
+room_type_counts = listings_raw['room_type'].value_counts()
+
+# Calculate the proportion of 'Entire home/apt' relative to the total
+entire_home_proportion = room_type_counts['Entire home/apt'] / room_type_counts.sum()
+
+print(f"Proportion of 'Entire home/apt' listings: {entire_home_proportion:.4f}")
+```
+```{python}
+#| echo: false
+#Explanation: Assuming uniform distribution, this code performs a chi-squared test to confirm the count of 'Entire home/apt' is significantly higher than expected.
+
+# Observed values
+observed = room_type_counts.values
+
+# Null hypothesis: The distribution of property types aligns with an equal distribution.
+expected = [sum(observed) / len(observed)] * len(observed)
+
+# Chi-square test
+chi2_stat, p_value = chisquare(f_obs=observed, f_exp=expected)
+
+# Print
+print(f"Chi-squared Statistic: {chi2_stat}")
+print(f"P-value: {p_value}")
+
+# Result
+if p_value < 0.05:
+    print("Reject the null hypothesis: 'Entire home/apt' is significantly higher than expected.")
+else:
+    print("Fail to reject the null hypothesis: The distribution matches the expected values.")
+    #| echo: false
+#Explanation: Plot the bar chart of the distribution of listings by room type.
+
+from bokeh.io import output_notebook, show
+from bokeh.plotting import figure
+from bokeh.models import ColumnDataSource, HoverTool
+from bokeh.palettes import Spectral4
+
+# Assuming room_type_counts and expected are available in your environment
+room_types = room_type_counts.index.to_list()
+counts = room_type_counts.values.tolist()
+
+# Create the ColumnDataSource for Bokeh
+source = ColumnDataSource(data=dict(
+    rt=room_types,
+    count=counts,
+))
+
+# Add hover tool with custom tooltips
+TOOLTIPS = [
+    ("Room Type", "@rt"),
+    ("Number of Listings", "@count{,}"),
+]
+
+# Create the Bokeh figure
+p = figure(x_range=room_types, height=400, tooltips=TOOLTIPS, 
+           title="Fig 1. Count of Airbnb Listings by Room Type in London (Up to December 10, 2023)",
+           toolbar_location=None)
+
+# Create the bar chart with custom color and tooltips
+p.vbar(x='rt', top='count', width=0.9, source=source, color='purple')
+
+# Add a dashed line for the mean (expected) value
+p.line([-0.5, len(room_types)-0.5], [expected[0], expected[0]], 
+       line_width=2, color="black", line_dash="dashed", legend_label="Mean")
+
+# Customize the plot appearance
+p.xgrid.grid_line_color = None
+p.y_range.start = 0
+p.legend.location = "top_right"
+p.legend.orientation = "horizontal"
+p.xaxis.axis_label = "Room Type"
+p.yaxis.axis_label = "Count"
+
+# Show the plot
+output_notebook()  # Output to Jupyter notebook
+show(p)  # Display the plot
+```
+```{python}
+#| echo: false
+#Explanation: Calculate the proportion of 'Entire home/apt' hosts as multiple-listing hosts
+
+entire_home_apt = listings_clean[listings_clean['room_type'] == 'Entire home/apt']
+more_than_1_entire = entire_home_apt[entire_home_apt['calculated_host_listings_count'] != 1]
+
+entire_total_hosts = len(entire_home_apt['host_name'].unique())
+entire_more_than_1_hosts = len(more_than_1_entire['host_name'].unique())
+entire_ratio = entire_more_than_1_hosts / entire_total_hosts
+
+print(f"Entire home/apt multiple listing host ratio: {entire_ratio:.2%}")
+```
+
+## EDA2: How Many of the 'Entire Home/apt' Hosts Are Not Following the 90-day Rules? 
+Although London's [90-day rule](https://www.london.gov.uk/programmes-strategies/housing-and-land/improving-private-rented-sector/guidance-short-term-and-holiday-lets-london) restricts short-term rentals of entire homes to 90 nights per calendar year, enforcement remains weak. The histogram below (Fig. 2) shows the distribution of available days for entire home/apartment listings in London in the next calendar year (starting from December 10, 2023). 65.23% of these listings exceed the 90-day limit. The box plot (Fig. 3) shows that the median number of available days in the next calendar year is 167 days, with the maximum availability being for the entire year. These figures showcase widespread non-compliance with the 90-day rule among entire home/apartment hosts. One contributing factor is that fewer than [5%](https://airbtics.com/airbnb-rules-in-greater-london-united-kingdom/) of Airbnb listings in London display a registration number, meaning most hosts operate without regulation. In contrast, cities like [San Francisco](https://hosttools.com/blog/short-term-rental-tips/airbnb-rules-san-francisco/) have stricter measures, including data-sharing agreements with Airbnb to monitor host compliance. This highlights the regulatory gaps in London's STR market.
+```{python}
+#| echo: false
+#Explanation: Create the histogram showing the distribution of 'availability_365' for 'Entire home/apt' in London
+
+from bokeh.models import ColumnDataSource, Label
+
+# Assuming entire_home_apt is available in your environment
+availability_365_data = entire_home_apt[entire_home_apt['availability_365'] > 0]['availability_365']
+
+# Calculate the histogram data
+hist, edges = np.histogram(availability_365_data, bins=30)
+
+# Create a ColumnDataSource for Bokeh
+source = ColumnDataSource(data=dict(
+    top=hist,
+    left=edges[:-1],  # left edge of each bin
+    right=edges[1:],  # right edge of each bin
+))
+
+# Calculate the percentage of data beyond 90
+count_beyond_90 = (availability_365_data > 90).sum()
+valid_rows = len(availability_365_data)
+percentage_beyond_90 = (count_beyond_90 / valid_rows) * 100
+
+# Create the Bokeh figure
+p = figure(title="Fig 2. Distribution of Available Days for Entire Home/Apt in London",
+           x_axis_label="Available Days in the Next Calendar Year from December 10, 2023",
+           y_axis_label="Frequency",
+           tools="pan,box_zoom,reset,hover")
+
+# Create the histogram bars (quad creates the bars for histograms)
+p.quad(top='top', bottom=0, left='left', right='right', source=source, color='purple', alpha=0.7)
+
+# Add a vertical line at 90 days
+p.line([90, 90], [0, max(hist)], line_width=2, color="black", line_dash="dashed", legend_label="90 Days")
+
+# Add annotation for percentage of data beyond 90 days
+label = Label(x=95, y=max(hist) * 0.8, text=f'{percentage_beyond_90:.2f}% above 90 days', 
+              text_font_size="12px", text_color="black")
+p.add_layout(label)
+
+# Customize grid and axis
+p.xgrid.grid_line_color = None
+p.y_range.start = 0
+
+# Show the plot
+output_notebook()  # Output to Jupyter notebook
+show(p)  # Display the plot
+```
+```{python}
+#| echo: false
+#Explanation: Create the box plot showing the distribution of 'availability_365' for 'Entire home/apt' in London
+
+filtered_data_1 = entire_home_apt[entire_home_apt['availability_365'] > 0]
+
+# Calculate the quartile values using pandas describe
+stats = filtered_data_1['availability_365'].describe()
+
+# Extract the quartile values
+q1 = stats['25%']  # 25th percentile (Q1)
+q2 = stats['50%']  # 50th percentile (Q2, Median)
+q3 = stats['75%']  # 75th percentile (Q3)
+min_value = stats['min']  # Minimum value
+max_value = stats['max']  # Maximum value
+
+# Create the Bokeh figure
+p = figure(title="Fig 3. Box Plot of Available Days for Entire Home/Apt in London (Dec 2023 - Dec 2024)",
+           x_axis_label="Available Days in the Next Calendar Year from December 10, 2023",
+           tools="pan,box_zoom,reset",
+           height=400, width=600)
+
+# Add the box plot elements: Whiskers, Box, and Median
+
+# Whiskers (extend from min to Q1 and Q3 to max)
+p.segment(x0=min_value, y0=0.4, x1=min_value, y1=0.6, line_width=2, color="purple")
+p.segment(x0=max_value, y0=0.4, x1=max_value, y1=0.6, line_width=2, color="purple")
+
+# Box: From Q1 to Q3 (with height representing box thickness)
+p.rect(x=(q1 + q3) / 2, y=0.5, width=q3 - q1, height=0.3, color="purple", alpha=0.5)
+
+# Horizontal line connecting whiskers and box at the edges
+p.line([min_value, q1], [0.5, 0.5], line_width=2, color="purple")  # Connecting min_value to Q1
+p.line([q3, max_value], [0.5, 0.5], line_width=2, color="purple")  # Connecting Q3 to max_value
+
+# Median Line at Q2
+p.line([q2, q2], [0, 0.8], line_width=2, color="black", line_dash="dashed")
+
+# Add label for the median (move it lower within plot range)
+p.add_layout(Label(x=q2, y=0.8, text=f'Median = {int(q2)}', text_font_size="12px", text_color="black", text_baseline="middle", x_offset=10))
+
+# Customize the plot appearance
+p.ygrid.grid_line_color = None  # Remove y-axis grid lines for clarity
+p.xaxis.major_label_orientation = 1  # Rotate x-axis labels if needed
+
+# Display the plot
+output_notebook()  # Output to Jupyter notebook
+show(p)  # Show the plot
+```
+This section highlights the speculative and unregulated nature of entire home/apartment Airbnb listings in London, where weak enforcement of existing regulations may encourage speculative behavior. This raises the question of what could happen if the “90-day” rule were strictly enforced. The next section will explore this possibility in more detail.
+## EDA3: Spatial Distribution of 'Entire Home/apt' Hosts Not Following the 90-day Rules
+I am considering moving this part to Question 7 because there are only 15 points for this question (375 words if the total word count is 2500), and three plots have been included for it.
+```{python}
+#| echo: false
+#Explanation: Loading London Borough boundaries (polygon)
+import geopandas as gpd
+ddir = os.path.join('data','geo') 
+spath = 'https://github.com/jreades/fsds/blob/master/data/src/' 
+boros = gpd.read_file(cache_data(spath+'Boroughs.gpkg?raw=true', ddir) )
+print('Done!')
+boros.to_file('test.gpkg', driver='GPKG')
+print(str(boros.geometry.iloc[1])[:50] + "...")
+print(boros.crs)
+```
+```{python}
+#| echo: false
+#Explanation: Loading Airbnb listings (point)
+
+gdf = gpd.GeoDataFrame(listings_clean,
+                       geometry=gpd.points_from_xy(listings_clean.longitude, listings_clean.latitude, crs='epsg:4326'))
+print(type(gdf))
+print(gdf.geometry.iloc[1])
+gdf = gdf.to_crs('epsg:27700') 
+print(gdf.geometry.crs) #Reprojection
+```
+```{python}
+#| echo: false
+#Explanation: Subsetting the listings (points) to 'Entire home/apt' with 'availability_365' larger than 90.
+
+entire_home_apt_90 = gdf[(gdf['room_type'] == 'Entire home/apt') & 
+                          (gdf['availability_365'] > 90) & 
+                          (gdf['availability_365'].notna())]
+```
+```{python}
+#| echo: false
+#Explanation: Mapping the spatial distribution of Entire home/apt with more than 90 days available in the next calendar year.
+
+import geopandas as gpd
+from bokeh.plotting import figure, show
+from bokeh.models import GeoJSONDataSource, HoverTool
+import json
+
+# Reproject the GeoDataFrames to EPSG:4326 (WGS84, lat/lon)
+boros = boros.to_crs('EPSG:4326')  # Reproject boroughs to WGS84 (lat/lon)
+entire_home_apt_90 = entire_home_apt_90.to_crs('EPSG:4326')  # Reproject points to WGS84 (lat/lon)
+
+# Convert GeoDataFrames into GeoJSONDataSource
+def get_geodatasource(gdf):    
+    """Convert a GeoDataFrame into GeoJSONDataSource for Bokeh"""
+    json_data = json.dumps(json.loads(gdf.to_json()))
+    return GeoJSONDataSource(geojson=json_data)
+
+# Prepare the data for GeoJSON plotting
+boros_geojson = get_geodatasource(boros)  # GeoJSON for borough polygons
+entire_home_apt_90_geojson = get_geodatasource(entire_home_apt_90)  # GeoJSON for points
+
+# Create a Bokeh figure
+p = figure(title='Map 1. Entire Home/Apt Listings With More Than 90 Available Days in London (2023-2024)',
+           height=700, width=850, toolbar_location='right', tools='wheel_zoom,pan,reset,hover')
+
+# Plot the borough polygons (no map background)
+p.patches('xs', 'ys', source=boros_geojson, fill_alpha=0.5, line_width=0.5, line_color='black', fill_color='grey')
+
+# Plot the 'Entire home/apt' points with availability > 90
+p.scatter(x='longitude', y='latitude', source=entire_home_apt_90_geojson, size=2, color='purple', legend_label='Entire home/apt > 90 days')
+
+# Add hover tool for the points
+hover = p.select(dict(type=HoverTool))
+hover.tooltips = [("Available Days", "@availability_365")]
+
+# Add labels, title, and legend
+p.title.text_font_size = '16pt'
+p.xaxis.axis_label = 'Longitude'
+p.yaxis.axis_label = 'Latitude'
+p.legend.title = 'Listings'
+
+# Show the plot
+show(p, notebook_handle=True)
+```
 ::: {.duedate}
 
 ( 15 points; Answer due {{< var assess.group-date >}} )
@@ -247,7 +739,6 @@ sharing ventures is that they have the possibility of stifling innovation [@Shab
 
 ( 45 points; Answer due {{< var assess.group-date >}} )
 
-https://arxiv.org/pdf/1903.11205 This paper of Elsa Arcaute and Michael Batty uses the variable of at least one review as a way to limit number of listings analysed, as it indicates that at least someone has stayed there.
 :::
 
 ## Sustainable Authorship Tools
