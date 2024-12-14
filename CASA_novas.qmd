@@ -119,13 +119,30 @@ host = 'https://data.insideairbnb.com'
 country = 'united-kingdom'
 state = 'england'
 city = 'london'
-ymd = '2024-09-06'
+ymd = '2023-12-10'
 url = f'{host}/{country}/{state}/{city}/{ymd}/data/listings.csv.gz'
 
 listings_raw = pd.read_csv(cache_data(url, os.path.join('data', 'raw')))
 
 print(f"Data frame is {listings_raw.shape[0]:,} x {listings_raw.shape[1]}")
 listings_raw.info(verbose=True)
+```
+
+```{python}
+#| echo: false
+#Explanation: The code saves the dataset to a specified folder (Data/Raw) in the current working directory as a CSV file.
+
+path = os.path.join('Data', 'Raw') 
+fn = url.split('/')[-1] 
+print(f"Writing to: {fn}")
+
+if not os.path.exists(path):
+    print(f"Creating {path} under {os.getcwd()}")
+    os.makedirs(path)
+
+if not os.path.exists(os.path.join(path, fn)): 
+    listings_raw.to_csv(os.path.join(path, fn), index=False) 
+    print("Done.")
 ```
 
 ## 1. Who collected the InsideAirbnb data?
@@ -174,7 +191,7 @@ Inside Airbnb collected data to reveal the impact of short-term lets (STL) on re
 :::
 
 ## 6. With reference to the InsideAirbnb data (*i.e.* using numbers, figures, maps, and descriptive statistics), what does an analysis of Hosts and the types of properties that they list suggest about the nature of Airbnb lettings in London? 
-# Section A. Data Loading
+
 ```{python}
 #| echo: false
 #Explanation: Import packages
@@ -187,98 +204,6 @@ import seaborn as sns
 from scipy.stats import chisquare
 ```
 
-```{python}
-#| echo: false
-# Explanation: This code chunk downloads a file from a given URL and saves it locally to a specified destination, caching it if it doesn't already exist or is too small, and returns the local file path.
-
-from urllib.parse import urlparse
-import requests  
-
-def cache_data(src: str, dest: str) -> str:
-    """
-    Downloads and caches a remote file locally.
-
-    Parameters
-    ----------
-    src : str
-        The remote *source* for the file, any valid URL should work.
-    dest : str
-        The *destination* location to save the downloaded file.
-        
-    Returns
-    -------
-    str
-        A string representing the local location of the file.
-    """
-    url = urlparse(src)
-    fn = os.path.split(url.path)[-1]
-    dfn = os.path.join(dest, fn)
-
-    if not os.path.isfile(dfn) or os.stat(dfn).st_size < 250:
-        print(f"{dfn} not found, downloading!")
-
-        # Create directories if they don't exist
-        os.makedirs(dest, exist_ok=True)
-
-        try:
-            response = requests.get(src)
-            response.raise_for_status()  
-
-            with open(dfn, "wb") as file:
-                file.write(response.content)
-
-            print("\tDone downloading...")
-
-            f_size = os.stat(dfn).st_size
-            print(f"\tSize is {f_size / 1024**2:,.0f} MB ({f_size:,} bytes)")
-
-        except requests.exceptions.RequestException as e:
-            print(f"Failed to download file from {src}")
-            raise e
-
-    else:
-        print(f"Found {dfn} locally!")
-        f_size = os.stat(dfn).st_size
-        print(f"\tSize is {f_size / 1024**2:,.0f} MB ({f_size:,} bytes)")
-
-    return dfn
-```
-
-
-```{python}
-#| echo: false
-#Explanation: The code constructs a URL to access a specific dataset from Inside Airbnb, downloads and caches the file, reads it into a Pandas DataFrame, and then prints the shape and detailed information
-
-host = 'https://data.insideairbnb.com'
-country = 'united-kingdom'
-state = 'england'
-city = 'london'
-ymd = '2023-12-10'
-url = f'{host}/{country}/{state}/{city}/{ymd}/data/listings.csv.gz'
-
-listings_raw = pd.read_csv(cache_data(url, os.path.join('data', 'raw')))
-
-print(f"Data frame is {listings_raw.shape[0]:,} x {listings_raw.shape[1]}")
-listings_raw.info(verbose=True)
-```
-
-```{python}
-#| echo: false
-#Explanation: The code saves the dataset to a specified folder (Data/Raw) in the current working directory as a CSV file.
-
-path = os.path.join('Data', 'Raw') 
-fn = url.split('/')[-1] 
-print(f"Writing to: {fn}")
-
-if not os.path.exists(path):
-    print(f"Creating {path} under {os.getcwd()}")
-    os.makedirs(path)
-
-if not os.path.exists(os.path.join(path, fn)): 
-    listings_raw.to_csv(os.path.join(path, fn), index=False) 
-    print("Done.")
-```
-# Section B. Data Cleaning
 ```{python}
 #| echo: false
 #Explanation: Randomly selects 5 rows from the DataFrame listings_raw using a fixed random seed for reproducibility.
@@ -296,6 +221,7 @@ listings_raw.sample(10, random_state=42)
 #(2)Some rows have null value in 'last_review' and a value of '0' in the 'availability_365' column, indicating that the property is not available.
 #Conclusion: To ensure the accuracy and reliability of our analysis, these rows will be removed in the upcoming cleaning process.
 ```
+
 ```{python}
 #| echo: false
 #Explanation: Column Cleaning 1 - Get the top 10 columns with the most null values
@@ -305,6 +231,7 @@ top_10_columns = listings_raw.isnull().sum(axis=0).sort_values(ascending=False)[
 print("Number of null values in top 10 columns:")
 print(listings_raw[top_10_columns].isnull().sum())
 ```
+
 ```{python}
 #| echo: false
 #Explanation: Column Cleaning 1 - Drop the top 10 columns
@@ -314,6 +241,7 @@ listings_raw = listings_raw.drop(columns=top_10_columns)
 print("\nNumber of null values in remaining columns after dropping the top 10 columns:")
 print(listings_raw.isnull().sum().sort_values(ascending=False)[:10])
 ```
+
 ```{python}
 #| echo: false
 #Explanation: Column Cleaning 2 - Convert 'room_type' and 'property_type' to categories.
@@ -330,6 +258,7 @@ print(listings_raw[cats[0]].cat.categories.values)
 print(f"Now {cats[1]} is of type '{listings_raw[cats[1]].dtype}'", "\n") 
 print(listings_raw[cats[1]].cat.categories.values)
 ```
+
 ```{python}
 #| echo: false
 #Explanation: Column Cleaning 3 - Convert 'price' to numeric format.
@@ -342,6 +271,7 @@ for m in money:
 
 listings_raw.sample(10, random_state=42) [money]
 ```
+
 ```{python}
 #| echo: false
 # Explanation: Column Cleaning 4 - Convert other object columns to integer format.
@@ -357,6 +287,7 @@ for i in ints:
         print(" - !!!Converting to unsigned 16-bit integer!!!")
         listings_raw[i] = listings_raw[i].astype('float').astype(pd.UInt16Dtype())
 ```
+
 ```{python}
 #| echo: false
 # Explanation: Row Cleaning 1 - Exclude listings with unrealistic prices.
@@ -387,6 +318,7 @@ print(f"Number of rows with price equal to 0 after cleaning: {count_price_zero}"
 count_price_missing = listings_raw['price'].isna().sum()
 print(f"Number of rows with missing price after cleaning: {count_price_missing}")
 ```
+
 ```{python}
 #| echo: false
 # Explanation: Row Cleaning 2 - Calculate the number of missing values per row and plot a histogram of the distribution
@@ -395,6 +327,7 @@ probs = listings_raw.isnull().sum(axis=1)
 print(type(probs)) 
 probs.plot.hist(bins=30)
 ```
+
 ```{python}
 #| echo: false
 #Explanation: Row Cleaning 2 - Drop rows where there are 10 or more missing values
@@ -403,6 +336,7 @@ cutoff = 10
 listings_raw.drop(probs[probs > cutoff].index, inplace=True)
 print(f"Have reduced data frame to: {listings_raw.shape[0]:,} rows and {listings_raw.shape[1]:,} columns")
 ```
+
 ```{python}
 #| echo: false
 #Explanation: Row Cleaning 3 - Drop rows where 'last_review' = Null
@@ -411,12 +345,14 @@ dropped_rows = len(listings_raw) - len(listings_raw.dropna(subset=['last_review'
 listings_raw = listings_raw.dropna(subset=['last_review'])
 print(f"Number of rows dropped: {dropped_rows}")
 ```
+
 ```{python}
 #| echo: false
 #Explanation: Data cleaning validation (Seeded Rows)
 
 listings_raw.sample(10, random_state=42)
 ```
+
 ```{python}
 #| echo: false
 #Explanation: Data cleaning validation (Column Type)
@@ -424,6 +360,7 @@ listings_raw.sample(10, random_state=42)
 listings_clean = listings_raw
 listings_clean.info()
 ```
+
 ```{python}
 #| echo: false
 #Explanation: Save the clean data locally
@@ -437,9 +374,10 @@ if not os.path.exists(path):
 listings_clean.to_csv(os.path.join(path,fn), index=False) 
 print("Done.")
 ```
-# Section C. Question 6
-## EDA1: Are ‘Entire home/apt’ Properties Significantly More Than Others in London?
+**Nature 1: Speculative**
+
 As of December 2023, data from Inside Airbnb indicates that there are approximately 66,000 active listings in London. These listings are categorized into types such as Entire home/apartment, Private room, Shared room, and Hotel room, with Entire home/apartment listings having the most significant impact on local rental markets. These properties are often removed from the long-term rental (LTR) market to serve as short-term rentals (STRs), which reduces housing supply and drives up rents. In London, approximately 43,000 listings are Entire home/apartment, making up about 64.01% of all Airbnb listings. This represents a notable share compared to other room types, as shown in the bar chart below (Fig 1), which compares the counts of each listing type. Additionally, 40.09% of these hosts have more than one listing, indicating a commercial and speculative nature of Airbnb lettings in London that may disrupt the local LTR market.
+
 ```{python}
 #| echo: false
 #Explanation: Calculate the total number of listings in the cleaned data frame
@@ -447,6 +385,7 @@ As of December 2023, data from Inside Airbnb indicates that there are approximat
 num_rows = listings_clean.shape[0]
 print(f"Number of rows: {num_rows}")
 ```
+
 ```{python}
 #| echo: false
 #Explanation: Calculate the count of listings per room type & share of 'Entire home/apt'
@@ -463,6 +402,7 @@ entire_home_proportion = room_type_counts['Entire home/apt'] / room_type_counts.
 
 print(f"Proportion of 'Entire home/apt' listings: {entire_home_proportion:.4f}")
 ```
+
 ```{python}
 #| echo: false
 #Explanation: Assuming uniform distribution, this code performs a chi-squared test to confirm the count of 'Entire home/apt' is significantly higher than expected.
@@ -485,7 +425,12 @@ if p_value < 0.05:
     print("Reject the null hypothesis: 'Entire home/apt' is significantly higher than expected.")
 else:
     print("Fail to reject the null hypothesis: The distribution matches the expected values.")
-    #| echo: false
+```
+
+```{python}
+#| echo: false
+#| output: asis
+
 #Explanation: Plot the bar chart of the distribution of listings by room type.
 
 from bokeh.io import output_notebook, show
@@ -533,6 +478,7 @@ p.yaxis.axis_label = "Count"
 output_notebook()  # Output to Jupyter notebook
 show(p)  # Display the plot
 ```
+
 ```{python}
 #| echo: false
 #Explanation: Calculate the proportion of 'Entire home/apt' hosts as multiple-listing hosts
@@ -547,10 +493,14 @@ entire_ratio = entire_more_than_1_hosts / entire_total_hosts
 print(f"Entire home/apt multiple listing host ratio: {entire_ratio:.2%}")
 ```
 
-## EDA2: How Many of the 'Entire Home/apt' Hosts Are Not Following the 90-day Rules? 
+**Nature 2: Unregulated**
+
 Although London's [90-day rule](https://www.london.gov.uk/programmes-strategies/housing-and-land/improving-private-rented-sector/guidance-short-term-and-holiday-lets-london) restricts short-term rentals of entire homes to 90 nights per calendar year, enforcement remains weak. The histogram below (Fig. 2) shows the distribution of available days for entire home/apartment listings in London in the next calendar year (starting from December 10, 2023). 65.23% of these listings exceed the 90-day limit. The box plot (Fig. 3) shows that the median number of available days in the next calendar year is 167 days, with the maximum availability being for the entire year. These figures showcase widespread non-compliance with the 90-day rule among entire home/apartment hosts. One contributing factor is that fewer than [5%](https://airbtics.com/airbnb-rules-in-greater-london-united-kingdom/) of Airbnb listings in London display a registration number, meaning most hosts operate without regulation. In contrast, cities like [San Francisco](https://hosttools.com/blog/short-term-rental-tips/airbnb-rules-san-francisco/) have stricter measures, including data-sharing agreements with Airbnb to monitor host compliance. This highlights the regulatory gaps in London's STR market.
+
 ```{python}
 #| echo: false
+#| output: asis
+
 #Explanation: Create the histogram showing the distribution of 'availability_365' for 'Entire home/apt' in London
 
 from bokeh.models import ColumnDataSource, Label
@@ -598,8 +548,11 @@ p.y_range.start = 0
 output_notebook()  # Output to Jupyter notebook
 show(p)  # Display the plot
 ```
+
 ```{python}
 #| echo: false
+#| output: asis
+
 #Explanation: Create the box plot showing the distribution of 'availability_365' for 'Entire home/apt' in London
 
 filtered_data_1 = entire_home_apt[entire_home_apt['availability_365'] > 0]
@@ -647,9 +600,11 @@ p.xaxis.major_label_orientation = 1  # Rotate x-axis labels if needed
 output_notebook()  # Output to Jupyter notebook
 show(p)  # Show the plot
 ```
+
 This section highlights the speculative and unregulated nature of entire home/apartment Airbnb listings in London, where weak enforcement of existing regulations may encourage speculative behavior. This raises the question of what could happen if the “90-day” rule were strictly enforced. The next section will explore this possibility in more detail.
-## EDA3: Spatial Distribution of 'Entire Home/apt' Hosts Not Following the 90-day Rules
-I am considering moving this part to Question 7 because there are only 15 points for this question (375 words if the total word count is 2500), and three plots have been included for it.
+
+**I am considering moving this part to Question 7 because there are only 15 points for this question (375 words if the total word count is 2500), and three plots have been included for it.**
+
 ```{python}
 #| echo: false
 #Explanation: Loading London Borough boundaries (polygon)
@@ -662,6 +617,7 @@ boros.to_file('test.gpkg', driver='GPKG')
 print(str(boros.geometry.iloc[1])[:50] + "...")
 print(boros.crs)
 ```
+
 ```{python}
 #| echo: false
 #Explanation: Loading Airbnb listings (point)
@@ -673,6 +629,7 @@ print(gdf.geometry.iloc[1])
 gdf = gdf.to_crs('epsg:27700') 
 print(gdf.geometry.crs) #Reprojection
 ```
+
 ```{python}
 #| echo: false
 #Explanation: Subsetting the listings (points) to 'Entire home/apt' with 'availability_365' larger than 90.
@@ -681,6 +638,7 @@ entire_home_apt_90 = gdf[(gdf['room_type'] == 'Entire home/apt') &
                           (gdf['availability_365'] > 90) & 
                           (gdf['availability_365'].notna())]
 ```
+
 ```{python}
 #| echo: false
 #Explanation: Mapping the spatial distribution of Entire home/apt with more than 90 days available in the next calendar year.
@@ -743,6 +701,7 @@ show(p, notebook_handle=True)
 #| echo: false
 print(boros.columns)
 ```
+
 ```{python}
 #| echo: false
 # Perform a spatial join to associate each point with its corresponding 'GSS_CODE' in 'boros'
@@ -756,10 +715,12 @@ boros = boros.merge(gss_code_counts, on='GSS_CODE', how='left')
 
 # Now 'boros' contains the new column 'no_entire_home_apt_90' with the count of points
 ```
+
 ```{python}
 #| echo: false
 print(boros.head())  # Display the first 5 rows
 ```
+
 ```{python}
 #| echo: false
 #Control 1: Population Density
@@ -769,6 +730,7 @@ boros_population_density = pd.read_csv(cache_data(url1, os.path.join('Data', 'In
 
 boros_population_density.info(verbose=True)
 ```
+
 ```{python}
 #| echo: false
 #Filter boros_population_density for the year 2023 and select relevant columns
@@ -804,6 +766,7 @@ boros['rate_entire_home_apt_90'] = (boros['no_entire_home_apt_90'] / boros['Popu
 #Display the first few rows of the final DataFrame
 print(boros.head())
 ```
+
 ```{python}
 #| echo: false
 #Control 2: Median Taypayer Income
@@ -836,6 +799,7 @@ boros = boros.merge(boros_income, left_on='GSS_CODE', right_on='Code', how='left
 # Step 8: Inspect the resulting DataFrame
 print(boros.head())
 ```
+
 ```{python}
 #| echo: false
 #Control 3: Unemployment Rate
@@ -872,6 +836,7 @@ boros.drop(columns=['Geography'], inplace=True)
 # Display the updated `boros` DataFrame
 print(boros)
 ```
+
 ```{python}
 #| echo: false
 #Control 4: Rented Housing Demand (% as renters)
@@ -921,6 +886,7 @@ boros_renters = tenure_pivot[['Code', 'percent_local_authority_housing', 'percen
 # Display the resulting DataFrame
 print(boros_renters.head())
 ```
+
 ```{python}
 #| echo: false
 # Perform the left join between 'boros' and 'boros_renters'
@@ -934,6 +900,7 @@ boros = boros.merge(
 # Display the updated DataFrame
 print(boros.head())
 ```
+
 ```{python}
 #| echo: false
 #Control 5: Rented Housing Supply (Housing stock per person)
@@ -958,6 +925,10 @@ boros_housing_stock.reset_index(drop=True, inplace=True)
 
 # Display the resulting DataFrame
 print(boros_housing_stock.head())
+```
+
+```{python}
+#| echo: false
 # Step 1: URL and local path setup
 url6 = "https://data.london.gov.uk/download/local-authority-housing-stock/3421002e-f0ec-45e5-bf73-f594788ec93d/local-authority-housing-stock-borough.csv"
 local_path6 = os.path.join('Data', 'housing-stock-by-local-authorities.csv')
@@ -980,6 +951,7 @@ boros_housing_stock.reset_index(drop=True, inplace=True)
 # Display the resulting DataFrame
 print(boros_housing_stock.head())
 ```
+
 ```{python}
 #| echo: false
 # Perform the left join between 'boros' and 'boros_housing_stock'
@@ -1001,6 +973,7 @@ boros['number_of_dwellings_per_person'] = boros['housing_stock_2020'] / boros['P
 # Display the updated DataFrame
 print(boros.head())
 ```
+
 ```{python}
 #| echo: false
 #Control 6: Education Amenity (Average attainment 8 score per pupil)
@@ -1032,6 +1005,7 @@ boros_education.reset_index(drop=True, inplace=True)
 # Step 7: Display the resulting DataFrame
 print(boros_education.head())
 ```
+
 ```{python}
 #| echo: false
 # Perform the left join
@@ -1049,6 +1023,7 @@ if 'Code' in boros.columns:
 # Display the updated DataFrame
 print(boros.head())
 ```
+
 ```{python}
 #| echo: false
 #Control 7: Public Transport (Public transport accessibility level)
@@ -1077,6 +1052,7 @@ if 'Borough Code' in boros.columns:
 # Display the updated DataFrame
 print(boros.head())
 ```
+
 ```{python}
 #| echo: false
 #Control 8: Green space (% of land as green and blue infrastructure)
@@ -1105,6 +1081,7 @@ if 'lb_name' in boros.columns:
 # Display the updated DataFrame
 print(boros.head())
 ```
+
 ```{python}
 #| echo: false
 # Dependent Variable: Mean rent (per bedroom)
@@ -1170,6 +1147,7 @@ boros_rent = pd.DataFrame(results)
 # Display the final DataFrame
 print(boros_rent)
 ```
+
 ```{python}
 #| echo: false
 # Perform the left join
@@ -1187,15 +1165,18 @@ if 'Name' in boros.columns:
 # Display the updated DataFrame
 print(boros.head())
 ```
+
 ```{python}
 #| echo: false
 print(regression_data.head())
 ```
+
 ```{python}
 #| echo: false
 #OLS Regression
 regression_data.info()
 ```
+
 ```{python}
 #| echo: false
 # Replace non-numeric values in 'unemployment_rate' with NaN
@@ -1208,6 +1189,7 @@ regression_data['inner_outer'] = regression_data['inner_outer'].apply(lambda x: 
 regression_data.info()
 print(regression_data.head())
 ```
+
 ```{python}
 #| echo: false
 # Step 1: Identify rows with NaN values
@@ -1223,6 +1205,7 @@ regression_data = regression_data.dropna()
 print("Cleaned DataFrame:")
 print(regression_data.head())
 ```
+
 ```{python}
 #| echo: false
 # Step 1. Libraries
