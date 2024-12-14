@@ -492,7 +492,7 @@ entire_ratio = entire_more_than_1_hosts / entire_total_hosts
 print(f"Entire home/apt multiple listing host ratio: {entire_ratio:.2%}")
 ```
 
-Although London's [90-day rule](https://www.london.gov.uk/programmes-strategies/housing-and-land/improving-private-rented-sector/guidance-short-term-and-holiday-lets-london) restricts STRs of entire homes to 90 nights per calendar year, enforcement remains weak. The histogram below (Fig. 2) shows the distribution of available days for Entire home/apartment listings in London in the next calendar year (starting from December 10, 2023). 65.23% of these listings exceed the 90-day limit. The box plot (Fig. 3) shows that the median number of available days in the next calendar year is 167 days, with the maximum availability being for the entire year. These figures showcase widespread non-compliance with the 90-day rule among Entire home/apartment hosts. One contributing factor is that fewer than [5%](https://airbtics.com/airbnb-rules-in-greater-london-united-kingdom/) of Airbnb listings in London display a registration number, meaning most hosts operate without regulation. This highlights the regulatory gaps in London's STR market.
+Although London's [90-day rule](https://www.london.gov.uk/programmes-strategies/housing-and-land/improving-private-rented-sector/guidance-short-term-and-holiday-lets-london) restricts STRs of entire homes to 90 nights per calendar year, enforcement remains weak. The histogram below (Fig. 2) shows the distribution of available days for Entire home/apartment listings in London in the next calendar year (starting from December 10, 2023). 65.23% of these listings exceed the 90-day limit. The median number of available days in the next calendar year is 167 days, with the maximum availability being for the entire year. These figures showcase widespread non-compliance with the 90-day rule among Entire home/apartment hosts. One contributing factor is that fewer than [5%](https://airbtics.com/airbnb-rules-in-greater-london-united-kingdom/) of Airbnb listings in London display a registration number, meaning most hosts operate without regulation. This highlights the regulatory gaps in London's STR market.
 
 ```{python}
 #| echo: false
@@ -532,54 +532,6 @@ p.tools = []  # Clear hover
 
 output_notebook()  
 show(p)
-```
-
-```{python}
-#| echo: false
-#| output: asis
-#Explanation: Create the box plot showing the distribution of 'availability_365' for 'Entire home/apt' in London
-
-filtered_data_1 = entire_home_apt[entire_home_apt['availability_365'] > 0]
-
-# Calculate the quartile values using pandas describe
-stats = filtered_data_1['availability_365'].describe()
-
-# Extract the quartile values
-q1 = stats['25%']  # 25th percentile (Q1)
-q2 = stats['50%']  # 50th percentile (Q2, Median)
-q3 = stats['75%']  # 75th percentile (Q3)
-min_value = stats['min']  # Minimum value
-max_value = stats['max']  # Maximum value
-
-# Create the Bokeh figure
-p = figure(title="Fig 3. Box Plot of Available Days for Entire Home/Apt in London (Dec 2023 - Dec 2024)",
-           x_axis_label="Available Days in the Next Calendar Year from December 10, 2023",
-           tools="pan,box_zoom,reset",
-           height=400, width=600)
-
-# Add the box plot elements: Whiskers, Box, and Median
-
-# Whiskers (extend from min to Q1 and Q3 to max)
-p.segment(x0=min_value, y0=0.4, x1=min_value, y1=0.6, line_width=2, color="purple")
-p.segment(x0=max_value, y0=0.4, x1=max_value, y1=0.6, line_width=2, color="purple")
-
-# Box: From Q1 to Q3 (with height representing box thickness)
-p.rect(x=(q1 + q3) / 2, y=0.5, width=q3 - q1, height=0.3, color="purple", alpha=0.5)
-
-# Horizontal line connecting whiskers and box at the edges
-p.line([min_value, q1], [0.5, 0.5], line_width=2, color="purple")  
-p.line([q3, max_value], [0.5, 0.5], line_width=2, color="purple")  
-
-# Median Line at Q2
-p.line([q2, q2], [0, 0.8], line_width=2, color="black", line_dash="dashed")
-p.add_layout(Label(x=q2, y=0.8, text=f'Median = {int(q2)}', text_font_size="12px", text_color="black", text_baseline="middle", x_offset=10))
-
-# Customize the plot 
-p.ygrid.grid_line_color = None  
-p.xaxis.major_label_orientation = 1  
-
-output_notebook()  
-show(p)  
 ```
 
 This section highlights the speculative and unregulated nature of Entire home/apartment Airbnb listings in London, where weak enforcement of existing regulations may incentivize speculative behavior. This raises the question of what might happen if the "90-day rule" were strictly enforced. The next section will explore this scenario in greater detail.
@@ -1204,54 +1156,23 @@ print(boros.head())
 
 ```{python}
 #| echo: false
-print(regression_data.head())
+#Explanation: Drop 'City of London' and check data frame
+
+boros = boros.drop(index=32)
+print(boros)
 ```
 
 ```{python}
 #| echo: false
-#OLS Regression
-regression_data.info()
-```
+#Explanation: OLS Regression
 
-```{python}
-#| echo: false
-# Replace non-numeric values in 'unemployment_rate' with NaN
-regression_data['unemployment_rate'] = pd.to_numeric(regression_data['unemployment_rate'], errors='coerce')
-
-# Convert 'inner_outer' to boolean: assume 0 represents False and all else represents True
-regression_data['inner_outer'] = regression_data['inner_outer'].apply(lambda x: False if x == 1 else True)
-
-# Display the updated DataFrame to verify changes
-regression_data.info()
-print(regression_data.head())
-```
-
-```{python}
-#| echo: false
-# Step 1: Identify rows with NaN values
-rows_with_na = regression_data[regression_data.isnull().any(axis=1)]
-if not rows_with_na.empty:
-    print("Rows containing NaN values that will be dropped:")
-    print(rows_with_na)
-
-# Step 2: Drop rows with NaN values
-regression_data = regression_data.dropna()
-
-# Step 3: Display the cleaned DataFrame
-print("Cleaned DataFrame:")
-print(regression_data.head())
-```
-
-```{python}
-#| echo: false
-# Step 1. Libraries
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from statsmodels.tools.tools import add_constant
 import pandas as pd
 import statsmodels.api as sm
 
-# Step 2. Define VIF Function (drop_column_using_vif_)
-def drop_column_using_vif_(df, thresh=5): 
+# Define VIF Function
+def drop_column_using_vif_(df, thresh=5, protect=[]): 
     while True:
         df_with_const = add_constant(df)
         vif_df = pd.Series(
@@ -1259,50 +1180,84 @@ def drop_column_using_vif_(df, thresh=5):
             name="VIF",
             index=df_with_const.columns
         ).to_frame()
-        vif_df = vif_df.drop('const')
-        if vif_df.VIF.max() > thresh:
-            index_to_drop = vif_df.index[vif_df.VIF == vif_df.VIF.max()].tolist()[0]
+        vif_df = vif_df.drop('const')  # Drop the constant from consideration
+
+        # Find the variable with the highest VIF
+        vif_to_drop = vif_df.loc[~vif_df.index.isin(protect)]  # Exclude protected variables
+        if vif_to_drop.VIF.max() > thresh:
+            index_to_drop = vif_to_drop.index[vif_to_drop.VIF == vif_to_drop.VIF.max()].tolist()[0]
             print(f"Dropping: {index_to_drop}")
             df = df.drop(columns=index_to_drop)
         else: 
             break
     return df
 
-# Step 3. Clean the data by ensuring numeric values and converting booleans
-predictor_columns = ['mean_rent', 'GSS_CODE', 'HECTARES', 'NAME', 'geometry']
-predictors = regression_data.drop(columns=predictor_columns)
+# Select predictors and remove non-numeric columns
+predictors = boros.drop(columns=['NAME', 'GSS_CODE', 'HECTARES', 'geometry', 'Population', 'log_mean_rent'])
+predictors = predictors.apply(pd.to_numeric, errors='coerce')  
 
-# Convert boolean columns to integers (if any)
-predictors = predictors.applymap(lambda x: int(x) if isinstance(x, bool) else x)
-
-# Convert all predictors to numeric and coerce errors to NaN
-predictors = predictors.apply(pd.to_numeric, errors='coerce')
-
-# Identify rows with NaN values and print them
-rows_with_na = predictors[predictors.isnull().any(axis=1)]
-if not rows_with_na.empty:
-    print("Rows containing NaN values that will be dropped:")
-    print(rows_with_na)
-
-# Drop rows with NaN values
-predictors = predictors.dropna()
-
-# Step 4. VIF Test on Variables
-df_predictors_selected_VIF = drop_column_using_vif_(predictors)
+# Run VIF test
+df_predictors_selected_VIF = drop_column_using_vif_(predictors, thresh=5, protect=['log_entire_1000_household'])
 
 print("The columns remaining after VIF selection are:")
-print(df_predictors_selected_VIF.columns)  # Show the dropped and remaining variables
+print(df_predictors_selected_VIF.columns)
 
-# Ensure the dependent variable is cleaned to match the predictors
-endog = regression_data.loc[df_predictors_selected_VIF.index, 'mean_rent']
+# Dependent variable
+endog = boros.loc[df_predictors_selected_VIF.index, 'log_mean_rent']
 
-# Add a constant to predictors and perform OLS regression
-exog = sm.add_constant(df_predictors_selected_VIF)  # Add constant term
+# Independent variables with constant added
+exog = sm.add_constant(df_predictors_selected_VIF)
+
+# Perform the OLS regression
 OLS_regression_data = sm.OLS(endog=endog, exog=exog).fit()
 
 # Print the regression summary
 print(OLS_regression_data.summary())
 ```
+
+```{python}
+#| echo: false
+#Explanation: Unlog the column (assuming log transformation was natural log: log(x + 1))
+
+boros['entire_1000_household'] = np.exp(boros['log_entire_1000_household']) - 1
+print(boros)
+```
+
+```{python}
+#| echo: false
+#Explanation: Conduct Elbow Test & Clustering
+
+# Prepare the data for clustering
+X = boros[['entire_1000_household']].values  # Use the unlogged column for clustering
+
+# Perform the elbow test
+wcss = []
+for k in range(1, 11):  # Test cluster sizes from 1 to 10
+    kmeans = KMeans(n_clusters=k, random_state=42)
+    kmeans.fit(X)
+    wcss.append(kmeans.inertia_)
+
+# Plot the elbow curve
+plt.figure(figsize=(8, 5))
+plt.plot(range(1, 11), wcss, marker='o', linestyle='--')
+plt.title('Elbow Method for Optimal Clusters')
+plt.xlabel('Number of Clusters')
+plt.ylabel('Within-Cluster Sum of Squares (WCSS)')
+plt.show()
+```
+
+```{python}
+#| echo: false
+#Explanation: Plot
+
+optimal_clusters = 3
+kmeans = KMeans(n_clusters=optimal_clusters, random_state=42)
+boros['cluster'] = kmeans.fit_predict(X)
+boros.plot(column='cluster', cmap='Set2', legend=False, figsize=(12, 8))
+plt.title('Clusters of Entire Home/Apt Listings per 1000 Households by Borough')
+plt.show()
+```
+
 :::
 
 ## Sustainable Authorship Tools
