@@ -58,7 +58,6 @@ import pandas as pd
 #Explanation: This code chunk downloads a file from a given URL and saves it locally to a specified destination, caching it if it doesn't already exist or is too small, and returns the local file path.
 
 from urllib.parse import urlparse
-import os
 import requests  
 
 def cache_data(src: str, dest: str) -> str:
@@ -113,7 +112,7 @@ def cache_data(src: str, dest: str) -> str:
 
 ```{python}
 #| echo: false
-#Explanation: The code constructs a URL to access a specific dataset from Inside Airbnb, downloads and caches the file, reads it into a Pandas DataFrame, and then prints the shape and detailed information
+#Explanation: The code constructs a URL to access a specific dataset from Inside Airbnb, downloads and caches the file, reads it into a Pandas DataFrame, and then prints the shape and detailed information.
 
 host = 'https://data.insideairbnb.com'
 country = 'united-kingdom'
@@ -162,7 +161,7 @@ The Inside Airbnb data was primarily collected by [Murray Cox](https://twitter.c
 
 ( 4 points; Answer due Week 7 )
 
-Inside Airbnb collected data to reveal the impact of short-term lets (STL) on residential communities, often obscured by Airbnb’s PR-driven data. In 2015, Airbnb purged over 1,000 listings from multi-listing hosts before presenting a manipulated snapshot under its ‘transparency initiative’ [@cox_how_2020]. If this scandal had not been exposed, Airbnb’s harm to local housing markets would have been downplayed. As a grassroots project, Inside Airbnb challenges dominant corporate narratives by providing transparent data that highlights Airbnb’s role in gentrification, eviction, and the housing crisis. This empowers researchers, policymakers, and marginalized communities to collectively advocate for fair STL regulations and social justice—exemplifying 'data for co-liberation' [@dignazio_data_2020].
+Inside Airbnb collected data to reveal the impact of short-term lets (STL) on residential communities, often obscured by Airbnb’s PR-driven data. In 2015, Airbnb purged over 1,000 listings from multi-listing hosts before presenting a manipulated snapshot under its ‘transparency initiative’ [@cox_how_2020]. If this scandal had not been exposed, Airbnb’s harm to local housing markets would have been downplayed. As a grassroots project, Inside Airbnb challenges dominant corporate narratives by providing transparent data that highlights Airbnb’s role in gentrification, eviction, and the housing crisis. This empowers researchers, policymakers, and marginalized communities to collectively advocate for fair STL regulations and social justice — exemplifying 'data for co-liberation' [@dignazio_data_2020].
 :::
 
 
@@ -192,16 +191,25 @@ Inside Airbnb collected data to reveal the impact of short-term lets (STL) on re
 
 ## 6. With reference to the InsideAirbnb data (*i.e.* using numbers, figures, maps, and descriptive statistics), what does an analysis of Hosts and the types of properties that they list suggest about the nature of Airbnb lettings in London? 
 
+::: {.duedate}
+
+( 15 points; Answer due {{< var assess.group-date >}} )
+
 ```{python}
 #| echo: false
 #Explanation: Import packages
-import os
-import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import statsmodels.api as sms
 import seaborn as sns
 from scipy.stats import chisquare
+```
+
+```{python}
+#| echo: false
+#Explanation: To check the data type for each column by a for loop.
+for col in listings_raw.columns:
+    print(f"{col}: {listings_raw[col].dtype}")
 ```
 
 ```{python}
@@ -214,12 +222,13 @@ listings_raw.sample(10, random_state=42)
 #(1)Some columns contain predominantly null values, such as 'license' and 'description'.
 #(2)The 'property_type' and 'room_type' column should be in categorical format, not object.
 #(3)Some columns, such as 'price', should be in numeric format, not object.
-#Conclusion: To ensure the accuracy and reliability of our analysis, columns with predominantly null values will be dropped. Some 'object' columns will be converted to categorical and numeric formats.
+#To ensure the accuracy and reliability of our analysis, columns with predominantly null values will be dropped. Some 'object' columns will be converted to categorical and numeric formats.
 
 #Observation on rows: 
-#(1)Some rows contain more columns with null values than others.
-#(2)Some rows have null value in 'last_review' and a value of '0' in the 'availability_365' column, indicating that the property is not available.
-#Conclusion: To ensure the accuracy and reliability of our analysis, these rows will be removed in the upcoming cleaning process.
+#(1)Some rows have unrealistic 'price'.
+#(2)Some rows contain more columns with null values than others.
+#(3)Some rows have null value in 'last_review' and a value of '0' in the 'availability_365' column, indicating that the property is not available.
+#To ensure the accuracy and reliability of our analysis, these rows will be removed in the upcoming cleaning process.
 ```
 
 ```{python}
@@ -374,13 +383,12 @@ if not os.path.exists(path):
 listings_clean.to_csv(os.path.join(path,fn), index=False) 
 print("Done.")
 ```
-**Nature 1: Speculative**
 
-As of December 2023, data from Inside Airbnb indicates that there are approximately 66,000 active listings in London. These listings are categorized into types such as Entire home/apartment, Private room, Shared room, and Hotel room, with Entire home/apartment listings having the most significant impact on local rental markets. These properties are often removed from the long-term rental (LTR) market to serve as short-term rentals (STRs), which reduces housing supply and drives up rents. In London, approximately 43,000 listings are Entire home/apartment, making up about 64.01% of all Airbnb listings. This represents a notable share compared to other room types, as shown in the bar chart below (Fig 1), which compares the counts of each listing type. Additionally, 40.09% of these hosts have more than one listing, indicating a commercial and speculative nature of Airbnb lettings in London that may disrupt the local LTR market.
+As of December 2023, data from Inside Airbnb shows approximately 66,000 active listings in London. These listings are categorized into types such as Entire home/apartment, Private room, Shared room, and Hotel room, with Entire home/apartment listings having the most significant impact on the local rental market. Such properties are often removed from the long-term rental (LTR) market and converted into short-term rentals (STRs), reducing housing supply and contributing to rising rents. In London, about 43,000 listings are categorized as Entire home/apartment, accounting for approximately 64.01% of all Airbnb listings. This constitutes a substantial share compared to other room types, as illustrated in the bar chart below (Fig 1), which compares the counts of each listing type. Furthermore, 40.09% of Entire home/apartment hosts manage more than one listing, highlighting the commercial and speculative nature of Airbnb lettings in London and their potential to disrupt the local LTR market.
 
 ```{python}
 #| echo: false
-#Explanation: Calculate the total number of listings in the cleaned data frame
+#Explanation: Calculate the total number of listings in the cleaned data frame.
 
 num_rows = listings_clean.shape[0]
 print(f"Number of rows: {num_rows}")
@@ -388,7 +396,7 @@ print(f"Number of rows: {num_rows}")
 
 ```{python}
 #| echo: false
-#Explanation: Calculate the count of listings per room type & share of 'Entire home/apt'
+#Explanation: Calculate the number of listings for each room type and the proportion of 'Entire home/apt'.
 
 room_type_counts = listings_clean['room_type'].value_counts()
 
@@ -430,7 +438,6 @@ else:
 ```{python}
 #| echo: false
 #| output: asis
-
 #Explanation: Plot the bar chart of the distribution of listings by room type.
 
 from bokeh.io import output_notebook, show
@@ -438,35 +445,27 @@ from bokeh.plotting import figure
 from bokeh.models import ColumnDataSource, HoverTool
 from bokeh.palettes import Spectral4
 
-# Assuming room_type_counts and expected are available in your environment
 room_types = room_type_counts.index.to_list()
 counts = room_type_counts.values.tolist()
 
-# Create the ColumnDataSource for Bokeh
 source = ColumnDataSource(data=dict(
     rt=room_types,
     count=counts,
 ))
 
-# Add hover tool with custom tooltips
+# Hover tool
 TOOLTIPS = [
     ("Room Type", "@rt"),
     ("Number of Listings", "@count{,}"),
 ]
 
-# Create the Bokeh figure
+# Bokeh bar chart customisation
 p = figure(x_range=room_types, height=400, tooltips=TOOLTIPS, 
            title="Fig 1. Count of Airbnb Listings by Room Type in London (Up to December 10, 2023)",
            toolbar_location=None)
-
-# Create the bar chart with custom color and tooltips
-p.vbar(x='rt', top='count', width=0.9, source=source, color='purple')
-
-# Add a dashed line for the mean (expected) value
+p.vbar(x='rt', top='count', width=0.9, source=source, color='purple',alpha=0.5)
 p.line([-0.5, len(room_types)-0.5], [expected[0], expected[0]], 
        line_width=2, color="black", line_dash="dashed", legend_label="Mean")
-
-# Customize the plot appearance
 p.xgrid.grid_line_color = None
 p.y_range.start = 0
 p.legend.location = "top_right"
@@ -475,8 +474,8 @@ p.xaxis.axis_label = "Room Type"
 p.yaxis.axis_label = "Count"
 
 # Show the plot
-output_notebook()  # Output to Jupyter notebook
-show(p)  # Display the plot
+output_notebook()  
+show(p)  
 ```
 
 ```{python}
@@ -493,29 +492,23 @@ entire_ratio = entire_more_than_1_hosts / entire_total_hosts
 print(f"Entire home/apt multiple listing host ratio: {entire_ratio:.2%}")
 ```
 
-**Nature 2: Unregulated**
-
-Although London's [90-day rule](https://www.london.gov.uk/programmes-strategies/housing-and-land/improving-private-rented-sector/guidance-short-term-and-holiday-lets-london) restricts short-term rentals of entire homes to 90 nights per calendar year, enforcement remains weak. The histogram below (Fig. 2) shows the distribution of available days for entire home/apartment listings in London in the next calendar year (starting from December 10, 2023). 65.23% of these listings exceed the 90-day limit. The box plot (Fig. 3) shows that the median number of available days in the next calendar year is 167 days, with the maximum availability being for the entire year. These figures showcase widespread non-compliance with the 90-day rule among entire home/apartment hosts. One contributing factor is that fewer than [5%](https://airbtics.com/airbnb-rules-in-greater-london-united-kingdom/) of Airbnb listings in London display a registration number, meaning most hosts operate without regulation. In contrast, cities like [San Francisco](https://hosttools.com/blog/short-term-rental-tips/airbnb-rules-san-francisco/) have stricter measures, including data-sharing agreements with Airbnb to monitor host compliance. This highlights the regulatory gaps in London's STR market.
+Although London's [90-day rule](https://www.london.gov.uk/programmes-strategies/housing-and-land/improving-private-rented-sector/guidance-short-term-and-holiday-lets-london) restricts STRs of entire homes to 90 nights per calendar year, enforcement remains weak. The histogram below (Fig. 2) shows the distribution of available days for Entire home/apartment listings in London in the next calendar year (starting from December 10, 2023). 65.23% of these listings exceed the 90-day limit. The box plot (Fig. 3) shows that the median number of available days in the next calendar year is 167 days, with the maximum availability being for the entire year. These figures showcase widespread non-compliance with the 90-day rule among Entire home/apartment hosts. One contributing factor is that fewer than [5%](https://airbtics.com/airbnb-rules-in-greater-london-united-kingdom/) of Airbnb listings in London display a registration number, meaning most hosts operate without regulation. This highlights the regulatory gaps in London's STR market.
 
 ```{python}
 #| echo: false
 #| output: asis
-
 #Explanation: Create the histogram showing the distribution of 'availability_365' for 'Entire home/apt' in London
 
 from bokeh.models import ColumnDataSource, Label
 
-# Assuming entire_home_apt is available in your environment
 availability_365_data = entire_home_apt[entire_home_apt['availability_365'] > 0]['availability_365']
 
-# Calculate the histogram data
 hist, edges = np.histogram(availability_365_data, bins=30)
 
-# Create a ColumnDataSource for Bokeh
 source = ColumnDataSource(data=dict(
     top=hist,
-    left=edges[:-1],  # left edge of each bin
-    right=edges[1:],  # right edge of each bin
+    left=edges[:-1],  
+    right=edges[1:],  
 ))
 
 # Calculate the percentage of data beyond 90
@@ -523,36 +516,27 @@ count_beyond_90 = (availability_365_data > 90).sum()
 valid_rows = len(availability_365_data)
 percentage_beyond_90 = (count_beyond_90 / valid_rows) * 100
 
-# Create the Bokeh figure
-p = figure(title="Fig 2. Distribution of Available Days for Entire Home/Apt in London",
+# Bokeh bar chart customisation
+p = figure(title="Fig 2. Distribution of Annual Available Days for Entire Home/Apt in London",
            x_axis_label="Available Days in the Next Calendar Year from December 10, 2023",
            y_axis_label="Frequency",
            tools="pan,box_zoom,reset,hover")
-
-# Create the histogram bars (quad creates the bars for histograms)
 p.quad(top='top', bottom=0, left='left', right='right', source=source, color='purple', alpha=0.7)
-
-# Add a vertical line at 90 days
 p.line([90, 90], [0, max(hist)], line_width=2, color="black", line_dash="dashed", legend_label="90 Days")
-
-# Add annotation for percentage of data beyond 90 days
 label = Label(x=95, y=max(hist) * 0.8, text=f'{percentage_beyond_90:.2f}% above 90 days', 
               text_font_size="12px", text_color="black")
 p.add_layout(label)
-
-# Customize grid and axis
 p.xgrid.grid_line_color = None
 p.y_range.start = 0
+p.tools = []  # Clear hover
 
-# Show the plot
-output_notebook()  # Output to Jupyter notebook
-show(p)  # Display the plot
+output_notebook()  
+show(p)
 ```
 
 ```{python}
 #| echo: false
 #| output: asis
-
 #Explanation: Create the box plot showing the distribution of 'availability_365' for 'Entire home/apt' in London
 
 filtered_data_1 = entire_home_apt[entire_home_apt['availability_365'] > 0]
@@ -583,31 +567,35 @@ p.segment(x0=max_value, y0=0.4, x1=max_value, y1=0.6, line_width=2, color="purpl
 p.rect(x=(q1 + q3) / 2, y=0.5, width=q3 - q1, height=0.3, color="purple", alpha=0.5)
 
 # Horizontal line connecting whiskers and box at the edges
-p.line([min_value, q1], [0.5, 0.5], line_width=2, color="purple")  # Connecting min_value to Q1
-p.line([q3, max_value], [0.5, 0.5], line_width=2, color="purple")  # Connecting Q3 to max_value
+p.line([min_value, q1], [0.5, 0.5], line_width=2, color="purple")  
+p.line([q3, max_value], [0.5, 0.5], line_width=2, color="purple")  
 
 # Median Line at Q2
 p.line([q2, q2], [0, 0.8], line_width=2, color="black", line_dash="dashed")
-
-# Add label for the median (move it lower within plot range)
 p.add_layout(Label(x=q2, y=0.8, text=f'Median = {int(q2)}', text_font_size="12px", text_color="black", text_baseline="middle", x_offset=10))
 
-# Customize the plot appearance
-p.ygrid.grid_line_color = None  # Remove y-axis grid lines for clarity
-p.xaxis.major_label_orientation = 1  # Rotate x-axis labels if needed
+# Customize the plot 
+p.ygrid.grid_line_color = None  
+p.xaxis.major_label_orientation = 1  
 
-# Display the plot
-output_notebook()  # Output to Jupyter notebook
-show(p)  # Show the plot
+output_notebook()  
+show(p)  
 ```
 
-This section highlights the speculative and unregulated nature of entire home/apartment Airbnb listings in London, where weak enforcement of existing regulations may encourage speculative behavior. This raises the question of what could happen if the “90-day” rule were strictly enforced. The next section will explore this possibility in more detail.
+This section highlights the speculative and unregulated nature of Entire home/apartment Airbnb listings in London, where weak enforcement of existing regulations may incentivize speculative behavior. This raises the question of what might happen if the "90-day rule" were strictly enforced. The next section will explore this scenario in greater detail.
 
-**I am considering moving this part to Question 7 because there are only 15 points for this question (375 words if the total word count is 2500), and three plots have been included for it.**
+:::
+
+## 7. Drawing on your previous answers, and supporting your response with evidence (*e.g.* figures, maps, EDA/ESDA, and simple statistical analysis/models drawing on experience from, e.g., CASA0007), how *could* the InsideAirbnb data set be used to inform the regulation of Short-Term Lets (STL) in London?
+
+::: {.duedate}
+
+( 45 points; Answer due {{< var assess.group-date >}} )
 
 ```{python}
 #| echo: false
 #Explanation: Loading London Borough boundaries (polygon)
+
 import geopandas as gpd
 ddir = os.path.join('data','geo') 
 spath = 'https://github.com/jreades/fsds/blob/master/data/src/' 
@@ -641,6 +629,7 @@ entire_home_apt_90 = gdf[(gdf['room_type'] == 'Entire home/apt') &
 
 ```{python}
 #| echo: false
+#| output: asis
 #Explanation: Mapping the spatial distribution of Entire home/apt with more than 90 days available in the next calendar year.
 
 import geopandas as gpd
@@ -665,37 +654,24 @@ entire_home_apt_90_geojson = get_geodatasource(entire_home_apt_90)  # GeoJSON fo
 # Create a Bokeh figure
 p = figure(title='Map 1. Entire Home/Apt Listings With More Than 90 Available Days in London (2023-2024)',
            height=700, width=850, toolbar_location='right', tools='wheel_zoom,pan,reset,hover')
-
-# Plot the borough polygons (no map background)
 p.patches('xs', 'ys', source=boros_geojson, fill_alpha=0.5, line_width=0.5, line_color='black', fill_color='grey')
-
-# Plot the 'Entire home/apt' points with availability > 90
 p.scatter(x='longitude', y='latitude', source=entire_home_apt_90_geojson, size=2, color='purple', legend_label='Entire home/apt > 90 days')
 
-# Add hover tool for the points
+# Add hover tool for the points showing the number of available days
 hover = p.select(dict(type=HoverTool))
 hover.tooltips = [("Available Days", "@availability_365")]
 
 # Add labels, title, and legend
 p.title.text_font_size = '16pt'
-p.xaxis.axis_label = 'Longitude'
-p.yaxis.axis_label = 'Latitude'
 p.legend.title = 'Listings'
+p.xaxis.visible = False
+p.yaxis.visible = False
+p.xgrid.grid_line_color = None
+p.ygrid.grid_line_color = None
 
-# Show the plot
+output_notebook()
 show(p, notebook_handle=True)
 ```
-::: {.duedate}
-
-( 15 points; Answer due {{< var assess.group-date >}} )
-
-:::
-
-## 7. Drawing on your previous answers, and supporting your response with evidence (*e.g.* figures, maps, EDA/ESDA, and simple statistical analysis/models drawing on experience from, e.g., CASA0007), how *could* the InsideAirbnb data set be used to inform the regulation of Short-Term Lets (STL) in London? 
-
-::: {.duedate}
-
-( 45 points; Answer due {{< var assess.group-date >}} )
 
 ```{python}
 #| echo: false
@@ -704,7 +680,9 @@ print(boros.columns)
 
 ```{python}
 #| echo: false
-# Perform a spatial join to associate each point with its corresponding 'GSS_CODE' in 'boros'
+#Explanation: Perform a spatial join to assign borough information to listings and count entire home/apt listings per borough
+
+# Spatially join listings to boroughs to determine which borough each listing falls within
 joined = gpd.sjoin(entire_home_apt_90, boros, how='left', predicate='within')
 
 # Group by 'GSS_CODE' and count the number of points in each group
@@ -713,378 +691,14 @@ gss_code_counts = joined.groupby('GSS_CODE').size().reset_index(name='no_entire_
 # Merge the count back to the 'boros' GeoDataFrame
 boros = boros.merge(gss_code_counts, on='GSS_CODE', how='left')
 
-# Now 'boros' contains the new column 'no_entire_home_apt_90' with the count of points
+# Display the first 5 rows
+print(boros.head())  
 ```
 
 ```{python}
 #| echo: false
-print(boros.head())  # Display the first 5 rows
-```
+#Dependent Variable: Mean monthly rent per bedroom (in entire properties, excluding rooms in shared houses) by borough.
 
-```{python}
-#| echo: false
-#Control 1: Population Density
-url1 = "https://data.london.gov.uk/download/land-area-and-population-density-ward-and-borough/77e9257d-ad9d-47aa-aeed-59a00741f301/housing-density-borough.csv"
-
-boros_population_density = pd.read_csv(cache_data(url1, os.path.join('Data', 'Independent variables')))
-
-boros_population_density.info(verbose=True)
-```
-
-```{python}
-#| echo: false
-#Filter boros_population_density for the year 2023 and select relevant columns
-boros_population_density_filtered = (
-    boros_population_density
-    .loc[boros_population_density['Year'] == 2023, 
-         ['Code', 'Population', 'Population_per_square_kilometre']]
-    .reset_index(drop=True)
-)
-
-#Drop the 'Code' column from 'boros' if it exists to avoid conflicts
-if 'Code' in boros.columns:
-    boros = boros.drop(columns=['Code'])
-
-#Perform a left join with unique suffixes to handle duplicate columns
-boros = boros.merge(
-    boros_population_density_filtered, 
-    left_on='GSS_CODE', 
-    right_on='Code', 
-    how='left', 
-    suffixes=('', '_density')
-)
-
-#Drop the 'Code' column from the merged DataFrame if it exists
-if 'Code' in boros.columns:
-    boros = boros.drop(columns=['Code'])
-
-#Reset the index of the final DataFrame
-boros = boros.reset_index(drop=True)
-#Create a new column (Dependent variable) by using 'no_entire_home_apt_90' divided by population, times 1000
-boros['rate_entire_home_apt_90'] = (boros['no_entire_home_apt_90'] / boros['Population']) * 1000
-
-#Display the first few rows of the final DataFrame
-print(boros.head())
-```
-
-```{python}
-#| echo: false
-#Control 2: Median Taypayer Income
-url2 = "https://data.london.gov.uk/download/average-income-tax-payers-borough/392e86d4-f1d3-4f06-a6a5-7fcd0fd65948/income-of-tax-payers.xlsx"
-boros_income_raw = pd.read_excel(cache_data(url2, os.path.join('Data', 'Independent variables')), 
-                                 sheet_name='Total Income', header=[0, 1])
-
-# Step 2: Inspect the column names to understand the structure
-print(boros_income_raw.columns)
-
-# Step 3: Extract the 'Code' column (second row, first level entry)
-boros_income_code = boros_income_raw[('Unnamed: 0_level_0', 'Code')]
-
-# Step 4: Extract the 'Median £' column under '2021-22' header (second row, second level)
-boros_income_median = boros_income_raw[('2021-22', 'Median £')]
-
-# Step 5: Combine the 'Code' and 'Median £' columns into a new DataFrame
-boros_income = pd.DataFrame({
-    'Code': boros_income_code,
-    'Median £': boros_income_median
-})
-
-# Step 6: Reset index for clarity
-boros_income = boros_income.reset_index(drop=True)
-
-# Step 7: Perform the left join with the 'boros' DataFrame
-# Assuming 'boros' is already loaded and contains the 'GSS_CODE' column
-boros = boros.merge(boros_income, left_on='GSS_CODE', right_on='Code', how='left')
-
-# Step 8: Inspect the resulting DataFrame
-print(boros.head())
-```
-
-```{python}
-#| echo: false
-#Control 3: Unemployment Rate
-# URL and local path setup
-url4 = "https://www.ethnicity-facts-figures.service.gov.uk/work-pay-and-benefits/unemployment-and-economic-inactivity/unemployment/latest/downloads/unemployment-by-local-authorities.csv"
-local_path4 = os.path.join('Data', 'unemployment-by-local-authorities.csv')
-
-# Read the unemployment data CSV file
-unemployment_data_raw = pd.read_csv(cache_data(url4, local_path4))
-
-# Filter rows where 'time' column equals 'Jan2022-Dec2022' and 'ethnicity' column equals 'All'
-unemployment_data_filtered = unemployment_data_raw[
-    (unemployment_data_raw['time'] == 'Jan2022-Dec2022') &
-    (unemployment_data_raw['ethnicity'] == 'All') &
-    (unemployment_data_raw['ethnicity_type'] == 'All')
-]
-
-# Keep only 'Geography' and 'value' columns
-unemployment_data_filtered = unemployment_data_filtered[['Geography', 'value']]
-
-# Perform left join with the existing `boros` DataFrame
-boros = boros.merge(
-    unemployment_data_filtered,
-    how='left',
-    left_on='NAME',
-    right_on='Geography'
-)
-# Rename 'value' column to 'unemployment_rate'
-boros.rename(columns={'value': 'unemployment_rate'}, inplace=True)
-
-# Drop 'Geography' column to reduce redundancy
-boros.drop(columns=['Geography'], inplace=True)
-
-# Display the updated `boros` DataFrame
-print(boros)
-```
-
-```{python}
-#| echo: false
-#Control 4: Rented Housing Demand (% as renters)
-# Step 1: URL and local path setup
-url5 = "https://data.london.gov.uk/download/housing-tenure-borough/53cb03c2-3e99-4d71-937b-90b95a64ebaa/tenure-population-borough.csv"
-local_path5 = os.path.join('Data', 'housing-tenure-by-local-authorities.csv')
-
-# Read the tenure data CSV file
-tenure_data_raw = pd.read_csv(cache_data(url5, local_path5))
-
-# Ensure 'Percent_of_population_in_borough' is numeric
-tenure_data_raw['Percent_of_population_in_borough'] = pd.to_numeric(
-    tenure_data_raw['Percent_of_population_in_borough'], errors='coerce'
-)
-
-# Step 2: Select rows for the specified conditions
-tenure_filtered = tenure_data_raw[
-    (tenure_data_raw['Year'] == 2018) & 
-    (tenure_data_raw['Tenure'].isin([
-        'Rented.from.Local.Authority.or.Housing.Association',
-        'Rented.from.Private.landlord'
-    ]))
-]
-# Step 3: Create a pivot table for individual values and calculate the sum
-tenure_pivot = tenure_filtered.pivot_table(
-    index='Code', 
-    columns='Tenure', 
-    values='Percent_of_population_in_borough',
-    aggfunc='sum'  # Use 'sum' to handle potential duplicate rows
-).reset_index()
-
-# Rename the columns for clarity
-tenure_pivot.columns.name = None  # Remove the MultiIndex
-tenure_pivot.rename(columns={
-    'Rented.from.Local.Authority.or.Housing.Association': 'percent_local_authority_housing',
-    'Rented.from.Private.landlord': 'percent_private_landlord'
-}, inplace=True)
-
-# Calculate the sum for the two categories
-tenure_pivot['percent_of_renters'] = (
-    tenure_pivot['percent_local_authority_housing'] + tenure_pivot['percent_private_landlord']
-)
-
-# Step 4: Final DataFrame with all required columns
-boros_renters = tenure_pivot[['Code', 'percent_local_authority_housing', 'percent_private_landlord', 'percent_of_renters']]
-
-# Display the resulting DataFrame
-print(boros_renters.head())
-```
-
-```{python}
-#| echo: false
-# Perform the left join between 'boros' and 'boros_renters'
-boros = boros.merge(
-    boros_renters[['Code', 'percent_of_renters']],  # Select only the 'Code' and 'percent_of_renters' columns
-    how='left',  # Left join
-    left_on='GSS_CODE',  # Field from the left object
-    right_on='Code'  # Field from the right object
-)
-
-# Display the updated DataFrame
-print(boros.head())
-```
-
-```{python}
-#| echo: false
-#Control 5: Rented Housing Supply (Housing stock per person)
-# Step 1: URL and local path setup
-url6 = "https://data.london.gov.uk/download/local-authority-housing-stock/3421002e-f0ec-45e5-bf73-f594788ec93d/local-authority-housing-stock-borough.csv"
-local_path6 = os.path.join('Data', 'housing-stock-by-local-authorities.csv')
-
-# Read the housing stock data CSV file
-housing_stock_data_raw = pd.read_csv(cache_data(url6, local_path6))
-
-# Step 2: Select the 'Number of properties 2020' and 'Code' columns
-boros_housing_stock = housing_stock_data_raw[['Number of properties 2020', 'Code']].copy()
-
-# Step 3: Remove commas and convert 'Number of properties 2020' to numeric
-boros_housing_stock['Number of properties 2020'] = boros_housing_stock['Number of properties 2020'].str.replace(',', '').astype(float)
-
-# Step 4: Rename the column 'Number of properties 2020' to 'housing_stock_2020'
-boros_housing_stock.rename(columns={'Number of properties 2020': 'housing_stock_2020'}, inplace=True)
-
-# Step 5: Ensure the new DataFrame is named correctly
-boros_housing_stock.reset_index(drop=True, inplace=True)
-
-# Display the resulting DataFrame
-print(boros_housing_stock.head())
-```
-
-```{python}
-#| echo: false
-# Step 1: URL and local path setup
-url6 = "https://data.london.gov.uk/download/local-authority-housing-stock/3421002e-f0ec-45e5-bf73-f594788ec93d/local-authority-housing-stock-borough.csv"
-local_path6 = os.path.join('Data', 'housing-stock-by-local-authorities.csv')
-
-# Read the housing stock data CSV file
-housing_stock_data_raw = pd.read_csv(cache_data(url6, local_path6))
-
-# Step 2: Select the 'Number of properties 2020' and 'Code' columns
-boros_housing_stock = housing_stock_data_raw[['Number of properties 2020', 'Code']].copy()
-
-# Step 3: Remove commas and convert 'Number of properties 2020' to numeric
-boros_housing_stock['Number of properties 2020'] = boros_housing_stock['Number of properties 2020'].str.replace(',', '').astype(float)
-
-# Step 4: Rename the column 'Number of properties 2020' to 'housing_stock_2020'
-boros_housing_stock.rename(columns={'Number of properties 2020': 'housing_stock_2020'}, inplace=True)
-
-# Step 5: Ensure the new DataFrame is named correctly
-boros_housing_stock.reset_index(drop=True, inplace=True)
-
-# Display the resulting DataFrame
-print(boros_housing_stock.head())
-```
-
-```{python}
-#| echo: false
-# Perform the left join between 'boros' and 'boros_housing_stock'
-boros = boros.merge(
-    boros_housing_stock[['Code', 'housing_stock_2020']],  # Select only necessary columns
-    how='left',
-    left_on='GSS_CODE',
-    right_on='Code',
-    suffixes=('', '_housing_stock')  # Specify suffixes to avoid column name conflicts
-)
-
-# Drop the 'Code' column after the merge to avoid redundancy
-if 'Code' in boros.columns:
-    boros = boros.drop(columns=['Code'])
-
-# Create the new column 'number_of_dwellings_per_person'
-boros['number_of_dwellings_per_person'] = boros['housing_stock_2020'] / boros['Population']
-
-# Display the updated DataFrame
-print(boros.head())
-```
-
-```{python}
-#| echo: false
-#Control 6: Education Amenity (Average attainment 8 score per pupil)
-# Step 1: URL and local path setup
-url7 = "https://data.london.gov.uk/download/gcse-results-by-borough/a8a71d73-cc48-4b30-9eb5-c5f605bc845c/GCSE%20results%20by%20gender.xlsx"
-local_path7 = os.path.join('Data', 'GCSE_results_by_gender.xlsx')
-
-# Download and save the file using the cache function
-file_path7 = cache_data(url7, local_path7)
-
-# Step 2: Load the '2022-23' sheet and skip the metadata rows
-data = pd.read_excel(file_path7, sheet_name='2022-23', skiprows=4)
-
-# Step 3: Rename columns for clarity
-data.rename(columns={
-    'E09000001': 'Code',
-    'Unnamed: 3': 'Average Attainment 8 score per pupil'
-}, inplace=True)
-
-# Step 4: Select the relevant columns
-boros_education = data[['Code', 'Average Attainment 8 score per pupil']].copy()
-
-# Step 5: Drop rows where 'Code' is missing to clean the data
-boros_education.dropna(subset=['Code'], inplace=True)
-
-# Step 6: Reset the index for the final DataFrame
-boros_education.reset_index(drop=True, inplace=True)
-
-# Step 7: Display the resulting DataFrame
-print(boros_education.head())
-```
-
-```{python}
-#| echo: false
-# Perform the left join
-boros = boros.merge(
-    boros_education,  # Right object
-    how='left',  # Left join
-    left_on='GSS_CODE',  # Field in the left object
-    right_on='Code'  # Field in the right object
-)
-
-# Drop the 'Code' column from the resulting DataFrame to avoid redundancy
-if 'Code' in boros.columns:
-    boros.drop(columns=['Code'], inplace=True)
-
-# Display the updated DataFrame
-print(boros.head())
-```
-
-```{python}
-#| echo: false
-#Control 7: Public Transport (Public transport accessibility level)
-# Step 1: URL and local path setup
-url8 = "https://data.london.gov.uk/download/public-transport-accessibility-levels/8e520b81-dd06-4ce6-aaa0-972dccf84b57/Borough%20AvPTAI2015.csv"
-local_path8 = os.path.join('Data', 'Borough_AvPTAI2015.csv')
-
-# Cache and save the file locally
-file_path8 = cache_data(url8, local_path8)
-
-# Step 2: Load the data and extract the relevant columns
-boros_PTA = pd.read_csv(file_path8)[['Borough Code', 'AvPTAI2015']].copy()
-
-# Step 3: Perform the left join
-boros = boros.merge(
-    boros_PTA,  # Right object
-    how='left',  # Left join
-    left_on='GSS_CODE',  # Left field
-    right_on='Borough Code'  # Right field
-)
-
-# Drop the 'Borough Code' column after the join to avoid redundancy
-if 'Borough Code' in boros.columns:
-    boros.drop(columns=['Borough Code'], inplace=True)
-
-# Display the updated DataFrame
-print(boros.head())
-```
-
-```{python}
-#| echo: false
-#Control 8: Green space (% of land as green and blue infrastructure)
-# Step 1: URL and local path setup
-url9 = "https://data.london.gov.uk/download/green-and-blue-cover/fdff7445-bb87-4584-ada8-d527e7fcec97/green_cover_borough_summary_0.05.xlsx"
-local_path9 = os.path.join('Data', 'green_cover_borough_summary_0.05.xlsx')
-
-# Cache and save the file locally
-file_path9 = cache_data(url9, local_path9)
-
-# Step 2: Load the 'borough_green_cover' sheet and extract relevant columns
-boros_green_blue = pd.read_excel(file_path9, sheet_name='borough_green_cover')[['lb_name', 'percent_green+blue']].copy()
-
-# Step 3: Perform the left join
-boros = boros.merge(
-    boros_green_blue,  # Right object
-    how='left',  # Left join
-    left_on='GSS_CODE',  # Left field
-    right_on='lb_name'  # Right field
-)
-
-# Drop the 'lb_name' column after the join to avoid redundancy
-if 'lb_name' in boros.columns:
-    boros.drop(columns=['lb_name'], inplace=True)
-
-# Display the updated DataFrame
-print(boros.head())
-```
-
-```{python}
-#| echo: false
-# Dependent Variable: Mean rent (per bedroom)
 # Define the cache_data function to always re-download the file
 def cache_data(url, directory):
     os.makedirs(directory, exist_ok=True)
@@ -1095,22 +709,17 @@ def cache_data(url, directory):
         file.write(response.content)
     return file_path
 
-# Download and load the file
-url3 = "https://www.ons.gov.uk/file?uri=/economy/inflationandpriceindices/adhocs/2417privaterentalmarketinlondonoctober2023toseptember2024/londonrentalstatsaccessibleq32024.xlsx"
-file_path3 = cache_data(url3, os.path.join('Data', 'Independent variables'))
+# Remote downloading 
+url1 = "https://www.ons.gov.uk/file?uri=/economy/inflationandpriceindices/adhocs/2417privaterentalmarketinlondonoctober2023toseptember2024/londonrentalstatsaccessibleq32024.xlsx"
+file_path1 = cache_data(url1, os.path.join('Data', 'Regression'))
 
-# Inspect sheet names and load the desired sheet
-sheet_names = pd.ExcelFile(file_path3).sheet_names
+sheet_names = pd.ExcelFile(file_path1).sheet_names
 print("Sheet names:", sheet_names)
-sheet_data = pd.read_excel(file_path3, sheet_name='2', skiprows=2) if '2' in sheet_names else pd.read_excel(file_path3, sheet_name=4, skiprows=2)
-
-# Display the first few rows of the loaded sheet
+sheet_data = pd.read_excel(file_path1, sheet_name='2', skiprows=2) if '2' in sheet_names else pd.read_excel(file_path3, sheet_name=4, skiprows=2)
 print(sheet_data.head())
 
 # Load the sheet '2' with skiprows=2
-sheet_data = pd.read_excel(file_path3, sheet_name='2', skiprows=2)
-
-# Replace non-numeric values in 'Mean' column with NaN
+sheet_data = pd.read_excel(file_path1, sheet_name='2', skiprows=2)
 sheet_data['Mean'] = pd.to_numeric(sheet_data['Mean'], errors='coerce')
 
 # Loop through each borough to calculate mean_rent
@@ -1119,14 +728,14 @@ results = []
 for borough in sheet_data['Borough'].unique():
     borough_data = sheet_data[sheet_data['Borough'] == borough]
     
-    # Extract mean values for each category
+# Extract mean values for each category
     studio_mean = borough_data.loc[borough_data['Bedroom Category'] == 'Studio', 'Mean'].dropna().values
     one_bedroom_mean = borough_data.loc[borough_data['Bedroom Category'] == 'One Bedroom', 'Mean'].dropna().values
     two_bedrooms_mean = borough_data.loc[borough_data['Bedroom Category'] == 'Two Bedrooms', 'Mean'].dropna().values / 2
     three_bedrooms_mean = borough_data.loc[borough_data['Bedroom Category'] == 'Three Bedrooms', 'Mean'].dropna().values / 3
     four_or_more_mean = borough_data.loc[borough_data['Bedroom Category'] == 'Four or More Bedrooms', 'Mean'].dropna().values / 4
 
-    # Calculate the mean_rent
+# Calculate the mean_rent
     mean_rent = (
         (studio_mean[0] if len(studio_mean) > 0 else 0) +
         (one_bedroom_mean[0] if len(one_bedroom_mean) > 0 else 0) +
@@ -1141,28 +750,464 @@ for borough in sheet_data['Borough'].unique():
         'mean_rent': mean_rent
     })
 
-# Create a DataFrame from the results
 boros_rent = pd.DataFrame(results)
-
-# Display the final DataFrame
 print(boros_rent)
 ```
 
 ```{python}
 #| echo: false
-# Perform the left join
-boros = boros.merge(
-    boros_rent,  # Right object
-    how='left',  # Left join
-    left_on='NAME',  # Left field
-    right_on='Name'  # Right field
+#Explanation: Plot the distribution of mean_rent and log-transform it if it is skewed
+
+# Plot the histogram
+plt.figure(figsize=(10, 6))
+plt.hist(boros['mean_rent'].dropna(), bins=20, color='skyblue', edgecolor='black')
+
+# Add labels and title
+plt.title('Distribution of Mean Rent', fontsize=16)
+plt.xlabel('Mean Rent', fontsize=14)
+plt.ylabel('Frequency', fontsize=14)
+
+# Show the plot
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.show()
+
+# Log-transformation
+boros['log_mean_rent'] = np.log(boros['mean_rent'] + 1)  # Add 1 to avoid log(0)
+print(boros.head())
+```
+
+```{python}
+#| echo: false
+#Explanation: Number of households per borough to calculate the independent variable
+
+url2 = "https://data.london.gov.uk/download/housing-tenure-borough/785f6f0e-cc4b-42fd-8093-597b009555f2/tenure-households-borough.xlsx"
+
+def cache_data(url, cache_path):
+    if not os.path.exists(cache_path):
+        os.makedirs(cache_path)
+    local_file = os.path.join(cache_path, os.path.basename(url))
+    if not os.path.exists(local_file):
+        # Download the file if not cached
+        import urllib.request
+        urllib.request.urlretrieve(url, local_file)
+    return local_file
+
+# Extract the sheet and load it
+boros_household_raw = pd.read_excel(
+    cache_data(url2, os.path.join('Data', 'Regression')),
+    sheet_name='2020', 
+    header=[0, 1, 2]
 )
 
-# Drop the 'Borough' column after the join to avoid redundancy
-if 'Name' in boros.columns:
-    boros.drop(columns=['Name'], inplace=True)
+# Flatten multi-level column names
+boros_household_raw.columns = ['_'.join(col).strip() for col in boros_household_raw.columns.values]
+print("Flattened columns:", boros_household_raw.columns)
 
-# Display the updated DataFrame
+# Select relevant columns (first and seventh)
+boros_household = boros_household_raw.iloc[:, [0, 6]]
+
+# Rename columns for clarity
+boros_household.columns = ['Unnamed_0', 'no_household']
+
+# Merge boros_household with boros
+boros = boros.merge(
+    boros_household,
+    left_on='GSS_CODE',
+    right_on='Unnamed_0',
+    how='left'
+)
+
+# Drop the redundant column
+boros.drop(columns=['Unnamed_0'], inplace=True)
+print(boros.head())
+```
+
+```{python}
+#| echo: false
+#Key Independent Variable: Number of Entire home/apt with annual availability > 90 per 1000 households by borough & Log-transformation
+
+url2 = "https://data.london.gov.uk/download/housing-tenure-borough/785f6f0e-cc4b-42fd-8093-597b009555f2/tenure-households-borough.xlsx"
+
+def cache_data(url, cache_path):
+    if not os.path.exists(cache_path):
+        os.makedirs(cache_path)
+    local_file = os.path.join(cache_path, os.path.basename(url))
+    if not os.path.exists(local_file):
+        # Download the file if not cached
+        import urllib.request
+        urllib.request.urlretrieve(url, local_file)
+    return local_file
+
+# Extract the sheet and load it
+boros_household_raw = pd.read_excel(
+    cache_data(url2, os.path.join('Data', 'Regression')),
+    sheet_name='2020', 
+    header=[0, 1, 2]
+)
+
+# Flatten multi-level column names
+boros_household_raw.columns = ['_'.join(col).strip() for col in boros_household_raw.columns.values]
+print("Flattened columns:", boros_household_raw.columns)
+
+# Select relevant columns (first and seventh)
+boros_household = boros_household_raw.iloc[:, [0, 6]]
+
+# Rename columns for clarity
+boros_household.columns = ['Unnamed_0', 'no_household']
+
+# Merge boros_household with boros
+boros = boros.merge(
+    boros_household,
+    left_on='GSS_CODE',
+    right_on='Unnamed_0',
+    how='left',
+    suffixes=('', '_household')
+)
+
+# Drop the redundant column
+boros.drop(columns=['Unnamed_0'], inplace=True)
+print(boros.head())
+
+# Check and convert columns to numeric
+boros['no_entire_home_apt_90'] = pd.to_numeric(boros['no_entire_home_apt_90'], errors='coerce')
+boros['no_household'] = pd.to_numeric(boros['no_household'], errors='coerce')
+
+# Create the new column
+boros['entire_1000_household'] = (boros['no_entire_home_apt_90'] / boros['no_household']) * 1000
+boros['log_entire_1000_household'] = np.log(boros['entire_1000_household'] + 1)
+
+# Display the first few rows to verify
+print(boros.head())
+```
+
+```{python}
+#| echo: false
+#Explanation: Control 1 - Population Density
+
+url3 = "https://data.london.gov.uk/download/land-area-and-population-density-ward-and-borough/77e9257d-ad9d-47aa-aeed-59a00741f301/housing-density-borough.csv"
+
+boros_population_density = pd.read_csv(cache_data(url3, os.path.join('Data', 'Regression')))
+
+boros_population_density.info(verbose=True)
+
+#Filter boros_population_density for the year 2023 and select relevant columns
+boros_population_density_filtered = (
+    boros_population_density
+    .loc[boros_population_density['Year'] == 2023, 
+         ['Code', 'Population', 'Population_per_square_kilometre']]
+    .reset_index(drop=True)
+)
+
+if 'Code' in boros.columns:
+    boros = boros.drop(columns=['Code'])
+
+#Left join
+boros = boros.merge(
+    boros_population_density_filtered, 
+    left_on='GSS_CODE', 
+    right_on='Code', 
+    how='left', 
+    suffixes=('', '_density')
+)
+
+#Drop the 'Code' column from the merged DataFrame if it exists
+if 'Code' in boros.columns:
+    boros = boros.drop(columns=['Code'])
+
+#Display the first few rows of the final DataFrame
+print(boros.head())
+```
+
+```{python}
+#| echo: false
+#Explanation: Control 2 - Median Taxpayer Income
+
+url4 = "https://data.london.gov.uk/download/average-income-tax-payers-borough/392e86d4-f1d3-4f06-a6a5-7fcd0fd65948/income-of-tax-payers.xlsx"
+
+boros_income_raw = pd.read_excel(cache_data(url4, os.path.join('Data', 'Regression')), 
+                                 sheet_name='Total Income', header=[0, 1])
+
+
+boros_income_code = boros_income_raw[('Unnamed: 0_level_0', 'Code')]
+
+boros_income_median = boros_income_raw[('2021-22', 'Median £')]
+
+boros_income = pd.DataFrame({
+    'Code': boros_income_code,
+    'Median £': boros_income_median
+})
+
+boros_income = boros_income.reset_index(drop=True)
+
+#Perform the left join with the 'boros' DataFrame
+boros = boros.merge(boros_income, left_on='GSS_CODE', right_on='Code', how='left')
+
+print(boros.head())
+```
+
+```{python}
+#| echo: false
+#Explanation: Control 3 - Unemployment Rate
+
+url5 = "https://www.ethnicity-facts-figures.service.gov.uk/work-pay-and-benefits/unemployment-and-economic-inactivity/unemployment/latest/downloads/unemployment-by-local-authorities.csv"
+local_path5 = os.path.join('Data', 'Regression')
+
+unemployment_data_raw = pd.read_csv(cache_data(url5, local_path5))
+
+unemployment_data_filtered = unemployment_data_raw[
+    (unemployment_data_raw['time'] == 'Jan2022-Dec2022') &
+    (unemployment_data_raw['ethnicity'] == 'All') &
+    (unemployment_data_raw['ethnicity_type'] == 'All')
+]
+unemployment_data_filtered = unemployment_data_filtered[['Geography', 'value']]
+
+# Perform left join
+boros = boros.merge(
+    unemployment_data_filtered,
+    how='left',
+    left_on='NAME',
+    right_on='Geography'
+)
+boros.rename(columns={'value': 'unemployment_rate'}, inplace=True)
+
+boros.drop(columns=['Geography'], inplace=True)
+print(boros)
+```
+
+```{python}
+#| echo: false
+#Explanation: Control 4 - Crime Rate
+
+url6 = "https://data.london.gov.uk/download/recorded_crime_summary/d234c4fe-b060-46bd-a2a6-c5dd1119bddd/MPS%20Borough%20Level%20Crime%20%28most%20recent%2024%20months%29.csv"
+local_path6 = os.path.join('Data', 'Regression')
+
+crime_rate_raw = pd.read_csv(cache_data(url6, local_path6))
+
+# Select only columns with '2023'
+crime_2023 = crime_rate_raw.filter(like='2023', axis=1)  # Select columns containing '2023'
+crime_2023['BoroughName'] = crime_rate_raw['BoroughName']  # Keep the 'BoroughName' column
+
+# Group by 'BoroughName' and calculate the sum
+crime_grouped = crime_2023.groupby('BoroughName').sum(numeric_only=True)  # Sum numeric columns
+crime_grouped = crime_grouped.reset_index()  # Reset the index to make 'BoroughName' a column
+crime_grouped['crime_count'] = crime_grouped.sum(axis=1, numeric_only=True)  # Sum all 2023 columns for each borough
+
+boros_crime = crime_grouped[['BoroughName', 'crime_count']]
+print(boros_crime.head())
+
+boros = boros.merge(
+    boros_crime,
+    how='left',
+    left_on='NAME',
+    right_on='BoroughName',
+    suffixes=('', '_crime')  
+)
+
+boros['crime_rate'] = boros['crime_count'] / boros['Population']
+print(boros.head())
+```
+
+```{python}
+#| echo: false
+#Explanation: Control 5 - Housing Demand (% of Renters)
+
+url7 = "https://data.london.gov.uk/download/housing-tenure-borough/53cb03c2-3e99-4d71-937b-90b95a64ebaa/tenure-population-borough.csv"
+local_path7 = os.path.join('Data', 'Regression')
+
+tenure_data_raw = pd.read_csv(cache_data(url7, local_path7))
+
+tenure_data_raw['Percent_of_population_in_borough'] = pd.to_numeric(
+    tenure_data_raw['Percent_of_population_in_borough'], errors='coerce'
+)
+tenure_filtered = tenure_data_raw[
+    (tenure_data_raw['Year'] == 2018) & 
+    (tenure_data_raw['Tenure'].isin([
+        'Rented.from.Local.Authority.or.Housing.Association',
+        'Rented.from.Private.landlord'
+    ]))
+]
+
+tenure_pivot = tenure_filtered.pivot_table(
+    index='Code', 
+    columns='Tenure', 
+    values='Percent_of_population_in_borough',
+    aggfunc='sum'  
+).reset_index()
+
+# Renters in both social housing and private housing are considered
+tenure_pivot.columns.name = None  
+tenure_pivot.rename(columns={
+    'Rented.from.Local.Authority.or.Housing.Association': 'percent_local_authority_housing',
+    'Rented.from.Private.landlord': 'percent_private_landlord'
+}, inplace=True)
+
+# Calculate the sum for the two categories
+tenure_pivot['percent_of_renters'] = (
+    tenure_pivot['percent_local_authority_housing'] + tenure_pivot['percent_private_landlord']
+)
+
+boros_renters = tenure_pivot[['Code', 'percent_local_authority_housing', 'percent_private_landlord', 'percent_of_renters']]
+print(boros_renters.head())
+
+boros = boros.merge(
+    boros_renters[['Code', 'percent_of_renters']],  
+    how='left',  
+    left_on='GSS_CODE',  
+    right_on='Code'  
+)
+
+print(boros.head())
+```
+
+```{python}
+#| echo: false
+#Explanation: Control 6 - Housing Supply (Housing stock per person)
+
+url8 = "https://data.london.gov.uk/download/local-authority-housing-stock/3421002e-f0ec-45e5-bf73-f594788ec93d/local-authority-housing-stock-borough.csv"
+local_path8 = os.path.join('Data', 'housing-stock-by-local-authorities.csv')
+
+housing_stock_data_raw = pd.read_csv(cache_data(url8, local_path8))
+boros_housing_stock = housing_stock_data_raw[['Number of properties 2020', 'Code']].copy()
+boros_housing_stock['Number of properties 2020'] = boros_housing_stock['Number of properties 2020'].str.replace(',', '').astype(float)
+boros_housing_stock.rename(columns={'Number of properties 2020': 'housing_stock_2020'}, inplace=True)
+
+boros_housing_stock.reset_index(drop=True, inplace=True)
+print(boros_housing_stock.head())
+
+boros = boros.merge(
+    boros_housing_stock[['Code', 'housing_stock_2020']],  # Select only necessary columns
+    how='left',
+    left_on='GSS_CODE',
+    right_on='Code',
+    suffixes=('', '_housing_stock')  # Specify suffixes to avoid column name conflicts
+)
+
+if 'Code' in boros.columns:
+    boros = boros.drop(columns=['Code'])
+
+boros['number_of_dwellings_per_person'] = boros['housing_stock_2020'] / boros['Population']
+print(boros.head())
+```
+
+```{python}
+#| echo: false
+#Explanation: Control 7 - Education (Average 8 score)
+
+url9 = "https://data.london.gov.uk/download/gcse-results-by-borough/a8a71d73-cc48-4b30-9eb5-c5f605bc845c/GCSE%20results%20by%20gender.xlsx"
+local_path9 = os.path.join('Data', 'Regression')
+file_path9 = cache_data(url9, local_path9)
+
+education_data = pd.read_excel(file_path9, sheet_name='2022-23', skiprows=4)
+education_data.rename(columns={
+    'E09000001': 'Code',
+    'Unnamed: 3': 'Average Attainment 8 score per pupil'
+}, inplace=True)
+
+boros_education = data[['Code', 'Average Attainment 8 score per pupil']].copy()
+boros_education.dropna(subset=['Code'], inplace=True)
+boros_education.reset_index(drop=True, inplace=True)
+
+print(boros_education.head())
+```
+
+```{python}
+#| echo: false
+#Explanation: Control 8 - Education (Average 8 score)
+
+url9 = "https://data.london.gov.uk/download/gcse-results-by-borough/a8a71d73-cc48-4b30-9eb5-c5f605bc845c/GCSE%20results%20by%20gender.xlsx"
+local_path9 = os.path.join('Data', 'Regression')
+file_path9 = cache_data(url9, local_path9)
+
+education_data = pd.read_excel(file_path9, sheet_name='2022-23', skiprows=4)
+education_data.rename(columns={
+    'E09000001': 'Code',
+    'Unnamed: 3': 'Average Attainment 8 score per pupil'
+}, inplace=True)
+
+boros_education = data[['Code', 'Average Attainment 8 score per pupil']].copy()
+boros_education.dropna(subset=['Code'], inplace=True)
+boros_education.reset_index(drop=True, inplace=True)
+
+print(boros_education.head())
+
+boros = boros.merge(
+    boros_education,  
+    how='left',  
+    left_on='GSS_CODE',  
+    right_on='Code'  
+)
+
+if 'Code' in boros.columns:
+    boros.drop(columns=['Code'], inplace=True)
+
+print(boros.head())
+```
+
+```{python}
+#| echo: false
+#Explanation: Control 9 - Public Transport (PTAL) by borough
+
+url10 = "https://data.london.gov.uk/download/public-transport-accessibility-levels/8e520b81-dd06-4ce6-aaa0-972dccf84b57/Borough%20AvPTAI2015.csv"
+local_path10 = os.path.join('Data', 'Regression')
+file_path10 = cache_data(url10, local_path10)
+
+boros_PTA = pd.read_csv(file_path10)[['Borough Code', 'AvPTAI2015']].copy()
+boros = boros.merge(
+    boros_PTA,  
+    how='left',  
+    left_on='GSS_CODE',  
+    right_on='Borough Code'  
+)
+
+if 'Borough Code' in boros.columns:
+    boros.drop(columns=['Borough Code'], inplace=True)
+
+print(boros.head())
+```
+
+```{python}
+#| echo: false
+#Explanation: Control 10 - Green Space (% of area as green and blue space) by borough
+
+url11 = "https://data.london.gov.uk/download/green-and-blue-cover/fdff7445-bb87-4584-ada8-d527e7fcec97/green_cover_borough_summary_0.05.xlsx"
+local_path11 = os.path.join('Data', 'Regression')
+file_path11 = cache_data(url11, local_path11)
+
+boros_green_blue = pd.read_excel(file_path11, sheet_name='borough_green_cover')[['lb_name', 'percent_green+blue']].copy()
+boros = boros.merge(
+    boros_green_blue,  
+    how='left',  
+    left_on='GSS_CODE',  
+    right_on='lb_name'  
+)
+
+if 'lb_name' in boros.columns:
+    boros.drop(columns=['lb_name'], inplace=True)
+print(boros.head())
+```
+
+```{python}
+#| echo: false
+#Explanation: Select only the key columns for regression
+
+print(boros.columns)
+key_vars = [
+    'NAME', 'GSS_CODE', 'log_mean_rent', 'log_entire_1000_household',
+    'Population_per_square_kilometre', 'Median £', 'crime_rate',
+    'percent_of_renters', 'number_of_dwellings_per_person', 'AvPTAI2015',
+    'percent_green+blue', 'ONS_INNER', 'Population', 'HECTARES', 'geometry'
+]
+
+boros = boros[key_vars]
+print(boros.head())
+print(boros.dtypes)
+```
+
+```{python}
+#| echo: false
+#Explanation: Convert Inner/Outer as a numeric binary
+
+boros['ONS_INNER'] = boros['ONS_INNER'].map({'T': 1, 'F': 0})
 print(boros.head())
 ```
 
