@@ -739,6 +739,551 @@ show(p, notebook_handle=True)
 
 ( 45 points; Answer due {{< var assess.group-date >}} )
 
+```{python}
+#| echo: false
+print(boros.columns)
+```
+```{python}
+#| echo: false
+# Perform a spatial join to associate each point with its corresponding 'GSS_CODE' in 'boros'
+joined = gpd.sjoin(entire_home_apt_90, boros, how='left', predicate='within')
+
+# Group by 'GSS_CODE' and count the number of points in each group
+gss_code_counts = joined.groupby('GSS_CODE').size().reset_index(name='no_entire_home_apt_90')
+
+# Merge the count back to the 'boros' GeoDataFrame
+boros = boros.merge(gss_code_counts, on='GSS_CODE', how='left')
+
+# Now 'boros' contains the new column 'no_entire_home_apt_90' with the count of points
+```
+```{python}
+#| echo: false
+print(boros.head())  # Display the first 5 rows
+```
+```{python}
+#| echo: false
+#Control 1: Population Density
+url1 = "https://data.london.gov.uk/download/land-area-and-population-density-ward-and-borough/77e9257d-ad9d-47aa-aeed-59a00741f301/housing-density-borough.csv"
+
+boros_population_density = pd.read_csv(cache_data(url1, os.path.join('Data', 'Independent variables')))
+
+boros_population_density.info(verbose=True)
+```
+```{python}
+#| echo: false
+#Filter boros_population_density for the year 2023 and select relevant columns
+boros_population_density_filtered = (
+    boros_population_density
+    .loc[boros_population_density['Year'] == 2023, 
+         ['Code', 'Population', 'Population_per_square_kilometre']]
+    .reset_index(drop=True)
+)
+
+#Drop the 'Code' column from 'boros' if it exists to avoid conflicts
+if 'Code' in boros.columns:
+    boros = boros.drop(columns=['Code'])
+
+#Perform a left join with unique suffixes to handle duplicate columns
+boros = boros.merge(
+    boros_population_density_filtered, 
+    left_on='GSS_CODE', 
+    right_on='Code', 
+    how='left', 
+    suffixes=('', '_density')
+)
+
+#Drop the 'Code' column from the merged DataFrame if it exists
+if 'Code' in boros.columns:
+    boros = boros.drop(columns=['Code'])
+
+#Reset the index of the final DataFrame
+boros = boros.reset_index(drop=True)
+#Create a new column (Dependent variable) by using 'no_entire_home_apt_90' divided by population, times 1000
+boros['rate_entire_home_apt_90'] = (boros['no_entire_home_apt_90'] / boros['Population']) * 1000
+
+#Display the first few rows of the final DataFrame
+print(boros.head())
+```
+```{python}
+#| echo: false
+#Control 2: Median Taypayer Income
+url2 = "https://data.london.gov.uk/download/average-income-tax-payers-borough/392e86d4-f1d3-4f06-a6a5-7fcd0fd65948/income-of-tax-payers.xlsx"
+boros_income_raw = pd.read_excel(cache_data(url2, os.path.join('Data', 'Independent variables')), 
+                                 sheet_name='Total Income', header=[0, 1])
+
+# Step 2: Inspect the column names to understand the structure
+print(boros_income_raw.columns)
+
+# Step 3: Extract the 'Code' column (second row, first level entry)
+boros_income_code = boros_income_raw[('Unnamed: 0_level_0', 'Code')]
+
+# Step 4: Extract the 'Median £' column under '2021-22' header (second row, second level)
+boros_income_median = boros_income_raw[('2021-22', 'Median £')]
+
+# Step 5: Combine the 'Code' and 'Median £' columns into a new DataFrame
+boros_income = pd.DataFrame({
+    'Code': boros_income_code,
+    'Median £': boros_income_median
+})
+
+# Step 6: Reset index for clarity
+boros_income = boros_income.reset_index(drop=True)
+
+# Step 7: Perform the left join with the 'boros' DataFrame
+# Assuming 'boros' is already loaded and contains the 'GSS_CODE' column
+boros = boros.merge(boros_income, left_on='GSS_CODE', right_on='Code', how='left')
+
+# Step 8: Inspect the resulting DataFrame
+print(boros.head())
+```
+```{python}
+#| echo: false
+#Control 3: Unemployment Rate
+# URL and local path setup
+url4 = "https://www.ethnicity-facts-figures.service.gov.uk/work-pay-and-benefits/unemployment-and-economic-inactivity/unemployment/latest/downloads/unemployment-by-local-authorities.csv"
+local_path4 = os.path.join('Data', 'unemployment-by-local-authorities.csv')
+
+# Read the unemployment data CSV file
+unemployment_data_raw = pd.read_csv(cache_data(url4, local_path4))
+
+# Filter rows where 'time' column equals 'Jan2022-Dec2022' and 'ethnicity' column equals 'All'
+unemployment_data_filtered = unemployment_data_raw[
+    (unemployment_data_raw['time'] == 'Jan2022-Dec2022') &
+    (unemployment_data_raw['ethnicity'] == 'All') &
+    (unemployment_data_raw['ethnicity_type'] == 'All')
+]
+
+# Keep only 'Geography' and 'value' columns
+unemployment_data_filtered = unemployment_data_filtered[['Geography', 'value']]
+
+# Perform left join with the existing `boros` DataFrame
+boros = boros.merge(
+    unemployment_data_filtered,
+    how='left',
+    left_on='NAME',
+    right_on='Geography'
+)
+# Rename 'value' column to 'unemployment_rate'
+boros.rename(columns={'value': 'unemployment_rate'}, inplace=True)
+
+# Drop 'Geography' column to reduce redundancy
+boros.drop(columns=['Geography'], inplace=True)
+
+# Display the updated `boros` DataFrame
+print(boros)
+```
+```{python}
+#| echo: false
+#Control 4: Rented Housing Demand (% as renters)
+# Step 1: URL and local path setup
+url5 = "https://data.london.gov.uk/download/housing-tenure-borough/53cb03c2-3e99-4d71-937b-90b95a64ebaa/tenure-population-borough.csv"
+local_path5 = os.path.join('Data', 'housing-tenure-by-local-authorities.csv')
+
+# Read the tenure data CSV file
+tenure_data_raw = pd.read_csv(cache_data(url5, local_path5))
+
+# Ensure 'Percent_of_population_in_borough' is numeric
+tenure_data_raw['Percent_of_population_in_borough'] = pd.to_numeric(
+    tenure_data_raw['Percent_of_population_in_borough'], errors='coerce'
+)
+
+# Step 2: Select rows for the specified conditions
+tenure_filtered = tenure_data_raw[
+    (tenure_data_raw['Year'] == 2018) & 
+    (tenure_data_raw['Tenure'].isin([
+        'Rented.from.Local.Authority.or.Housing.Association',
+        'Rented.from.Private.landlord'
+    ]))
+]
+# Step 3: Create a pivot table for individual values and calculate the sum
+tenure_pivot = tenure_filtered.pivot_table(
+    index='Code', 
+    columns='Tenure', 
+    values='Percent_of_population_in_borough',
+    aggfunc='sum'  # Use 'sum' to handle potential duplicate rows
+).reset_index()
+
+# Rename the columns for clarity
+tenure_pivot.columns.name = None  # Remove the MultiIndex
+tenure_pivot.rename(columns={
+    'Rented.from.Local.Authority.or.Housing.Association': 'percent_local_authority_housing',
+    'Rented.from.Private.landlord': 'percent_private_landlord'
+}, inplace=True)
+
+# Calculate the sum for the two categories
+tenure_pivot['percent_of_renters'] = (
+    tenure_pivot['percent_local_authority_housing'] + tenure_pivot['percent_private_landlord']
+)
+
+# Step 4: Final DataFrame with all required columns
+boros_renters = tenure_pivot[['Code', 'percent_local_authority_housing', 'percent_private_landlord', 'percent_of_renters']]
+
+# Display the resulting DataFrame
+print(boros_renters.head())
+```
+```{python}
+#| echo: false
+# Perform the left join between 'boros' and 'boros_renters'
+boros = boros.merge(
+    boros_renters[['Code', 'percent_of_renters']],  # Select only the 'Code' and 'percent_of_renters' columns
+    how='left',  # Left join
+    left_on='GSS_CODE',  # Field from the left object
+    right_on='Code'  # Field from the right object
+)
+
+# Display the updated DataFrame
+print(boros.head())
+```
+```{python}
+#| echo: false
+#Control 5: Rented Housing Supply (Housing stock per person)
+# Step 1: URL and local path setup
+url6 = "https://data.london.gov.uk/download/local-authority-housing-stock/3421002e-f0ec-45e5-bf73-f594788ec93d/local-authority-housing-stock-borough.csv"
+local_path6 = os.path.join('Data', 'housing-stock-by-local-authorities.csv')
+
+# Read the housing stock data CSV file
+housing_stock_data_raw = pd.read_csv(cache_data(url6, local_path6))
+
+# Step 2: Select the 'Number of properties 2020' and 'Code' columns
+boros_housing_stock = housing_stock_data_raw[['Number of properties 2020', 'Code']].copy()
+
+# Step 3: Remove commas and convert 'Number of properties 2020' to numeric
+boros_housing_stock['Number of properties 2020'] = boros_housing_stock['Number of properties 2020'].str.replace(',', '').astype(float)
+
+# Step 4: Rename the column 'Number of properties 2020' to 'housing_stock_2020'
+boros_housing_stock.rename(columns={'Number of properties 2020': 'housing_stock_2020'}, inplace=True)
+
+# Step 5: Ensure the new DataFrame is named correctly
+boros_housing_stock.reset_index(drop=True, inplace=True)
+
+# Display the resulting DataFrame
+print(boros_housing_stock.head())
+# Step 1: URL and local path setup
+url6 = "https://data.london.gov.uk/download/local-authority-housing-stock/3421002e-f0ec-45e5-bf73-f594788ec93d/local-authority-housing-stock-borough.csv"
+local_path6 = os.path.join('Data', 'housing-stock-by-local-authorities.csv')
+
+# Read the housing stock data CSV file
+housing_stock_data_raw = pd.read_csv(cache_data(url6, local_path6))
+
+# Step 2: Select the 'Number of properties 2020' and 'Code' columns
+boros_housing_stock = housing_stock_data_raw[['Number of properties 2020', 'Code']].copy()
+
+# Step 3: Remove commas and convert 'Number of properties 2020' to numeric
+boros_housing_stock['Number of properties 2020'] = boros_housing_stock['Number of properties 2020'].str.replace(',', '').astype(float)
+
+# Step 4: Rename the column 'Number of properties 2020' to 'housing_stock_2020'
+boros_housing_stock.rename(columns={'Number of properties 2020': 'housing_stock_2020'}, inplace=True)
+
+# Step 5: Ensure the new DataFrame is named correctly
+boros_housing_stock.reset_index(drop=True, inplace=True)
+
+# Display the resulting DataFrame
+print(boros_housing_stock.head())
+```
+```{python}
+#| echo: false
+# Perform the left join between 'boros' and 'boros_housing_stock'
+boros = boros.merge(
+    boros_housing_stock[['Code', 'housing_stock_2020']],  # Select only necessary columns
+    how='left',
+    left_on='GSS_CODE',
+    right_on='Code',
+    suffixes=('', '_housing_stock')  # Specify suffixes to avoid column name conflicts
+)
+
+# Drop the 'Code' column after the merge to avoid redundancy
+if 'Code' in boros.columns:
+    boros = boros.drop(columns=['Code'])
+
+# Create the new column 'number_of_dwellings_per_person'
+boros['number_of_dwellings_per_person'] = boros['housing_stock_2020'] / boros['Population']
+
+# Display the updated DataFrame
+print(boros.head())
+```
+```{python}
+#| echo: false
+#Control 6: Education Amenity (Average attainment 8 score per pupil)
+# Step 1: URL and local path setup
+url7 = "https://data.london.gov.uk/download/gcse-results-by-borough/a8a71d73-cc48-4b30-9eb5-c5f605bc845c/GCSE%20results%20by%20gender.xlsx"
+local_path7 = os.path.join('Data', 'GCSE_results_by_gender.xlsx')
+
+# Download and save the file using the cache function
+file_path7 = cache_data(url7, local_path7)
+
+# Step 2: Load the '2022-23' sheet and skip the metadata rows
+data = pd.read_excel(file_path7, sheet_name='2022-23', skiprows=4)
+
+# Step 3: Rename columns for clarity
+data.rename(columns={
+    'E09000001': 'Code',
+    'Unnamed: 3': 'Average Attainment 8 score per pupil'
+}, inplace=True)
+
+# Step 4: Select the relevant columns
+boros_education = data[['Code', 'Average Attainment 8 score per pupil']].copy()
+
+# Step 5: Drop rows where 'Code' is missing to clean the data
+boros_education.dropna(subset=['Code'], inplace=True)
+
+# Step 6: Reset the index for the final DataFrame
+boros_education.reset_index(drop=True, inplace=True)
+
+# Step 7: Display the resulting DataFrame
+print(boros_education.head())
+```
+```{python}
+#| echo: false
+# Perform the left join
+boros = boros.merge(
+    boros_education,  # Right object
+    how='left',  # Left join
+    left_on='GSS_CODE',  # Field in the left object
+    right_on='Code'  # Field in the right object
+)
+
+# Drop the 'Code' column from the resulting DataFrame to avoid redundancy
+if 'Code' in boros.columns:
+    boros.drop(columns=['Code'], inplace=True)
+
+# Display the updated DataFrame
+print(boros.head())
+```
+```{python}
+#| echo: false
+#Control 7: Public Transport (Public transport accessibility level)
+# Step 1: URL and local path setup
+url8 = "https://data.london.gov.uk/download/public-transport-accessibility-levels/8e520b81-dd06-4ce6-aaa0-972dccf84b57/Borough%20AvPTAI2015.csv"
+local_path8 = os.path.join('Data', 'Borough_AvPTAI2015.csv')
+
+# Cache and save the file locally
+file_path8 = cache_data(url8, local_path8)
+
+# Step 2: Load the data and extract the relevant columns
+boros_PTA = pd.read_csv(file_path8)[['Borough Code', 'AvPTAI2015']].copy()
+
+# Step 3: Perform the left join
+boros = boros.merge(
+    boros_PTA,  # Right object
+    how='left',  # Left join
+    left_on='GSS_CODE',  # Left field
+    right_on='Borough Code'  # Right field
+)
+
+# Drop the 'Borough Code' column after the join to avoid redundancy
+if 'Borough Code' in boros.columns:
+    boros.drop(columns=['Borough Code'], inplace=True)
+
+# Display the updated DataFrame
+print(boros.head())
+```
+```{python}
+#| echo: false
+#Control 8: Green space (% of land as green and blue infrastructure)
+# Step 1: URL and local path setup
+url9 = "https://data.london.gov.uk/download/green-and-blue-cover/fdff7445-bb87-4584-ada8-d527e7fcec97/green_cover_borough_summary_0.05.xlsx"
+local_path9 = os.path.join('Data', 'green_cover_borough_summary_0.05.xlsx')
+
+# Cache and save the file locally
+file_path9 = cache_data(url9, local_path9)
+
+# Step 2: Load the 'borough_green_cover' sheet and extract relevant columns
+boros_green_blue = pd.read_excel(file_path9, sheet_name='borough_green_cover')[['lb_name', 'percent_green+blue']].copy()
+
+# Step 3: Perform the left join
+boros = boros.merge(
+    boros_green_blue,  # Right object
+    how='left',  # Left join
+    left_on='GSS_CODE',  # Left field
+    right_on='lb_name'  # Right field
+)
+
+# Drop the 'lb_name' column after the join to avoid redundancy
+if 'lb_name' in boros.columns:
+    boros.drop(columns=['lb_name'], inplace=True)
+
+# Display the updated DataFrame
+print(boros.head())
+```
+```{python}
+#| echo: false
+# Dependent Variable: Mean rent (per bedroom)
+# Define the cache_data function to always re-download the file
+def cache_data(url, directory):
+    os.makedirs(directory, exist_ok=True)
+    file_path = os.path.join(directory, os.path.basename(url))
+    response = requests.get(url)
+    response.raise_for_status()
+    with open(file_path, 'wb') as file:
+        file.write(response.content)
+    return file_path
+
+# Download and load the file
+url3 = "https://www.ons.gov.uk/file?uri=/economy/inflationandpriceindices/adhocs/2417privaterentalmarketinlondonoctober2023toseptember2024/londonrentalstatsaccessibleq32024.xlsx"
+file_path3 = cache_data(url3, os.path.join('Data', 'Independent variables'))
+
+# Inspect sheet names and load the desired sheet
+sheet_names = pd.ExcelFile(file_path3).sheet_names
+print("Sheet names:", sheet_names)
+sheet_data = pd.read_excel(file_path3, sheet_name='2', skiprows=2) if '2' in sheet_names else pd.read_excel(file_path3, sheet_name=4, skiprows=2)
+
+# Display the first few rows of the loaded sheet
+print(sheet_data.head())
+
+# Load the sheet '2' with skiprows=2
+sheet_data = pd.read_excel(file_path3, sheet_name='2', skiprows=2)
+
+# Replace non-numeric values in 'Mean' column with NaN
+sheet_data['Mean'] = pd.to_numeric(sheet_data['Mean'], errors='coerce')
+
+# Loop through each borough to calculate mean_rent
+results = []
+
+for borough in sheet_data['Borough'].unique():
+    borough_data = sheet_data[sheet_data['Borough'] == borough]
+    
+    # Extract mean values for each category
+    studio_mean = borough_data.loc[borough_data['Bedroom Category'] == 'Studio', 'Mean'].dropna().values
+    one_bedroom_mean = borough_data.loc[borough_data['Bedroom Category'] == 'One Bedroom', 'Mean'].dropna().values
+    two_bedrooms_mean = borough_data.loc[borough_data['Bedroom Category'] == 'Two Bedrooms', 'Mean'].dropna().values / 2
+    three_bedrooms_mean = borough_data.loc[borough_data['Bedroom Category'] == 'Three Bedrooms', 'Mean'].dropna().values / 3
+    four_or_more_mean = borough_data.loc[borough_data['Bedroom Category'] == 'Four or More Bedrooms', 'Mean'].dropna().values / 4
+
+    # Calculate the mean_rent
+    mean_rent = (
+        (studio_mean[0] if len(studio_mean) > 0 else 0) +
+        (one_bedroom_mean[0] if len(one_bedroom_mean) > 0 else 0) +
+        (two_bedrooms_mean[0] if len(two_bedrooms_mean) > 0 else 0) +
+        (three_bedrooms_mean[0] if len(three_bedrooms_mean) > 0 else 0) +
+        (four_or_more_mean[0] if len(four_or_more_mean) > 0 else 0)
+    ) / 5
+
+# Append the result
+    results.append({
+        'Name': borough,
+        'mean_rent': mean_rent
+    })
+
+# Create a DataFrame from the results
+boros_rent = pd.DataFrame(results)
+
+# Display the final DataFrame
+print(boros_rent)
+```
+```{python}
+#| echo: false
+# Perform the left join
+boros = boros.merge(
+    boros_rent,  # Right object
+    how='left',  # Left join
+    left_on='NAME',  # Left field
+    right_on='Name'  # Right field
+)
+
+# Drop the 'Borough' column after the join to avoid redundancy
+if 'Name' in boros.columns:
+    boros.drop(columns=['Name'], inplace=True)
+
+# Display the updated DataFrame
+print(boros.head())
+```
+```{python}
+#| echo: false
+print(regression_data.head())
+```
+```{python}
+#| echo: false
+#OLS Regression
+regression_data.info()
+```
+```{python}
+#| echo: false
+# Replace non-numeric values in 'unemployment_rate' with NaN
+regression_data['unemployment_rate'] = pd.to_numeric(regression_data['unemployment_rate'], errors='coerce')
+
+# Convert 'inner_outer' to boolean: assume 0 represents False and all else represents True
+regression_data['inner_outer'] = regression_data['inner_outer'].apply(lambda x: False if x == 1 else True)
+
+# Display the updated DataFrame to verify changes
+regression_data.info()
+print(regression_data.head())
+```
+```{python}
+#| echo: false
+# Step 1: Identify rows with NaN values
+rows_with_na = regression_data[regression_data.isnull().any(axis=1)]
+if not rows_with_na.empty:
+    print("Rows containing NaN values that will be dropped:")
+    print(rows_with_na)
+
+# Step 2: Drop rows with NaN values
+regression_data = regression_data.dropna()
+
+# Step 3: Display the cleaned DataFrame
+print("Cleaned DataFrame:")
+print(regression_data.head())
+```
+```{python}
+#| echo: false
+# Step 1. Libraries
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+from statsmodels.tools.tools import add_constant
+import pandas as pd
+import statsmodels.api as sm
+
+# Step 2. Define VIF Function (drop_column_using_vif_)
+def drop_column_using_vif_(df, thresh=5): 
+    while True:
+        df_with_const = add_constant(df)
+        vif_df = pd.Series(
+            [variance_inflation_factor(df_with_const.values, i) for i in range(df_with_const.shape[1])],
+            name="VIF",
+            index=df_with_const.columns
+        ).to_frame()
+        vif_df = vif_df.drop('const')
+        if vif_df.VIF.max() > thresh:
+            index_to_drop = vif_df.index[vif_df.VIF == vif_df.VIF.max()].tolist()[0]
+            print(f"Dropping: {index_to_drop}")
+            df = df.drop(columns=index_to_drop)
+        else: 
+            break
+    return df
+
+# Step 3. Clean the data by ensuring numeric values and converting booleans
+predictor_columns = ['mean_rent', 'GSS_CODE', 'HECTARES', 'NAME', 'geometry']
+predictors = regression_data.drop(columns=predictor_columns)
+
+# Convert boolean columns to integers (if any)
+predictors = predictors.applymap(lambda x: int(x) if isinstance(x, bool) else x)
+
+# Convert all predictors to numeric and coerce errors to NaN
+predictors = predictors.apply(pd.to_numeric, errors='coerce')
+
+# Identify rows with NaN values and print them
+rows_with_na = predictors[predictors.isnull().any(axis=1)]
+if not rows_with_na.empty:
+    print("Rows containing NaN values that will be dropped:")
+    print(rows_with_na)
+
+# Drop rows with NaN values
+predictors = predictors.dropna()
+
+# Step 4. VIF Test on Variables
+df_predictors_selected_VIF = drop_column_using_vif_(predictors)
+
+print("The columns remaining after VIF selection are:")
+print(df_predictors_selected_VIF.columns)  # Show the dropped and remaining variables
+
+# Ensure the dependent variable is cleaned to match the predictors
+endog = regression_data.loc[df_predictors_selected_VIF.index, 'mean_rent']
+
+# Add a constant to predictors and perform OLS regression
+exog = sm.add_constant(df_predictors_selected_VIF)  # Add constant term
+OLS_regression_data = sm.OLS(endog=endog, exog=exog).fit()
+
+# Print the regression summary
+print(OLS_regression_data.summary())
+```
 :::
 
 ## Sustainable Authorship Tools
