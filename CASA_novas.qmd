@@ -752,6 +752,18 @@ for borough in sheet_data['Borough'].unique():
 
 boros_rent = pd.DataFrame(results)
 print(boros_rent)
+
+# Left join to boros
+boros = boros.merge(
+    boros_rent,
+    left_on='NAME',
+    right_on='Name',
+    how='left'
+)
+
+# Drop the redundant column
+boros.drop(columns=['Name'], inplace=True)
+print(boros.head())
 ```
 
 ```{python}
@@ -1103,28 +1115,7 @@ education_data.rename(columns={
     'Unnamed: 3': 'Average Attainment 8 score per pupil'
 }, inplace=True)
 
-boros_education = data[['Code', 'Average Attainment 8 score per pupil']].copy()
-boros_education.dropna(subset=['Code'], inplace=True)
-boros_education.reset_index(drop=True, inplace=True)
-
-print(boros_education.head())
-```
-
-```{python}
-#| echo: false
-#Explanation: Control 8 - Education (Average 8 score)
-
-url9 = "https://data.london.gov.uk/download/gcse-results-by-borough/a8a71d73-cc48-4b30-9eb5-c5f605bc845c/GCSE%20results%20by%20gender.xlsx"
-local_path9 = os.path.join('Data', 'Regression')
-file_path9 = cache_data(url9, local_path9)
-
-education_data = pd.read_excel(file_path9, sheet_name='2022-23', skiprows=4)
-education_data.rename(columns={
-    'E09000001': 'Code',
-    'Unnamed: 3': 'Average Attainment 8 score per pupil'
-}, inplace=True)
-
-boros_education = data[['Code', 'Average Attainment 8 score per pupil']].copy()
+boros_education = education_data[['Code', 'Average Attainment 8 score per pupil']].copy()
 boros_education.dropna(subset=['Code'], inplace=True)
 boros_education.reset_index(drop=True, inplace=True)
 
@@ -1145,7 +1136,7 @@ print(boros.head())
 
 ```{python}
 #| echo: false
-#Explanation: Control 9 - Public Transport (PTAL) by borough
+#Explanation: Control 8 - Public Transport (PTAL) by borough
 
 url10 = "https://data.london.gov.uk/download/public-transport-accessibility-levels/8e520b81-dd06-4ce6-aaa0-972dccf84b57/Borough%20AvPTAI2015.csv"
 local_path10 = os.path.join('Data', 'Regression')
@@ -1167,7 +1158,7 @@ print(boros.head())
 
 ```{python}
 #| echo: false
-#Explanation: Control 10 - Green Space (% of area as green and blue space) by borough
+#Explanation: Control 9 - Green Space (% of area as green and blue space) by borough
 
 url11 = "https://data.london.gov.uk/download/green-and-blue-cover/fdff7445-bb87-4584-ada8-d527e7fcec97/green_cover_borough_summary_0.05.xlsx"
 local_path11 = os.path.join('Data', 'Regression')
