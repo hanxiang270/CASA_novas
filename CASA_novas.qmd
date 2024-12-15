@@ -1244,6 +1244,7 @@ print(boros)
 #Explanation: Conduct Elbow Test & Clustering
 
 # Prepare the data for clustering
+from sklearn.cluster import KMeans
 X = boros[['entire_1000_household']].values  # Use the unlogged column for clustering
 
 # Perform the elbow test
