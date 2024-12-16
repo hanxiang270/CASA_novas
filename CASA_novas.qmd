@@ -4,6 +4,7 @@ csl: harvard-cite-them-right.csl
 title: CASA_novas's Group Project
 execute:
   echo: false
+  output: false
   freeze: true
 format:
   html:
@@ -475,8 +476,8 @@ plt.text(x_max, y_min, "Others:Sum of Shared room and Hotel room",
          fontsize=10, color="gray", ha='right', va='bottom')
 
 plt.show()
-
 ```
+
 ```{python}
 #fig 2
 #| echo: false
@@ -541,7 +542,7 @@ output_notebook()  # Output to Jupyter notebook
 show(p)  # Display the plot
 ```
 
-```{python}
+````{python}
 #fig3.
 from bokeh.plotting import figure, show
 from bokeh.models import ColumnDataSource
@@ -589,7 +590,7 @@ As of December 2023, data from Inside Airbnb shows approximately 66,000 active l
 
 num_rows = listings_clean.shape[0]
 print(f"Number of rows: {num_rows}")
-```
+````
 
 ```{python}
 #| echo: false
@@ -1585,6 +1586,13 @@ diagram.edge("I", "M", dir="none", color="grey")
 svg_data = diagram.pipe(format="svg") 
 display(SVG(svg_data))  
 ```
+
+One of the main limitations in our data analysis is the data accuracy of the Inside Airbnb dataset, especially if hosts intentionally avoid platform rules. 
+This, at the same time, highlights the challenges of regulatory enforcement and legislation processes (Ferreri & Sanyal 2018), limiting the effectiveness of proposed regulations. 
+
+In conclusion, the InsideAirbnb dataset offers us a deep insight into the dynamics of short-term rentals in London, which helped us propose detailed and more targeted policy recommendations.  
+By analysing the data, we can distinguish between small-scale hosts and commercial operators, proposing regulations that address the unregulated commercial short-term lets issue while protecting responsible users. However, challenges and limitations, such as data accuracy and enforcement, that highlight the need for a more complex approach to ensure compliance still remain. 
+Ultimately, our tailored regulations can contribute to alleviating the housing crisis by returning properties to the long-term market.
 
 :::
 
