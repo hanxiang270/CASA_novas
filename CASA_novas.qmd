@@ -433,6 +433,89 @@ print("Done.")
 ```
 
 ```{python}
+#| echo: false
+#| results: hide
+
+#Explanation: Loading London Borough boundaries (polygon)
+
+import geopandas as gpd
+ddir = os.path.join('data','geo') 
+spath = 'https://github.com/jreades/fsds/blob/master/data/src/' 
+boros = gpd.read_file(cache_data(spath+'Boroughs.gpkg?raw=true', ddir) )
+print('Done!')
+boros.to_file('test.gpkg', driver='GPKG')
+print(str(boros.geometry.iloc[1])[:50] + "...")
+print(boros.crs)
+```
+
+```{python}
+#| echo: false
+#| results: hide
+
+#Explanation: Loading Airbnb listings (point)
+
+gdf = gpd.GeoDataFrame(listings_clean,
+                       geometry=gpd.points_from_xy(listings_clean.longitude, listings_clean.latitude, crs='epsg:4326'))
+print(type(gdf))
+print(gdf.geometry.iloc[1])
+gdf = gdf.to_crs('epsg:27700') 
+print(gdf.geometry.crs) #Reprojection
+```
+
+```{python}
+#| echo: false
+
+#Explanation: Calculate the total number of listings in the cleaned data frame.
+
+num_rows = listings_clean.shape[0]
+print(f"Number of rows: {num_rows}")
+````
+
+```{python}
+#| echo: false
+#| results: hide
+
+#Explanation: Calculate the number of listings for each room type and the proportion of 'Entire home/apt'.
+
+room_type_counts = listings_clean['room_type'].value_counts()
+
+print(room_type_counts)
+
+# Count the total number of listings for each room type
+room_type_counts = listings_raw['room_type'].value_counts()
+
+# Calculate the proportion of 'Entire home/apt' relative to the total
+entire_home_proportion = room_type_counts['Entire home/apt'] / room_type_counts.sum()
+
+print(f"Proportion of 'Entire home/apt' listings: {entire_home_proportion:.4f}")
+```
+```{python}
+#| echo: false
+#| results: hide
+
+#Explanation: Calculate the proportion of 'Entire home/apt' hosts as multiple-listing hosts
+
+entire_home_apt = listings_clean[listings_clean['room_type'] == 'Entire home/apt']
+more_than_1_entire = entire_home_apt[entire_home_apt['calculated_host_listings_count'] != 1]
+
+entire_total_hosts = len(entire_home_apt['host_name'].unique())
+entire_more_than_1_hosts = len(more_than_1_entire['host_name'].unique())
+entire_ratio = entire_more_than_1_hosts / entire_total_hosts
+
+print(f"Entire home/apt multiple listing host ratio: {entire_ratio:.2%}")
+```
+```{python}
+#| echo: false
+#| results: hide
+
+#Explanation: Subsetting the listings (points) to 'Entire home/apt' with 'availability_365' larger than 90.
+
+entire_home_apt_90 = gdf[(gdf['room_type'] == 'Entire home/apt') & 
+                          (gdf['availability_365'] > 90) & 
+                          (gdf['availability_365'].notna())]
+```
+
+```{python}
 #fig 1.
 import geopandas as gpd
 import pandas as pd
@@ -721,44 +804,6 @@ This section highlights the speculative and unregulated nature of Entire home/ap
 ::: {.duedate}
 
 ( 45 points; Answer due {{< var assess.group-date >}} )
-
-```{python}
-#| echo: false
-
-#Explanation: Loading London Borough boundaries (polygon)
-
-import geopandas as gpd
-ddir = os.path.join('data','geo') 
-spath = 'https://github.com/jreades/fsds/blob/master/data/src/' 
-boros = gpd.read_file(cache_data(spath+'Boroughs.gpkg?raw=true', ddir) )
-print('Done!')
-boros.to_file('test.gpkg', driver='GPKG')
-print(str(boros.geometry.iloc[1])[:50] + "...")
-print(boros.crs)
-```
-
-```{python}
-#| echo: false
-
-#Explanation: Loading Airbnb listings (point)
-
-gdf = gpd.GeoDataFrame(listings_clean,
-                       geometry=gpd.points_from_xy(listings_clean.longitude, listings_clean.latitude, crs='epsg:4326'))
-print(type(gdf))
-print(gdf.geometry.iloc[1])
-gdf = gdf.to_crs('epsg:27700') 
-print(gdf.geometry.crs) #Reprojection
-```
-
-```{python}
-#| echo: false
-
-#Explanation: Subsetting the listings (points) to 'Entire home/apt' with 'availability_365' larger than 90.
-
-entire_home_apt_90 = gdf[(gdf['room_type'] == 'Entire home/apt') & 
-                          (gdf['availability_365'] > 90) & 
-                          (gdf['availability_365'].notna())]
-```
 
 ```{python}
 #| echo: false
