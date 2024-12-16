@@ -1276,6 +1276,7 @@ plt.title('Clusters of Entire Home/Apt Listings per 1000 Households by Borough')
 plt.show()
 ```
 
+<<<<<<< HEAD
 After analysing the InsideAirbnb dataset we consider that it provides insights to establish regulations tailored specifically to London. This approach will help avoid too generic rules that may affect users that are not misusing the platform or fail to address those exploiting the platform and therefore affecting London’s housing crisis. 
 
 For instance, our analysis reveals that only 5% of London hosts include their registration numbers on the platform, making it difficult to identify those accumulating multiple properties. To address this, and as a first step on defining regulations, we propose requiring Airbnb to verify that hosts are the actual legal representants of the properties they list. This step would improve transparency, allowing regulators to distinguish between small-scale hosts and larger ones, ensuring that regulations are enforced fairly and targeted effectively. 
@@ -1286,6 +1287,49 @@ For hosts with more listings, stricter regulations should be included as they ac
 
 This kind of measure aims to protect individuals using Airbnb responsibly, while applying stricter rules to those using the platform as a business at the expense of long-term housing. Ultimately, the goal would be to ease the rising housing prices by reducing the number of homes lost to short-term lets and restoring them to the long-term market. 
 
+=======
+```{python}
+from graphviz import Digraph
+from IPython.display import SVG, display
+
+# Create a Digraph object
+diagram = Digraph(format='svg', graph_attr={'rankdir': 'TB'}, node_attr={'shape': 'box', 'fontsize': '12', 'fontname': 'Arial'})
+
+# Add nodes and edges
+diagram.node("A", "ALL AIRBNB LISTINGS", fontsize="24", fontname="Arial Bold", shape="none")
+diagram.node("B", "Host needs to be the real owner \n(landlord/legal occupant)", fontsize="10", fontcolor="grey", color="grey")
+diagram.node("C", "Hosts with 1 or 2 listings", fontsize="14", fontname="Arial Bold", penwidth="3.0")
+diagram.node("D", "Renting ≤ 90 days in a year", fontsize="14", fontname="Arial Bold", penwidth="3.0")
+diagram.node("E", "Renting > 90 days in a year", fontsize="14", fontname="Arial Bold", penwidth="3.0")
+diagram.node("F", "Hosts with > 2 listings", fontsize="14", fontname="Arial Bold", penwidth="3.0")
+diagram.node("G", "Permit and business taxes like hotels apply", fontsize="10", fontcolor="grey", color="grey")
+diagram.node("H", "In green (clustered) boroughs", fontsize="14", fontname="Arial Bold", penwidth="3.0")
+diagram.node("I", "In grey (non-clustered) boroughs", fontsize="14", fontname="Arial Bold", penwidth="3.0")
+diagram.node("J", "up to £7,500 tax-free income", fontsize="10", fontcolor="grey", color="grey")
+diagram.node("K", "Permit and business taxes like hotels apply", fontsize="10", fontcolor="grey", color="grey")
+diagram.node("L", "Not allowed", fontsize="10", fontcolor="grey", color="grey")
+diagram.node("M", "Allowed under the revenue cap per each property, \nequivalent to the boroughs' average long-term rent", fontsize="10", fontcolor="grey", color="grey")
+
+# Connect nodes
+diagram.edge("A", "B", dir='none', color="grey")
+diagram.edge("B", "C")
+diagram.edge("B", "F")
+diagram.edge("C", "D", weight='0.5')
+diagram.edge("C", "E", weight='0.5')
+diagram.edge("F", "G", dir='none', color="grey")
+diagram.edge("G", "H")
+diagram.edge("G", "I")
+diagram.edge("D", "J", dir='none', color="grey")
+diagram.edge("E", "K", dir='none', color="grey")
+diagram.edge("H", "L", dir='none', color="grey")
+diagram.edge("I", "M", dir='none', color="grey")
+
+# Render and display the diagram in the notebook
+svg_data = diagram.pipe(format='svg')  # Render as SVG data
+display(SVG(svg_data))  # Display in Jupyter Notebook
+
+```
+>>>>>>> c33e7174eba25eb1cdba96a07009978e66234374
 :::
 
 ## Sustainable Authorship Tools
