@@ -54,7 +54,8 @@ import os
 import pandas as pd
 import requests
 
-def download_bib_file(url, out_path):
+#Explanation: Download bib files
+def download_bib(url, out_path):
     if not os.path.exists(out_path):
         try:
             response = requests.get(url)
@@ -64,11 +65,10 @@ def download_bib_file(url, out_path):
         except requests.exceptions.RequestException as e:
             print(f"Failed to get document: {e}")
 
-download_bib_file("https://github.com/hanxiang270/CASA_novas/blob/bacb80b4ed95209dc918ec88be19cdcd2c6f8402/CASA_novas_bib.bib", "CASA_novas_bib.bib")
+download_bib("https://github.com/hanxiang270/CASA_novas/blob/bacb80b4ed95209dc918ec88be19cdcd2c6f8402/CASA_novas_bib.bib", "CASA_novas_bib.bib")
 
-download_bib_file("https://github.com/hanxiang270/CASA_novas/blob/bacb80b4ed95209dc918ec88be19cdcd2c6f8402/harvard-cite-them-right.csl", "harvard-cite-them-right.csl")
+download_bib("https://github.com/hanxiang270/CASA_novas/blob/bacb80b4ed95209dc918ec88be19cdcd2c6f8402/harvard-cite-them-right.csl", "harvard-cite-them-right.csl")
 ```
-
 
 ```{python}
 #| echo: false
