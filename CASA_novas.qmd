@@ -1421,40 +1421,99 @@ from graphviz import Digraph
 from IPython.display import SVG, display
 
 # Create a Digraph object
-diagram = Digraph(format='svg', graph_attr={'rankdir': 'TB'}, node_attr={'shape': 'box', 'fontsize': '12', 'fontname': 'Arial'})
+diagram = Digraph(
+    format="svg",
+    graph_attr={"rankdir": "TB"},
+    node_attr={"shape": "box", "fontsize": "12", "fontname": "Roboto Flex"},
+)
 
 # Add nodes and edges
-diagram.node("A", "ALL AIRBNB LISTINGS", fontsize="24", fontname="Arial Bold", shape="none")
-diagram.node("B", "Host needs to be the real owner \n(landlord/legal occupant)", fontsize="10", fontcolor="grey", color="grey")
-diagram.node("C", "Hosts with 1 or 2 listings", fontsize="14", fontname="Arial Bold", penwidth="3.0")
-diagram.node("D", "Renting ≤ 90 days in a year", fontsize="14", fontname="Arial Bold", penwidth="3.0")
-diagram.node("E", "Renting > 90 days in a year", fontsize="14", fontname="Arial Bold", penwidth="3.0")
-diagram.node("F", "Hosts with > 2 listings", fontsize="14", fontname="Arial Bold", penwidth="3.0")
-diagram.node("G", "Permit and business taxes like hotels apply", fontsize="10", fontcolor="grey", color="grey")
-diagram.node("H", "In green (clustered) boroughs", fontsize="14", fontname="Arial Bold", penwidth="3.0")
-diagram.node("I", "In grey (non-clustered) boroughs", fontsize="14", fontname="Arial Bold", penwidth="3.0")
-diagram.node("J", "up to £7,500 tax-free income", fontsize="10", fontcolor="grey", color="grey")
-diagram.node("K", "Permit and business taxes like hotels apply", fontsize="10", fontcolor="grey", color="grey")
+diagram.node(
+    "A", "ALL AIRBNB LISTINGS", fontsize="24", shape="none"
+)
+diagram.node(
+    "B",
+    "Host needs to be the real owner \n(landlord/legal occupant)",
+    fontsize="10",
+    fontcolor="grey",
+    color="grey",
+)
+diagram.node(
+    "C",
+    "Hosts with 1 or 2 listings",
+    fontsize="14",
+    penwidth="3.0",
+)
+diagram.node(
+    "D",
+    "Renting ≤ 90 days in a year",
+    fontsize="14",
+    penwidth="3.0",
+)
+diagram.node(
+    "E",
+    "Renting > 90 days in a year",
+    fontsize="14",
+    penwidth="3.0",
+)
+diagram.node(
+    "F", "Hosts with > 2 listings", fontsize="14", penwidth="3.0"
+)
+diagram.node(
+    "G",
+    "Permit and business taxes like hotels apply",
+    fontsize="10",
+    fontcolor="grey",
+    color="grey",
+)
+diagram.node(
+    "H",
+    "In green (clustered) boroughs",
+    fontsize="14",
+    penwidth="3.0",
+)
+diagram.node(
+    "I",
+    "In grey (non-clustered) boroughs",
+    fontsize="14",
+    penwidth="3.0",
+)
+diagram.node(
+    "J", "up to £7,500 tax-free income", fontsize="10", fontcolor="grey", color="grey"
+)
+diagram.node(
+    "K",
+    "Permit and business taxes like hotels apply",
+    fontsize="10",
+    fontcolor="grey",
+    color="grey",
+)
 diagram.node("L", "Not allowed", fontsize="10", fontcolor="grey", color="grey")
-diagram.node("M", "Allowed under the revenue cap per each property, \nequivalent to the boroughs' average long-term rent", fontsize="10", fontcolor="grey", color="grey")
+diagram.node(
+    "M",
+    "Allowed under the revenue cap per each property, \nequivalent to the boroughs' average long-term rent",
+    fontsize="10",
+    fontcolor="grey",
+    color="grey",
+)
 
 # Connect nodes
-diagram.edge("A", "B", dir='none', color="grey")
+diagram.edge("A", "B", dir="none", color="grey")
 diagram.edge("B", "C")
 diagram.edge("B", "F")
-diagram.edge("C", "D", weight='0.5')
-diagram.edge("C", "E", weight='0.5')
-diagram.edge("F", "G", dir='none', color="grey")
+diagram.edge("C", "D", weight="0.5")
+diagram.edge("C", "E", weight="0.5")
+diagram.edge("F", "G", dir="none", color="grey")
 diagram.edge("G", "H")
 diagram.edge("G", "I")
-diagram.edge("D", "J", dir='none', color="grey")
-diagram.edge("E", "K", dir='none', color="grey")
-diagram.edge("H", "L", dir='none', color="grey")
-diagram.edge("I", "M", dir='none', color="grey")
+diagram.edge("D", "J", dir="none", color="grey")
+diagram.edge("E", "K", dir="none", color="grey")
+diagram.edge("H", "L", dir="none", color="grey")
+diagram.edge("I", "M", dir="none", color="grey")
 
 # Render and display the diagram in the notebook
-svg_data = diagram.pipe(format='svg')  # Render as SVG data
-display(SVG(svg_data))  # Display in Jupyter Notebook
+svg_data = diagram.pipe(format="svg") 
+display(SVG(svg_data))  
 ```
 
 :::
