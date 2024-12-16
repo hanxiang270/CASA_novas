@@ -74,8 +74,6 @@ download_bib("https://raw.githubusercontent.com/hanxiang270/CASA_novas/refs/head
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: This code chunk downloads a file from a given URL and saves it locally to a specified destination, caching it if it doesn't already exist or is too small, and returns the local file path.
 
@@ -134,8 +132,6 @@ def cache_data(src: str, dest: str) -> str:
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: The code constructs a URL to access a specific dataset from Inside Airbnb, downloads and caches the file, reads it into a Pandas DataFrame, and then prints the shape and detailed information.
 
@@ -154,8 +150,6 @@ listings_raw.info(verbose=True)
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: The code saves the dataset to a specified folder (Data/Raw) in the current working directory as a CSV file.
 
@@ -234,8 +228,6 @@ To avoid ethical issues arising from biased analysis, according to D’Ignazio [
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: Import packages
 import numpy as np
@@ -247,8 +239,6 @@ from scipy.stats import chisquare
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: To check the data type for each column by a for loop.
 for col in listings_raw.columns:
@@ -257,8 +247,6 @@ for col in listings_raw.columns:
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: Randomly selects 5 rows from the DataFrame listings_raw using a fixed random seed for reproducibility.
 
@@ -279,8 +267,6 @@ listings_raw.sample(10, random_state=42)
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: Column Cleaning 1 - Get the top 10 columns with the most null values
 
@@ -292,8 +278,6 @@ print(listings_raw[top_10_columns].isnull().sum())
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: Column Cleaning 1 - Drop the top 10 columns
 
@@ -305,8 +289,6 @@ print(listings_raw.isnull().sum().sort_values(ascending=False)[:10])
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: Column Cleaning 2 - Convert 'room_type' and 'property_type' to categories.
 
@@ -325,8 +307,6 @@ print(listings_raw[cats[1]].cat.categories.values)
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: Column Cleaning 3 - Convert 'price' to numeric format.
 
@@ -341,8 +321,6 @@ listings_raw.sample(10, random_state=42) [money]
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 # Explanation: Column Cleaning 4 - Convert other object columns to integer format.
 
@@ -360,8 +338,6 @@ for i in ints:
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 # Explanation: Row Cleaning 1 - Exclude listings with unrealistic prices.
 
@@ -394,8 +370,6 @@ print(f"Number of rows with missing price after cleaning: {count_price_missing}"
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 # Explanation: Row Cleaning 2 - Calculate the number of missing values per row and plot a histogram of the distribution
 
@@ -406,8 +380,6 @@ probs.plot.hist(bins=30)
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: Row Cleaning 2 - Drop rows where there are 10 or more missing values
 
@@ -418,8 +390,6 @@ print(f"Have reduced data frame to: {listings_raw.shape[0]:,} rows and {listings
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: Row Cleaning 3 - Drop rows where 'last_review' = Null
 
@@ -430,8 +400,6 @@ print(f"Number of rows dropped: {dropped_rows}")
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: Data cleaning validation (Seeded Rows)
 
@@ -440,8 +408,6 @@ listings_raw.sample(10, random_state=42)
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: Data cleaning validation (Column Type)
 
@@ -451,8 +417,6 @@ listings_clean.info()
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: Save the clean data locally
 
@@ -470,8 +434,6 @@ As of December 2023, data from Inside Airbnb shows approximately 66,000 active l
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: Calculate the total number of listings in the cleaned data frame.
 
@@ -481,8 +443,6 @@ print(f"Number of rows: {num_rows}")
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: Calculate the number of listings for each room type and the proportion of 'Entire home/apt'.
 
@@ -501,8 +461,6 @@ print(f"Proportion of 'Entire home/apt' listings: {entire_home_proportion:.4f}")
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: Assuming uniform distribution, this code performs a chi-squared test to confirm the count of 'Entire home/apt' is significantly higher than expected.
 
@@ -529,7 +487,6 @@ else:
 ```{python}
 #| echo: false
 #| output: asis
-#| results: hide
 
 #Explanation: Plot the bar chart of the distribution of listings by room type.
 
@@ -573,8 +530,6 @@ show(p)
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: Calculate the proportion of 'Entire home/apt' hosts as multiple-listing hosts
 
@@ -593,7 +548,6 @@ Although London's [90-day rule](https://www.london.gov.uk/programmes-strategies/
 ```{python}
 #| echo: false
 #| output: asis
-#| results: hide
 
 #Explanation: Create the histogram showing the distribution of 'availability_365' for 'Entire home/apt' in London
 
@@ -644,8 +598,6 @@ This section highlights the speculative and unregulated nature of Entire home/ap
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: Loading London Borough boundaries (polygon)
 
@@ -661,8 +613,6 @@ print(boros.crs)
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: Loading Airbnb listings (point)
 
@@ -676,8 +626,6 @@ print(gdf.geometry.crs) #Reprojection
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: Subsetting the listings (points) to 'Entire home/apt' with 'availability_365' larger than 90.
 
@@ -689,7 +637,6 @@ entire_home_apt_90 = gdf[(gdf['room_type'] == 'Entire home/apt') &
 ```{python}
 #| echo: false
 #| output: asis
-#| results: hide
 
 #Explanation: Mapping the spatial distribution of Entire home/apt with more than 90 days available in the next calendar year.
 
@@ -736,16 +683,12 @@ show(p, notebook_handle=True)
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 print(boros.columns)
 ```
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: Perform a spatial join to assign borough information to listings and count entire home/apt listings per borough
 
@@ -764,8 +707,6 @@ print(boros.head())
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Dependent Variable: Mean monthly rent per bedroom (in entire properties, excluding rooms in shared houses) by borough.
 
@@ -848,8 +789,6 @@ We analyzed how Airbnb entire-home listings operating over 90 days a year affect
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: Plot the distribution of mean_rent and log-transform it if it is skewed
 
@@ -873,8 +812,6 @@ print(boros.head())
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: Number of households per borough to calculate the independent variable
 
@@ -922,8 +859,6 @@ print(boros.head())
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Key Independent Variable: Number of Entire home/apt with annual availability > 90 per 1000 households by borough & Log-transformation
 
@@ -983,8 +918,6 @@ print(boros.head())
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: Control 1 - Population Density
 
@@ -1024,8 +957,6 @@ print(boros.head())
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: Control 2 - Median Taxpayer Income
 
@@ -1054,8 +985,6 @@ print(boros.head())
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: Control 3 - Unemployment Rate
 
@@ -1086,8 +1015,6 @@ print(boros)
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: Control 4 - Crime Rate
 
@@ -1122,8 +1049,6 @@ print(boros.head())
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: Control 5 - Housing Demand (% of Renters)
 
@@ -1177,8 +1102,6 @@ print(boros.head())
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: Control 6 - Housing Supply (Housing stock per person)
 
@@ -1210,8 +1133,6 @@ print(boros.head())
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: Control 7 - Education (Average 8 score)
 
@@ -1246,8 +1167,6 @@ print(boros.head())
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: Control 8 - Public Transport (PTAL) by borough
 
@@ -1271,8 +1190,6 @@ print(boros.head())
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: Control 9 - Green Space (% of area as green and blue space) by borough
 
@@ -1295,8 +1212,6 @@ print(boros.head())
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: Select only the key columns for regression
 
@@ -1315,8 +1230,6 @@ print(boros.dtypes)
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: Convert Inner/Outer as a numeric binary
 
@@ -1326,8 +1239,6 @@ print(boros.head())
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: Drop 'City of London' and check data frame
 
@@ -1337,8 +1248,6 @@ print(boros)
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: OLS Regression
 
@@ -1395,8 +1304,6 @@ By controlling for borough-level factors, we find that a **1%** increase in Airb
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: Unlog the column (assuming log transformation was natural log: log(x + 1))
 
@@ -1406,8 +1313,6 @@ print(boros)
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: Conduct Elbow Test & Clustering
 
@@ -1433,8 +1338,6 @@ plt.show()
 
 ```{python}
 #| echo: false
-#| results: hide
-#| results: hide
 
 #Explanation: Plot
 
