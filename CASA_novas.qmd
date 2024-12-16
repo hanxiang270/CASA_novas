@@ -48,6 +48,7 @@ jupyter:
 
 ```{python}
 #| echo: false
+#| results: hide
 
 #Explanation: Import libraries
 import os
