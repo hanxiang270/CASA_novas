@@ -186,23 +186,16 @@ Inside Airbnb collected data to reveal the impact of short-term lets (STL) on re
 ::: {.duedate}
 
 ( 18 points; Answer due {{< var assess.group-date >}} )
-To fully understand the ethical considerations of the use of Inside Airbnb data, it’s important to take into account the fact that while the data provides insights on the effects of short-term rentals, its use raises several ethical concerns, particularly around privacy, consent, and bias. 
 
-Although the data is scraped from publicly available information on the Airbnb website, which already has some concerns on completeness and accuracy, as addressed in previous questions, it is crucial to mention the data privacy and informed consent risks. 
+It’s important to consider that while the InsideAirbnb data provides insights on the effects of short-term rentals, its use raises several ethical concerns, particularly around privacy, consent, rights to use the data, and bias. 
 
-Researchers using InsideAirbnb data do not seek explicit consent from the individuals whose data is included. This raises questions about whether individuals had sufficient control over how their data was used. Although the scraped data was public on the Airbnb website itself, individuals may not have consented to its use in research or any other ways of use or may not be able to understand the implications of their consent effectively (Solove, 2012) or the implications of the “aggregation effect” (Solove, 2012) of their data. 
+About privacy and consent, we can mention that although the data is scraped from publicly available information on the Airbnb website, researchers using the data do not seek explicit consent from the individuals whose data is included. Even though hosts have accepted Airbnb’s Terms of Service to make their data public to offer their listings, they often are not able to understand the implications of their consent effectively [@solove_privacy_2012] and they didn’t give consent for other purposes like research [@scassa_ownership_2019]. Moreover, because of the “aggregation effect” [@solove_privacy_2012], combining seemingly simple data, represents risks of exposing sensitive information or personally identifying data, for example when combining photos from the listings with locations and personal details exposed on the reviews. 
 
-While Airbnb's Terms of Service (TOS) prohibit the downloading or scraping of data from its site, this contractual obligation only binds the parties to the agreement and not third parties who use the data (Scassa, 2019). This raises questions about who owns and controls the data and whether researchers should be allowed to use it without explicit consent. 
+On rights to use the data, we found that Airbnb's Terms of Service prohibit the downloading or scraping of data from its site, but this obligation only binds the parties to the agreement and not third parties who use the data [@scassa_ownership_2019]. This raises questions about who owns and controls the data and whether researchers should be allowed to use it without explicit permission. 
 
-It is also crucial to mention that the use of the scraped data for research purposes can contribute to evidence-based policymaking which will have other ethical implications. 
+Finally, bias is an ethical issue to consider when using the data for research purposes and evidence-based policymaking. While the InsideAirbnb data may appear unbiased, the way it is analysed and interpreted can introduce significant biases emerging from the diverse perspectives and methodologies of the institutions conducting the analysis, that may also result on a reductionist way of assessing the phenomena. For example, [@Quattrone:2018] mentions that municipalities often approach Airbnb regulation through a “false dichotomy,” either allowing the platform to operate without restrictions or banning it entirely. Such reductionist approaches can disproportionately harm small-scale hosts who are not misusing the platform and rely on it to cover living costs, which according to [Airbnb News (2002)](https://news.airbnb.com/en-uk/third-of-hosts-use-airbnb-income-to-afford-rising-living-costs/), might represent up to a third of UK hosts.  
 
-While the Inside Airbnb data may appear unbiased, the way it is analysed and interpreted can introduce significant biases. These biases might emerge from the diverse perspectives, priorities and methodologies of the institutions conducting the analysis, that may also result on a reductionist way of assessing it.  
-
-For example, Quattrone(2018) mentions that “while, in theory, municipalities should regulate the emergence of Airbnb through evidence-based policy making, in practice, they engage in a false dichotomy: some municipalities allow the business without imposing any regulation, while others ban it altogether”. Such reductionist decisions or overregulation might disproportionally affect to small-scale hosts who comply with regulations and that rely on Airbnb to cover living costs, which according to Airbnb News (2002), might represent up to a third of UK hosts. 
-
-To avoid ethical issues arising from biased analysis, according to D’Ignazio et al(2020), it will be important acknowledging that data is not raw and analysis is not fully neutral and requires transparency about context and methods. Also, it’s necessary to keep in mind that behind numbers on the data there are people whose livelihoods may be directly impacted by policy decisions, so quantitative analysis is not enough to address this kind of phenomenon and must be complemented with qualitative research. 
-
-As data scientists and researchers, we should be aware of our ethical responsibilities when it comes to transparency, consent and the right to privacy of vulnerable populations. Therefore, the use of Inside Airbnb data must be approached critically.
+To avoid ethical issues arising from biased analysis, according to D’Ignazio [@dignazio_data_2020], it is important acknowledging that data is not raw, and analysis is not fully neutral and requires transparency about context and methods. Also, it’s necessary to keep in mind that behind numbers on the data there are people whose livelihoods may be directly impacted by policy decisions, so quantitative analysis is not enough to address this kind of phenomenon and must be complemented with qualitative research, consent from those whose data is used and a critical approach of the data. 
 :::
 
 ## 6. With reference to the InsideAirbnb data (*i.e.* using numbers, figures, maps, and descriptive statistics), what does an analysis of Hosts and the types of properties that they list suggest about the nature of Airbnb lettings in London? 
@@ -560,6 +553,8 @@ This section highlights the speculative and unregulated nature of Entire home/ap
 
 ( 45 points; Answer due {{< var assess.group-date >}} )
 
+
+
 ```{python}
 #| echo: false
 #Explanation: Loading London Borough boundaries (polygon)
@@ -732,6 +727,12 @@ boros = boros.merge(
 # Drop the redundant column
 boros.drop(columns=['Name'], inplace=True)
 print(boros.head())
+```
+
+```{python}
+boros.to_csv('boros_data.csv', index=False)
+
+print("Datos exportados como 'boros_data.csv'.")
 ```
 
 ```{python}
@@ -1274,6 +1275,16 @@ boros.plot(column='cluster', cmap='Set2', legend=False, figsize=(12, 8))
 plt.title('Clusters of Entire Home/Apt Listings per 1000 Households by Borough')
 plt.show()
 ```
+
+After analysing the InsideAirbnb dataset we consider that it provides insights to establish regulations tailored specifically to London. This approach will help avoid too generic rules that may affect users that are not misusing the platform or fail to address those exploiting the platform and therefore affecting London’s housing crisis. 
+
+For instance, our analysis reveals that only 5% of London hosts include their registration numbers on the platform, making it difficult to identify those accumulating multiple properties. To address this, and as a first step on defining regulations, we propose requiring Airbnb to verify that hosts are the actual legal representants of the properties they list. This step would improve transparency, allowing regulators to distinguish between small-scale hosts and larger ones, ensuring that regulations are enforced fairly and targeted effectively. 
+
+Between these two kinds of hosts, the first group could be understood as people who genuinely use Airbnb as a means of generating income from spare rooms or temporarily unoccupied properties, so regulations should aim to minimize affecting them as discussed in Question 5. For instance, we suggest maintaining the 90-day rental limit and the “Rent a room” scheme which allows up to £7,500 tax-free income (KeyNest, 2019). However, those renting for more than 90 days would need to apply for a permit and pay business taxes like hotels, following San Francisco practices. (add reference) 
+
+For hosts with more listings, stricter regulations should be included as they act as businesses. They should also obtain permits and pay hotel level taxes, which will help address unfair competition concerns of traditional short term rental businesses (Reyes, 2015). Other specific regulations can be informed by our clustering analysis, where we identified boroughs where Airbnb density significantly impacts the housing market. In these areas, we recommend banning such businesses. In those where there is lower Airbnb density, they will be able to operate but with a revenue cap equivalent to the boroughs’ average long-term rent. This would reduce financial incentives for prioritizing STL over long-term rentals, gradually returning properties to the housing market. 
+
+This kind of measure aims to protect individuals using Airbnb responsibly, while applying stricter rules to those using the platform as a business at the expense of long-term housing. Ultimately, the goal would be to ease the rising housing prices by reducing the number of homes lost to short-term lets and restoring them to the long-term market. 
 
 :::
 
