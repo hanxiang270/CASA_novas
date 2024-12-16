@@ -1406,18 +1406,15 @@ plt.title('Clusters of Entire Home/Apt Listings per 1000 Households by Borough')
 plt.show()
 ```
 
-<<<<<<< HEAD
 After analysing the InsideAirbnb dataset we consider that it provides insights to establish regulations tailored specifically to London. This approach will help avoid too generic rules that may affect users that are not misusing the platform or fail to address those exploiting the platform and therefore affecting London’s housing crisis. 
 
 For instance, our analysis reveals that only 5% of London hosts include their registration numbers on the platform, making it difficult to identify those accumulating multiple properties. To address this, and as a first step on defining regulations, we propose requiring Airbnb to verify that hosts are the actual legal representants of the properties they list. This step would improve transparency, allowing regulators to distinguish between small-scale hosts and larger ones, ensuring that regulations are enforced fairly and targeted effectively. 
 
-Between these two kinds of hosts, the first group could be understood as people who genuinely use Airbnb as a means of generating income from spare rooms or temporarily unoccupied properties, so regulations should aim to minimize affecting them as discussed in Question 5. For instance, we suggest maintaining the 90-day rental limit and the “Rent a room” scheme which allows up to £7,500 tax-free income (KeyNest, 2019). However, those renting for more than 90 days would need to apply for a permit and pay business taxes like hotels, following San Francisco practices. (add reference) 
+Between these two kinds of hosts, the first group could be understood as people who genuinely use Airbnb as a means of generating income from spare rooms or temporarily unoccupied properties, so regulations should aim to minimize affecting them as discussed in Question 5. For instance, we suggest maintaining the 90-day rental limit and the “Rent a room” scheme which allows up to £7,500 tax-free income (KeyNest, 2019). However, those renting for more than 90 days would need to apply for a permit and pay business taxes like hotels, following San Francisco practices.
 
 For hosts with more listings, stricter regulations should be included as they act as businesses. They should also obtain permits and pay hotel level taxes, which will help address unfair competition concerns of traditional short term rental businesses (Reyes, 2015). Other specific regulations can be informed by our clustering analysis, where we identified boroughs where Airbnb density significantly impacts the housing market. In these areas, we recommend banning such businesses. In those where there is lower Airbnb density, they will be able to operate but with a revenue cap equivalent to the boroughs’ average long-term rent. This would reduce financial incentives for prioritizing STL over long-term rentals, gradually returning properties to the housing market. 
 
 This kind of measure aims to protect individuals using Airbnb responsibly, while applying stricter rules to those using the platform as a business at the expense of long-term housing. Ultimately, the goal would be to ease the rising housing prices by reducing the number of homes lost to short-term lets and restoring them to the long-term market. 
-
-=======
 
 ```{python}
 from graphviz import Digraph
@@ -1460,7 +1457,6 @@ svg_data = diagram.pipe(format='svg')  # Render as SVG data
 display(SVG(svg_data))  # Display in Jupyter Notebook
 ```
 
->>>>>>> c33e7174eba25eb1cdba96a07009978e66234374
 :::
 
 ## Sustainable Authorship Tools
