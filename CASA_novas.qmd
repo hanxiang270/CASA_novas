@@ -48,12 +48,27 @@ jupyter:
 
 ```{python}
 #| echo: false
-#| results: hide
 
 #Explanation: Import libraries
 import os
 import pandas as pd
+import requests
+
+def download_bib_file(url, out_path):
+    if not os.path.exists(out_path):
+        try:
+            response = requests.get(url)
+            response.raise_for_status()
+            with open(out_path, 'w', encoding='utf-8') as file:
+                file.write(response.text)
+        except requests.exceptions.RequestException as e:
+            print(f"Failed to get document: {e}")
+
+download_bib_file("https://github.com/hanxiang270/CASA_novas/blob/bacb80b4ed95209dc918ec88be19cdcd2c6f8402/CASA_novas_bib.bib", "CASA_novas_bib.bib")
+
+download_bib_file("https://github.com/hanxiang270/CASA_novas/blob/bacb80b4ed95209dc918ec88be19cdcd2c6f8402/harvard-cite-them-right.csl", "harvard-cite-them-right.csl")
 ```
+
 
 ```{python}
 #| echo: false
@@ -602,8 +617,6 @@ This section highlights the speculative and unregulated nature of Entire home/ap
 ::: {.duedate}
 
 ( 45 points; Answer due {{< var assess.group-date >}} )
-
-
 
 ```{python}
 #| echo: false
@@ -1405,6 +1418,7 @@ For hosts with more listings, stricter regulations should be included as they ac
 This kind of measure aims to protect individuals using Airbnb responsibly, while applying stricter rules to those using the platform as a business at the expense of long-term housing. Ultimately, the goal would be to ease the rising housing prices by reducing the number of homes lost to short-term lets and restoring them to the long-term market. 
 
 =======
+
 ```{python}
 from graphviz import Digraph
 from IPython.display import SVG, display
@@ -1444,8 +1458,8 @@ diagram.edge("I", "M", dir='none', color="grey")
 # Render and display the diagram in the notebook
 svg_data = diagram.pipe(format='svg')  # Render as SVG data
 display(SVG(svg_data))  # Display in Jupyter Notebook
-
 ```
+
 >>>>>>> c33e7174eba25eb1cdba96a07009978e66234374
 :::
 
