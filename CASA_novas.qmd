@@ -48,9 +48,7 @@ jupyter:
 ---
 
 ```{python}
-#| echo: false
 #| results: hide
-
 #Explanation: Import libraries
 import os
 import pandas as pd
@@ -73,8 +71,6 @@ download_bib("https://raw.githubusercontent.com/hanxiang270/CASA_novas/refs/head
 ```
 
 ```{python}
-#| echo: false
-
 #Explanation: This code chunk downloads a file from a given URL and saves it locally to a specified destination, caching it if it doesn't already exist or is too small, and returns the local file path.
 
 from urllib.parse import urlparse
@@ -131,8 +127,6 @@ def cache_data(src: str, dest: str) -> str:
 ```
 
 ```{python}
-#| echo: false
-
 #Explanation: The code constructs a URL to access a specific dataset from Inside Airbnb, downloads and caches the file, reads it into a Pandas DataFrame, and then prints the shape and detailed information.
 
 host = 'https://data.insideairbnb.com'
@@ -149,9 +143,7 @@ listings_raw.info(verbose=True)
 ```
 
 ```{python}
-#| echo: false
 #| results: hide
-
 #Explanation: The code saves the dataset to a specified folder (Data/Raw) in the current working directory as a CSV file.
 
 path = os.path.join('Data', 'Raw') 
@@ -169,80 +161,58 @@ if not os.path.exists(os.path.join(path, fn)):
 
 ## 1. Who collected the InsideAirbnb data?
 
-::: {.duedate}
 
 ( 2 points; Answer due Week 7 )
 
-The Inside Airbnb data was primarily collected by [Murray Cox](https://twitter.com/murrayscox), a Brooklyn based independent researcher who started the project in 2015. While Cox leads the initiative, a network of volunteers, activists, and researchers supports the data collection by providing local context, refining scraping tools, and organizing the raw data.
+The InsideAirbnb data was primarily collected by [Murray Cox](https://twitter.com/murrayscox), a Brooklyn-based independent researcher who started the project in 2015. While Cox leads the initiative, a network of activists and researchers supports the data collection by providing local context, refining scraping tools, and organizing the raw data.
 
-:::
 
 
 ## 2. Why did they collect the InsideAirbnb data?
 
-::: {.duedate}
 
 ( 4 points; Answer due Week 7 )
 
-Inside Airbnb collected data to reveal the impact of short-term lets (STL) on residential communities, often obscured by Airbnb’s PR-driven data. In 2015, Airbnb purged over 1,000 listings from multi-listing hosts before presenting a manipulated snapshot under its ‘transparency initiative’ [@cox_how_2020]. If this scandal had not been exposed, Airbnb’s harm to local housing markets would have been downplayed. As a grassroots project, Inside Airbnb challenges dominant corporate narratives by providing transparent data that highlights Airbnb’s role in gentrification, eviction, and the housing crisis. This empowers researchers, policymakers, and marginalized communities to collectively advocate for fair STL regulations and social justice — exemplifying 'data for co-liberation' [@dignazio_data_2020].
-:::
+InsideAirbnb collected data to reveal the impact of short-term rentals (STR) on residential communities, often obscured by Airbnb’s PR-driven data. For instance, in 2015, Airbnb purged over 1,000 listings from multi-listing hosts before presenting a manipulated snapshot under its ‘transparency initiative’ [@cox_how_2020]. If this scandal had not been exposed, Airbnb’s harm to local housing markets would have been downplayed. As a grassroots project, InsideAirbnb aims to challenge this issue by providing transparent data that highlights Airbnb’s role in gentrification, eviction, and the housing crisis. This empowers researchers, policymakers, and marginalized communities to collectively advocate for fair STR regulations and social justice — exemplifying 'data for co-liberation' [@dignazio_data_2020].
 
 
 ## 3. How did they collect it?
 
-::: {.duedate}
 
 ( 5 points; Answer due Week 8 )
 
-Regarding the methods of collection of InsideAirbnb it’s worth start mentioning that “the website only provides minimal information on the data collection process” [@Alsudais:2021]. From their [website](https://insideairbnb.com/data-assumptions/) we can see that they compile, in a quarterly basis, public information from the Airbnb website using python scripts for web-scraping. According to Alsudais, “these scripts included ones that have been “copied and pasted” from other online resources” [@Alsudais:2021]. Through this method of collection, they gather different data variables from each listing including numeric (e.g., host listings count, minimum nights, price per night), categorical (e.g., host ID), spatial (e.g.,  longitude and latitude), and textual (e.g., description) data, which is later anonymised, cleansed and aggregated in files open to the public. 
-:::
+Regarding the methods of collection of InsideAirbnb, “the website only provides minimal information on the data collection process” [@Alsudais:2021]. From their [website](https://insideairbnb.com/data-assumptions/) we can see that they compile, in a quarterly basis, public information from the Airbnb website using python scripts for web-scraping. According to Alsudais, “these scripts included ones that have been “copied and pasted” from other online resources” [@Alsudais:2021]. Through this method of collection, they gather different data variables from each listing including numeric (e.g., host listings count, minimum nights, price per night), categorical (e.g., host ID), spatial (e.g.,  longitude and latitude), and textual (e.g., description) data, which is later cleansed and aggregated in files open to the public. 
 
 ## 4. How does the method of collection (Q3) impact the completeness and/or accuracy of the InsideAirbnb data? How well does it represent the process it seeks to study, and what wider issues does this raise?
 
-::: {.duedate}
-
 ( 11 points; Answer due Week 9 )
 
-**Data Completeness**
+Although InsideAirbnb states that it is [not responsible for the accuracy of its data](https://insideairbnb.com/data-assumptions/), its automated scraping method is susceptible to “systemic errors” [@Alsudais:2021]. For instance, manual inspection has confirmed that the scraper incorrectly collects all reviews associated with a listing ID, regardless of whether the listing is categorized as a "place" (e.g., apartments) or an "experience" (e.g., tours). This issue may introduce bias into Natural Language Processing (NLP) studies analyzing reviews, potentially distorting insights into guest preferences and neighborhood characteristics. 
 
-The scraping method used by Inside Airbnb captures a complete snapshot of Airbnb listings on a quarterly basis for a given city. The dataset for London, scraped in December 2023, contains 91,778 listings, providing extensive coverage. However, some of these listings may no longer be available or were never intended for booking, serving instead as “bait and switch” listings [@Gurran:2017].  
+Also, InsideAirbnb data accuracy is compromised as the scraped information relies on Airbnb and host-generated content that may be inaccurate. For instance, Airbnb anonymizes location data, causing the scraped locations to appear scattered around the actual addresses. This creates challenges for local authorities attempting to regulate unregistered hosts in London [@ferreri_platform_2018] and introduces errors in studies analyzing Airbnb’s impact on specific neighborhoods.  
 
-The dataset is also constrained by the city's geographical boundary. For example, properties outside the Greater London Authority boundary may still be actively used by travelers visiting London, impacting housing dynamics and tourism patterns. Excluding these properties can underestimate Airbnb's overall impact on the local rental market and urban economy.  
-
-**Data Accuracy**
-
-Inside Airbnb states that it is [not responsible for the accuracy of its data](https://insideairbnb.com/data-assumptions/), as the scraped information accuracy relies on Airbnb and host-generated content. One of the issues is that Airbnb anonymizes location data, causing the scraped locations to appear scattered around the actual addresses. This creates challenges for local authorities attempting to regulate unregistered hosts in London [@ferreri_platform_2018] and introduces errors in studies analyzing Airbnb’s impact on specific neighborhoods.  
-
-Also, hosts may misrepresent listing characteristics, such as misclassifying room types as *Entire Home* or *Private Room* (https://community.withairbnb.com/t5/Ask-about-your-listing/Entire-home-or-private-room-ANY-THOUGHTS/m-p/421087). This can lead to incorrect conclusions about the distribution of Airbnb listings across property types and their overall impact on housing availability and market dynamics.
-
-:::
+Furthermore, hosts may misrepresent listing characteristics, such as misclassifying room types as [Entire Home or Private Room](https://community.withairbnb.com/t5/Ask-about-your-listing/Entire-home-or-private-room-ANY-THOUGHTS/m-p/421087). This can lead to incorrect conclusions about the distribution of Airbnb listings across property types and their overall impact on housing availability and market dynamics.  
 
 ## 5. What ethical considerations does the use of the InsideAirbnb data raise? 
 
-::: {.duedate}
+( 18 points)
 
-( 18 points; Answer due {{< var assess.group-date >}} )
+While the InsideAirbnb data provides insights on the STR's effects, its use raises several ethical concerns, particularly around privacy, consent, rights to use the data, and bias. 
 
-It’s important to consider that while the InsideAirbnb data provides insights on the effects of short-term rentals, its use raises several ethical concerns, particularly around privacy, consent, rights to use the data, and bias. 
+About privacy and consent, although the data is scraped from publicly available information on the Airbnb website, researchers using the data do not seek explicit consent from the individuals whose data is included. Even though hosts have accepted Airbnb’s Terms of Service to make their data public to offer their listings, they often are not able to understand the implications of their consent effectively [@solove_privacy_2012] and they didn’t give consent for other purposes like research [@scassa_ownership_2019]. Moreover, because of the “aggregation effect” [@solove_privacy_2012], combining seemingly simple data, represents risks of exposing sensitive information or personally identifying data, for example when combining photos from the listings with locations and personal details exposed on the reviews. 
 
-About privacy and consent, we can mention that although the data is scraped from publicly available information on the Airbnb website, researchers using the data do not seek explicit consent from the individuals whose data is included. Even though hosts have accepted Airbnb’s Terms of Service to make their data public to offer their listings, they often are not able to understand the implications of their consent effectively [@solove_privacy_2012] and they didn’t give consent for other purposes like research [@scassa_ownership_2019]. Moreover, because of the “aggregation effect” [@solove_privacy_2012], combining seemingly simple data, represents risks of exposing sensitive information or personally identifying data, for example when combining photos from the listings with locations and personal details exposed on the reviews. 
-
-On rights to use the data, we found that Airbnb's Terms of Service prohibit the downloading or scraping of data from its site, but this obligation only binds the parties to the agreement and not third parties who use the data [@scassa_ownership_2019]. This raises questions about who owns and controls the data and whether researchers should be allowed to use it without explicit permission. 
+On rights to use the data, Airbnb's Terms of Service prohibit the downloading or scraping of data from its site, but this obligation only binds the parties to the agreement and not third parties who use the data [@scassa_ownership_2019]. This raises questions about who owns and controls the data and whether researchers should be allowed to use it without explicit permission. 
 
 Finally, bias is an ethical issue to consider when using the data for research purposes and evidence-based policymaking. While the InsideAirbnb data may appear unbiased, the way it is analysed and interpreted can introduce significant biases emerging from the diverse perspectives and methodologies of the institutions conducting the analysis, that may also result on a reductionist way of assessing the phenomena. For example, [@Quattrone:2018] mentions that municipalities often approach Airbnb regulation through a “false dichotomy,” either allowing the platform to operate without restrictions or banning it entirely. Such reductionist approaches can disproportionately harm small-scale hosts who are not misusing the platform and rely on it to cover living costs, which according to [Airbnb News (2002)](https://news.airbnb.com/en-uk/third-of-hosts-use-airbnb-income-to-afford-rising-living-costs/), might represent up to a third of UK hosts.  
 
-To avoid ethical issues arising from biased analysis, according to D’Ignazio [@dignazio_data_2020], it is important acknowledging that data is not raw, and analysis is not fully neutral and requires transparency about context and methods. Also, it’s necessary to keep in mind that behind numbers on the data there are people whose livelihoods may be directly impacted by policy decisions, so quantitative analysis is not enough to address this kind of phenomenon and must be complemented with qualitative research, consent from those whose data is used and a critical approach of the data. 
-:::
+To avoid ethical issues arising from biased analysis, according to D’Ignazio [@dignazio_data_2020], it is important acknowledging that data is not raw, and analysis is not fully neutral and requires transparency about context and methods. Also, it’s necessary to keep in mind that behind numbers on the data there are people whose livelihoods may be directly impacted by policy decisions, so quantitative analysis is not enough to address this kind of phenomenon and must be complemented with qualitative research, consent from those whose data is used, and a critical approach of the data. 
 
 ## 6. With reference to the InsideAirbnb data (*i.e.* using numbers, figures, maps, and descriptive statistics), what does an analysis of Hosts and the types of properties that they list suggest about the nature of Airbnb lettings in London? 
 
-::: {.duedate}
 
-( 15 points; Answer due {{< var assess.group-date >}} )
+( 15 points)
 
 ```{python}
-#| echo: false
-
 #Explanation: Import packages
 import numpy as np
 import matplotlib.pyplot as plt
@@ -252,16 +222,12 @@ from scipy.stats import chisquare
 ```
 
 ```{python}
-#| echo: false
-
 #Explanation: To check the data type for each column by a for loop.
 for col in listings_raw.columns:
     print(f"{col}: {listings_raw[col].dtype}")
 ```
 
 ```{python}
-#| echo: false
-
 #Explanation: Randomly selects 5 rows from the DataFrame listings_raw using a fixed random seed for reproducibility.
 
 listings_raw.sample(10, random_state=42)
@@ -280,8 +246,6 @@ listings_raw.sample(10, random_state=42)
 ```
 
 ```{python}
-#| echo: false
-
 #Explanation: Column Cleaning 1 - Get the top 10 columns with the most null values
 
 top_10_columns = listings_raw.isnull().sum(axis=0).sort_values(ascending=False)[:10].index
@@ -291,8 +255,6 @@ print(listings_raw[top_10_columns].isnull().sum())
 ```
 
 ```{python}
-#| echo: false
-
 #Explanation: Column Cleaning 1 - Drop the top 10 columns
 
 listings_raw = listings_raw.drop(columns=top_10_columns)
@@ -302,8 +264,6 @@ print(listings_raw.isnull().sum().sort_values(ascending=False)[:10])
 ```
 
 ```{python}
-#| echo: false
-
 #Explanation: Column Cleaning 2 - Convert 'room_type' and 'property_type' to categories.
 
 cats = ['property_type','room_type']
@@ -320,8 +280,6 @@ print(listings_raw[cats[1]].cat.categories.values)
 ```
 
 ```{python}
-#| echo: false
-
 #Explanation: Column Cleaning 3 - Convert 'price' to numeric format.
 
 money = ['price']
@@ -334,8 +292,6 @@ listings_raw.sample(10, random_state=42) [money]
 ```
 
 ```{python}
-#| echo: false
-
 # Explanation: Column Cleaning 4 - Convert other object columns to integer format.
 
 ints = ['id', 'host_id', 'host_listings_count', 'host_total_listings_count', 'accommodates', 
@@ -351,8 +307,6 @@ for i in ints:
 ```
 
 ```{python}
-#| echo: false
-
 # Explanation: Row Cleaning 1 - Exclude listings with unrealistic prices.
 
 count_price_expensive = (listings_raw['price'] > 2000).sum()
@@ -383,8 +337,6 @@ print(f"Number of rows with missing price after cleaning: {count_price_missing}"
 ```
 
 ```{python}
-#| echo: false
-
 # Explanation: Row Cleaning 2 - Calculate the number of missing values per row and plot a histogram of the distribution
 
 probs = listings_raw.isnull().sum(axis=1) 
@@ -393,8 +345,6 @@ probs.plot.hist(bins=30)
 ```
 
 ```{python}
-#| echo: false
-
 #Explanation: Row Cleaning 2 - Drop rows where there are 10 or more missing values
 
 cutoff = 10
@@ -403,8 +353,6 @@ print(f"Have reduced data frame to: {listings_raw.shape[0]:,} rows and {listings
 ```
 
 ```{python}
-#| echo: false
-
 #Explanation: Row Cleaning 3 - Drop rows where 'last_review' = Null
 
 dropped_rows = len(listings_raw) - len(listings_raw.dropna(subset=['last_review']))
@@ -413,17 +361,13 @@ print(f"Number of rows dropped: {dropped_rows}")
 ```
 
 ```{python}
-#| echo: false
 #| results: hide
-
 #Explanation: Data cleaning validation (Seeded Rows)
 
 listings_raw.sample(10, random_state=42)
 ```
 
 ```{python}
-#| echo: false
-
 #Explanation: Data cleaning validation (Column Type)
 
 listings_clean = listings_raw
@@ -431,8 +375,6 @@ listings_clean.info()
 ```
 
 ```{python}
-#| echo: false
-
 #Explanation: Save the clean data locally
 
 path = os.path.join('Data','Clean')
@@ -446,9 +388,7 @@ print("Done.")
 ```
 
 ```{python}
-#| echo: false
 #| results: hide
-
 #Explanation: Loading London Borough boundaries (polygon)
 
 import geopandas as gpd
@@ -462,9 +402,7 @@ print(boros.crs)
 ```
 
 ```{python}
-#| echo: false
 #| results: hide
-
 #Explanation: Loading Airbnb listings (point)
 
 gdf = gpd.GeoDataFrame(listings_clean,
@@ -476,8 +414,6 @@ print(gdf.geometry.crs) #Reprojection
 ```
 
 ```{python}
-#| echo: false
-
 #Explanation: Calculate the total number of listings in the cleaned data frame.
 
 num_rows = listings_clean.shape[0]
@@ -501,9 +437,7 @@ print(f"Proportion of 'Entire home/apt' listings: {entire_home_proportion:.4f}")
 ```
 
 ```{python}
-#| echo: false
 #| results: hide
-
 #Explanation: Calculate the proportion of 'Entire home/apt' hosts as multiple-listing hosts
 
 entire_home_apt = listings_clean[listings_clean['room_type'] == 'Entire home/apt']
@@ -517,9 +451,7 @@ print(f"Entire home/apt multiple listing host ratio: {entire_ratio:.2%}")
 ```
 
 ```{python}
-#| echo: false
 #| results: hide
-
 #Explanation: Subsetting the listings (points) to 'Entire home/apt' with 'availability_365' larger than 90.
 
 entire_home_apt_90 = gdf[(gdf['room_type'] == 'Entire home/apt') & 
@@ -527,13 +459,11 @@ entire_home_apt_90 = gdf[(gdf['room_type'] == 'Entire home/apt') &
                           (gdf['availability_365'].notna())]
 ```
 
-As of December 2023, Inside Airbnb reports approximately 66,000 active listings in London, with 43,000 (64.01%) categorized as Entire home/apartment. Most boroughs have a higher proportion of Entire home/apartment listings compared to other room types (Fig 1), with Westminster leading at over 5,000 listings, followed by Kensington and Chelsea, and Camden.
+As of December 2023, InsideAirbnb reports approximately 66,000 active listings in London, with 43,000 (64.01%) categorized as Entire home/apartment. We can see that most boroughs have a higher proportion of Entire home/apartment listings compared to other room types (Fig 1), with Westminster leading at over 5,000 listings, followed by Kensington and Chelsea, and Camden.
 
 ```{python}
-#| echo: false
 #| output: true
 
-#fig 1.
 import geopandas as gpd
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -557,10 +487,16 @@ def categorize_room(row):
 
 gdf_with_boros['room_category'] = gdf_with_boros.apply(categorize_room, axis=1)
 
+#Count the listings by room category and borough
 room_counts = gdf_with_boros.groupby(['NAME', 'room_category']).size().unstack(fill_value=0)
 
+#Only keep the relevant room types
 room_counts = room_counts[['Entire home/apt', 'Private room', 'Others']]
 
+#Sort by the "Entire home/apt" column in ascending order
+room_counts = room_counts.sort_values('Entire home/apt', ascending=True)
+
+#Plot the bar chart
 ax = room_counts.plot(kind='barh', stacked=True, figsize=(12, 10), 
                       color=['#ffeb0f', '#ffcf70', '#ffa07a'])
 
@@ -572,17 +508,17 @@ plt.tight_layout()
 x_min, x_max = plt.xlim()  
 y_min, y_max = plt.ylim() 
 
-plt.text(x_max, y_min, "Others:Sum of Shared room and Hotel room", 
+#Add explanation text on legend
+plt.text(x_max, y_min, "Others: Sum of Shared room and Hotel room", 
          fontsize=10, color="gray", ha='right', va='bottom')
 
 plt.show()
 ```
 
-These entire-home listings in London are highly commercialized, with 65.23% available for over 90 days annually and a median availability of 167 days (Fig 2). Some hosts manage an exceptionally high number of properties, with a maximum of 2,475 listings, indicating commercial operations rather than traditional hosting. Among entire-home hosts with 0 to 20 listings (Fig 3), only 40% manage a single property.
+These entire-home listings in London are highly commercialized, with 65.23% available for over 90 days annually and a median availability of 167 days (Fig 2). 
 
 ```{python}
-import matplotlib.pyplot as plt
-import numpy as np
+#| output: true
 
 #Figure 2 in Matplotlib (for pdf rendering)
 
@@ -635,9 +571,7 @@ plt.show()
 ```
 
 ```{python}
-#| echo: false
-
-#Explanation: We decided to also do figure 2 in Bokeh as we consider it would be useful for an html rendering of the file.
+#Explanation: We decided to also do figure 2 in Bokeh as we consider it would be useful for an html rendering of the file in the future.
 
 from bokeh.models import ColumnDataSource, Label
 from bokeh.plotting import figure
@@ -699,8 +633,9 @@ output_notebook()  # Output to Jupyter notebook
 show(p)  # Display the plot
 ```
 
+Also, some hosts manage an exceptionally high number of properties, with a maximum of 2,475 listings, indicating commercial operations rather than traditional hosting. Among entire-home hosts with 0 to 20 listings (Fig 3), only 40% manage a single property.
+
 ```{python}
-#| echo: false
 #| output: true
 
 #Figure 3 in maplotlib
@@ -737,9 +672,7 @@ plt.show()
 ```
 
 ```{python}
-#| echo: false
-
-#fig3 in bokeh, for html rendering 
+#fig3 in bokeh, for html rendering if necessary in the future
 
 from bokeh.plotting import figure, show
 from bokeh.models import ColumnDataSource
@@ -780,8 +713,6 @@ show(p)
 ```
 
 ```{python}
-#| echo: false
-
 #Explanation: Calculate the total number of listings in the cleaned data frame.
 
 num_rows = listings_clean.shape[0]
@@ -792,17 +723,11 @@ print(boros.columns)
 
 These figures suggest that Airbnb in London has shifted from sharing underutilized spaces to a profit-driven model dominated by entire homes, which may negatively impact the local rental market, a topic discussed in the next section.
 
-:::
-
 ## 7. Drawing on your previous answers, and supporting your response with evidence (*e.g.* figures, maps, EDA/ESDA, and simple statistical analysis/models drawing on experience from, e.g., CASA0007), how *could* the InsideAirbnb data set be used to inform the regulation of Short-Term Lets (STL) in London?
 
-::: {.duedate}
-
-( 45 points; Answer due {{< var assess.group-date >}} )
+( 45 points)
 
 ```{python}
-#| echo: false
-
 #Explanation: Perform a spatial join to assign borough information to listings and count entire home/apt listings per borough
 
 #Reproject to British National Grid
@@ -823,8 +748,6 @@ print(boros.head())
 ```
 
 ```{python}
-#| echo: false
-
 #Dependent Variable: Mean monthly rent per bedroom (in entire properties, excluding rooms in shared houses) by borough.
 
 # Define the cache_data function to always re-download the file
@@ -894,10 +817,11 @@ boros.drop(columns=['Name'], inplace=True)
 print(boros.head())
 ```
 
-As of 2024, the average monthly rent for a single room in London is £1,013, which accounts for approximately [**52%**](https://www.thetimes.com/article/graduates-spend-more-than-half-their-wages-on-rent-2d5sxwvv2) of a graduate’s monthly income. The map below (Map 1) illustrates the average monthly rent per bedroom in entire properties (excluding shared accommodations) across London boroughs. **Kensington and Chelsea** has the highest average rent at £1,982 per month, followed by **Westminster** (£1,868) and the **City of London** (£1,460).
+Entire-home listings are often criticized for driving up rents in the LTR market by converting properties into STRs, reducing LTR housing availability. As noted earlier, most Airbnb hosts in London with entire-home listings manage multiple properties and rent them for over 90 days per year, reflecting a shift from optimizing underutilized properties to profit-driven operations that disrupt the LTR market [@duso_airbnb_2024]. To address this, London’s [90-day rule](https://www.london.gov.uk/programmes-strategies/housing-and-land/improving-private-rented-sector/guidance-short-term-and-holiday-lets-london) limits STRs of entire homes to 90 days annually without planning permission. However, less than [5%](https://airbtics.com/airbnb-rules-in-greater-london-united-kingdom/#:~:text=Less%20than%205%25%20of%20Airbnb,space%20for%20short%2Dterm%20rentals.) of Airbnb listings display a registration number, making enforcement difficult for local authorities.
+
+Also, we find that, as of 2024, the average monthly rent for a single room in London is £1,013, which accounts for approximately [**52%**](https://www.thetimes.com/article/graduates-spend-more-than-half-their-wages-on-rent-2d5sxwvv2) of a graduate’s monthly income. The map below (Map 1) illustrates the average monthly rent per bedroom in entire properties (excluding shared accommodations) across London boroughs. **Kensington and Chelsea** has the highest average rent at £1,982 per month, followed by **Westminster** (£1,868) and the **City of London** (£1,460).
 
 ```{python}
-#| echo: false
 #| output: true
 
 from matplotlib import cm
@@ -930,8 +854,6 @@ plt.show()
 ```
 
 ```{python}
-#| echo: false
-
 # Map 1 in bokeh, for html
 from bokeh.io import output_notebook, show
 from bokeh.models import GeoJSONDataSource, ColorBar, LinearColorMapper, HoverTool, PrintfTickFormatter
@@ -959,7 +881,7 @@ p.patches(
     fill_color={'field': 'mean_rent', 'transform': color_mapper},
     line_color="black",
     line_width=0.5,
-    fill_alpha=0.7,
+    fill_alpha=1,
 )
 
 hover = HoverTool()
@@ -987,17 +909,7 @@ output_notebook()
 show(p)
 ```
 
-Airbnb listings for entire homes are often criticized for driving up rents in the LTR market by converting properties into STRs, reducing LTR housing availability. As noted earlier, most Airbnb hosts in London with entire-home listings manage multiple properties and rent them for over 90 days per year, reflecting a shift from optimizing underutilized properties to profit-driven operations that disrupt the LTR market [@duso_airbnb_2024]. To address this, London’s [90-day rule](https://www.london.gov.uk/programmes-strategies/housing-and-land/improving-private-rented-sector/guidance-short-term-and-holiday-lets-london) limits STRs of entire homes to 90 days annually without planning permission. However, less than [5%](https://airbtics.com/airbnb-rules-in-greater-london-united-kingdom/#:~:text=Less%20than%205%25%20of%20Airbnb,space%20for%20short%2Dterm%20rentals.) of Airbnb listings display a registration number, making enforcement difficult for local authorities.
-
-We analyzed how Airbnb entire-home listings operating over 90 days a year affect LTR rents, using *Inside Airbnb*’s December 2023 dataset for London. The analysis accounts for borough-level factors such as socio-demographics, LTR demand and supply, and local amenities. Below are these factors with links to their data sources:
-
-**Socio-demographic**: [Population Density](https://data.london.gov.uk/dataset/land-area-and-population-density-ward-and-borough), [Median Income](https://data.london.gov.uk/dataset/average-income-tax-payers-borough), [Unemployment Rate](https://www.ethnicity-facts-figures.service.gov.uk/work-pay-and-benefits/unemployment-and-economic-inactivity/unemployment/latest/#download-the-data), [Crime Rate](https://data.london.gov.uk/dataset/recorded_crime_summary)  
-**LTR Demand & Supply**: [Percentage of Renters](https://data.london.gov.uk/dataset/housing-tenure-borough), [Housing Stock per Person](https://data.london.gov.uk/dataset/local-authority-housing-stock)  
-**Local Amenities**: [Education](https://data.london.gov.uk/dataset/gcse-results-by-borough), [Public Transport Accessibility](https://data.london.gov.uk/dataset/public-transport-accessibility-levels), [Green Space](https://data.london.gov.uk/dataset/green-and-blue-cover)  
-
 ```{python}
-#| echo: false
-
 #Explanation: Plot the distribution of mean_rent and log-transform it if it is skewed
 
 # Plot the histogram
@@ -1019,8 +931,6 @@ print(boros.head())
 ```
 
 ```{python}
-#| echo: false
-
 #Explanation: Number of households per borough to calculate the independent variable
 
 url2 = "https://data.london.gov.uk/download/housing-tenure-borough/785f6f0e-cc4b-42fd-8093-597b009555f2/tenure-households-borough.xlsx"
@@ -1066,8 +976,6 @@ print(boros.head())
 ```
 
 ```{python}
-#| echo: false
-
 #Key Independent Variable: Number of Entire home/apt with annual availability > 90 per 1000 households by borough & Log-transformation
 
 url2 = "https://data.london.gov.uk/download/housing-tenure-borough/785f6f0e-cc4b-42fd-8093-597b009555f2/tenure-households-borough.xlsx"
@@ -1125,8 +1033,6 @@ print(boros.head())
 ```
 
 ```{python}
-#| echo: false
-
 #Explanation: Control 1 - Population Density
 
 url3 = "https://data.london.gov.uk/download/land-area-and-population-density-ward-and-borough/77e9257d-ad9d-47aa-aeed-59a00741f301/housing-density-borough.csv"
@@ -1164,8 +1070,6 @@ print(boros.head())
 ```
 
 ```{python}
-#| echo: false
-
 #Explanation: Control 2 - Median Taxpayer Income
 
 url4 = "https://data.london.gov.uk/download/average-income-tax-payers-borough/392e86d4-f1d3-4f06-a6a5-7fcd0fd65948/income-of-tax-payers.xlsx"
@@ -1192,8 +1096,6 @@ print(boros.head())
 ```
 
 ```{python}
-#| echo: false
-
 #Explanation: Control 3 - Unemployment Rate
 
 url5 = "https://www.ethnicity-facts-figures.service.gov.uk/work-pay-and-benefits/unemployment-and-economic-inactivity/unemployment/latest/downloads/unemployment-by-local-authorities.csv"
@@ -1222,8 +1124,6 @@ print(boros)
 ```
 
 ```{python}
-#| echo: false
-
 #Explanation: Control 4 - Crime Rate
 
 url6 = "https://data.london.gov.uk/download/recorded_crime_summary/d234c4fe-b060-46bd-a2a6-c5dd1119bddd/MPS%20Borough%20Level%20Crime%20%28most%20recent%2024%20months%29.csv"
@@ -1256,9 +1156,7 @@ print(boros.head())
 ```
 
 ```{python}
-#| echo: false
 #| results: hide
-
 #Explanation: Control 5 - Housing Demand (% of Renters)
 
 url7 = "https://data.london.gov.uk/download/housing-tenure-borough/53cb03c2-3e99-4d71-937b-90b95a64ebaa/tenure-population-borough.csv"
@@ -1310,8 +1208,6 @@ print(boros.head())
 ```
 
 ```{python}
-#| echo: false
-
 #Explanation: Control 6 - Housing Supply (Housing stock per person)
 
 url8 = "https://data.london.gov.uk/download/local-authority-housing-stock/3421002e-f0ec-45e5-bf73-f594788ec93d/local-authority-housing-stock-borough.csv"
@@ -1341,8 +1237,6 @@ print(boros.head())
 ```
 
 ```{python}
-#| echo: false
-
 #Explanation: Control 7 - Education (Average 8 score)
 
 url9 = "https://data.london.gov.uk/download/gcse-results-by-borough/a8a71d73-cc48-4b30-9eb5-c5f605bc845c/GCSE%20results%20by%20gender.xlsx"
@@ -1375,8 +1269,6 @@ print(boros.head())
 ```
 
 ```{python}
-#| echo: false
-
 #Explanation: Control 8 - Public Transport (PTAL) by borough
 
 url10 = "https://data.london.gov.uk/download/public-transport-accessibility-levels/8e520b81-dd06-4ce6-aaa0-972dccf84b57/Borough%20AvPTAI2015.csv"
@@ -1398,8 +1290,6 @@ print(boros.head())
 ```
 
 ```{python}
-#| echo: false
-
 #Explanation: Control 9 - Green Space (% of area as green and blue space) by borough
 
 url11 = "https://data.london.gov.uk/download/green-and-blue-cover/fdff7445-bb87-4584-ada8-d527e7fcec97/green_cover_borough_summary_0.05.xlsx"
@@ -1420,8 +1310,6 @@ print(boros.head())
 ```
 
 ```{python}
-#| echo: false
-
 #Explanation: Select only the key columns for regression
 
 print(boros.columns)
@@ -1438,8 +1326,6 @@ print(boros.dtypes)
 ```
 
 ```{python}
-#| echo: false
-
 #Explanation: Convert Inner/Outer as a numeric binary
 
 boros['ONS_INNER'] = boros['ONS_INNER'].map({'T': 1, 'F': 0})
@@ -1447,9 +1333,7 @@ print(boros.head())
 ```
 
 ```{python}
-#| echo: false
 #| results: hide
-
 #Explanation: Drop 'City of London' and check data frame
 
 boros = boros.drop(index=32)
@@ -1457,8 +1341,6 @@ print(boros)
 ```
 
 ```{python}
-#| echo: false
-
 #Explanation: OLS Regression
 
 from statsmodels.stats.outliers_influence import variance_inflation_factor
@@ -1510,11 +1392,24 @@ OLS_regression_data = sm.OLS(endog=endog, exog=exog).fit()
 print(OLS_regression_data.summary())
 ```
 
-By controlling for borough-level factors, we find that a **1%** increase in Airbnb entire-home listings operating over 90 days per 1,000 households results in a **0.28%** rise in mean rent. This shows the potential for reducing rents through stricter regulation of such listings in London.
+To understand how much are those listings impacting the LTR market, we analysed Airbnb entire-home listings operating over 90 days a year, using InsideAirbnb’s December 2023 London's dataset. The analysis accounts for borough-level factors such as socio-demographics, LTR demand and supply, and local amenities. Below are these factors with links to their data sources:
+
+**Socio-demographic**: [Population Density](https://data.london.gov.uk/dataset/land-area-and-population-density-ward-and-borough), [Median Income](https://data.london.gov.uk/dataset/average-income-tax-payers-borough), [Unemployment Rate](https://www.ethnicity-facts-figures.service.gov.uk/work-pay-and-benefits/unemployment-and-economic-inactivity/unemployment/latest/#download-the-data), [Crime Rate](https://data.london.gov.uk/dataset/recorded_crime_summary)  
+
+**LTR Demand & Supply**: [Percentage of Renters](https://data.london.gov.uk/dataset/housing-tenure-borough), [Housing Stock per Person](https://data.london.gov.uk/dataset/local-authority-housing-stock)  
+
+**Local Amenities**: [Education](https://data.london.gov.uk/dataset/gcse-results-by-borough), [Public Transport Accessibility](https://data.london.gov.uk/dataset/public-transport-accessibility-levels), [Green Space](https://data.london.gov.uk/dataset/green-and-blue-cover)  
+
+By controlling for these borough-level factors, we find that a **1%** increase in Airbnb entire-home listings operating over 90 days per 1,000 households results in a **0.28%** rise in mean rent. This shows the potential for reducing rents through stricter regulation of such listings in London.
+
+Regarding regulations, we propose policies tailored to London’s short-term entire-home rental market: 
+
+First, since most London hosts [do not display registration numbers](https://airbtics.com/airbnb-rules-in-greater-london-united-kingdom/#:~:text=Less%20than%205%25%20of%20Airbnb,space%20for%20short%2Dterm%20rentals.), making it difficult to identify hosts with multiple properties, we recommend requiring Airbnb to verify that hosts are the legal owners or representatives of their listed properties. This would enhance transparency, allowing regulators to distinguish between individual hosts (1 listing) and commercial hosts (more than 1 listing) and enforce fair, effective regulation. 
+
+Following that, we propose place-based regulations tailored to borough-specific saturation levels of entire-home listings exceeding 90 days per 1,000 households (Map 2). Boroughs are classified by saturation using clustering: red (high), orange (medium), and yellow (low).   
+
 
 ```{python}
-#| echo: false
-
 #Explanation: Unlog the column (assuming log transformation was natural log: log(x + 1))
 
 boros['entire_1000_household'] = np.exp(boros['log_entire_1000_household']) - 1
@@ -1522,8 +1417,6 @@ print(boros)
 ```
 
 ```{python}
-#| echo: false
-
 #Explanation: Conduct Elbow Test & Clustering
 
 # Prepare the data for clustering
@@ -1546,18 +1439,10 @@ plt.ylabel('Within-Cluster Sum of Squares (WCSS)')
 plt.show()
 ```
 
-After analysing the InsideAirbnb dataset we consider that it provides insights to establish regulations tailored specifically to London. This approach will help avoid too generic rules that may affect users that are not misusing the platform or fail to address those exploiting the platform and therefore affecting London’s housing crisis. 
-
-For instance, our analysis reveals that only 5% of London hosts include their registration numbers on the platform, making it difficult to identify those accumulating multiple properties. To address this, and as a first step on defining regulations, we propose requiring Airbnb to verify that hosts are the actual legal representants of the properties they list. This step would improve transparency, allowing regulators to distinguish between small-scale hosts and larger ones, ensuring that regulations are enforced fairly and targeted effectively. 
-
-Between these two kinds of hosts, the first group could be understood as people who genuinely use Airbnb as a means of generating income from spare rooms or temporarily unoccupied properties, so regulations should aim to minimize affecting them as discussed in Question 5. For instance, we suggest maintaining the 90-day rental limit and the “Rent a room” scheme which allows up to £7,500 tax-free income (KeyNest, 2019). However, those renting for more than 90 days would need to apply for a permit and pay business taxes like hotels, following San Francisco practices.
-
-For hosts with more listings, stricter regulations should be included as they act as businesses. They should also obtain permits and pay hotel level taxes, which will help address unfair competition concerns of traditional short term rental businesses (Reyes, 2015). Other specific regulations can be informed by our clustering analysis (Map 2), where we identified boroughs where Airbnb saturation significantly impacts the housing market. In these areas, we recommend banning such businesses. In those where there is lower Airbnb density, they will be able to operate but with a revenue cap equivalent to the boroughs’ average long-term rent. This would reduce financial incentives for prioritizing STL over long-term rentals, gradually returning properties to the housing market. 
-
 ```{python}
-#| echo: false
 #| output: true
 
+#Map2
 import matplotlib.patches as mpatches
 
 #Perform KMeans clustering
@@ -1630,96 +1515,88 @@ plt.tight_layout()
 plt.show()
 ```
 
-This kind of measure aims to protect individuals using Airbnb responsibly, while applying stricter rules to those using the platform as a business at the expense of long-term housing. Ultimately, the goal would be to ease the rising housing prices by reducing the number of homes lost to short-term lets and restoring them to the long-term market. 
+In red and orange boroughs, regulations should minimize disruption for individual hosts relying on Airbnb to earn income from spare rooms or temporarily vacant properties, as discussed in Question 5. For instance, we suggest maintaining the 90-day rental limit and preserving the “Rent a Room” scheme, which allows up to £7,500 in tax-free income, as explained on the [Keynest webpage](https://keynest.com/blog/airbnb-regulations-london). For commercial hosts, we recommend a strict ban to reduce upward pressure on rents in these unaffordable boroughs.   
+
+In yellow boroughs, the same policies for individual hosts as above apply.  For commercial hosts, operations can continue under strict conditions, including adherence to the 90-day rule, obtaining permits, and paying hotel taxes, following similar regulations to San Francisco practices [@Shabrina:2017]. Additionally, we suggest imposing a revenue cap tied to the borough’s average long-term rent to reduce financial incentives for prioritizing STRs over long-term rentals (LTRs). 
+
+These measures, summarized in Figure 4, aim to protect individual hosts using Airbnb responsibly, while applying stricter regulations to commercial operators who exacerbate the housing crisis. Ultimately, these policies seek to ease rising housing costs by reducing homes lost to STRs and restoring them to the LTR market. 
 
 ```{python}
+#| output: true
 from graphviz import Digraph
 from IPython.display import SVG, display
 
-#Create a Digraph object
-diagram = Digraph(
-    format="svg",
-    graph_attr={
-        "rankdir": "TB",       # Top to Bottom layout
-        "splines": "polyline",    # Orthogonal lines (L-shaped)
-        "nodesep": "0.6",      # Horizontal spacing between nodes
-        "ranksep": "0.70",     # Vertical spacing between ranks
-    },
-    node_attr={
-        "shape": "box",
-        "fontsize": "12",
-        "fontname": "Helvetica",
-        "penwidth": "2.0"
-    },
-)
+
+# Create a Digraph object
+diagram = Digraph(format='svg', graph_attr={'rankdir': 'TB', 'nodesep': '1.2'}, node_attr={'shape': 'box', 'fontsize': '14', 'fontname': 'Helvetica'})
 
 #Add a title node
 diagram.node(
-    "Title", "Figure 3: Tree Chart of Proposed Regulation                          ", 
-    fontsize="13", fontcolor="black", shape="plaintext"
+    "Title", "Figure 4: Tree Chart of Proposed Regulation", 
+    fontsize="18", fontcolor="black", shape="plaintext"
 )
 
 #Add nodes and edges
 diagram.node(
-    "A", "LONDON'S AIRBNB LISTINGS", fontsize="14", penwidth="3.0"
+    "A", "LONDON'S AIRBNB LISTINGS", fontsize="16", penwidth="3.0"
 )
 diagram.node(
     "B",
     "Host needs to be the real owner \n(landlord/legal occupant)",
-    fontsize="9",
+    fontsize="14",
     fontcolor="grey",
     color="grey",
 )
 diagram.node(
     "C",
-    "Hosts with 1 or 2 listings",
-    fontsize="12",
+    "Saturated boroughs",
+    fontsize="14",
     penwidth="3.0",
 )
 diagram.node(
     "D",
-    "Renting ≤ 90 days in a year",
-    fontsize="12",
+    "Individual \n (1 listing)",
+    fontsize="14",
     penwidth="3.0",
 )
 diagram.node(
     "E",
-    "Renting > 90 days in a year",
-    fontsize="12",
+    "Commercial \n (+ 1 listing)",
+    fontsize="14",
     penwidth="3.0",
 )
 diagram.node(
-    "F", "Hosts with > 2 listings", fontsize="12", penwidth="3.0"
+    "F", "Non-saturated boroughs", fontsize="14", penwidth="3.0"
 )
 
 diagram.node(
     "H",
-    "Saturated boroughs",
-    fontsize="12",
+    "Individual \n (1 listing)",
+    fontsize="14",
     penwidth="3.0",
 )
 diagram.node(
     "I",
-    "Non-saturated boroughs",
-    fontsize="12",
+    "Commercial \n (+ 1 listing)",
+    fontsize="14",
     penwidth="3.0",
 )
 diagram.node(
-    "J", "up to £7,500 tax-free income", fontsize="8", fontcolor="grey", color="grey"
+    "J", "Up to 90 days rent \n Up to £7500 tax-free", fontsize="11", fontcolor="grey", color="grey"
 )
 diagram.node(
     "K",
-    "Permit and business taxes like hotels apply",
-    fontsize="9",
+    "Not allowed",
+    fontsize="12",
     fontcolor="grey",
     color="grey",
 )
-diagram.node("L", "Not allowed", fontsize="9", fontcolor="grey", color="grey")
+diagram.node("L", "Up to 90 days rent \n Up to £7500 tax-free", fontsize="11", fontcolor="grey", color="grey")
 
 diagram.node(
     "M",
-    "Permit and business taxes like hotels apply \n + \n A revenue cap per each property is required, \nequivalent to the boroughs' average long-term rent",
-    fontsize="9",
+    "Permit and business taxes like hotels \n + \n Revenue cap per each property equivalent\nto the boroughs' average long-term rent",
+    fontsize="12",
     fontcolor="grey",
     color="grey",
 )
@@ -1737,19 +1614,18 @@ diagram.edge("E", "K", dir="none", color="grey")
 diagram.edge("H", "L", dir="none", color="grey")
 diagram.edge("I", "M", dir="none", color="grey")
 
+
 # Render and display the diagram in the notebook
 svg_data = diagram.pipe(format="svg") 
 display(SVG(svg_data))
 ```
 
-One of the main limitations in our data analysis is the data accuracy of the Inside Airbnb dataset, especially if hosts intentionally avoid platform rules. 
-This, at the same time, highlights the challenges of regulatory enforcement and legislation processes (Ferreri & Sanyal 2018), limiting the effectiveness of proposed regulations. 
+After our analysis, one of the main limitations of our data analysis is the potential inaccuracy of the InsideAirbnb dataset. As mentioned in Question 4, the property type information provided by hosts on the Airbnb platform may not accurately reflect the actual property type, potentially biasing the number of listings included in our analysis. 
 
-In conclusion, the InsideAirbnb dataset offers us a deep insight into the dynamics of short-term rentals in London, which helped us propose detailed and more targeted policy recommendations.  
-By analysing the data, we can distinguish between small-scale hosts and commercial operators, proposing regulations that address the unregulated commercial short-term lets issue while protecting responsible users. However, challenges and limitations, such as data accuracy and enforcement, that highlight the need for a more complex approach to ensure compliance still remain. 
-Ultimately, our tailored regulations can contribute to alleviating the housing crisis by returning properties to the long-term market.
+Regarding policy implementation, effective enforcement is a pressing issue pending further discussion and proposals, and depends on a smooth agreement between the Greater London Authority and Airbnb for host verification. However, this may be challenging, given that [Airbnb sued San Francisco](https://www.nytimes.com/2017/05/01/technology/airbnb-san-francisco-settle-registration-lawsuit.htmlhttps://www.nytimes.com/2017/05/01/technology/airbnb-san-francisco-settle-registration-lawsuit.html ) in 2016 over a law requiring STR platforms to verify host registration before allowing property listings. 
 
-:::
+In conclusion, the InsideAirbnb dataset offers valuable insights into the commercial and unregulated nature of STRs in London, revealing that many entire-home listings exceeding 90 days are owned by hosts with multiple listings. Our analysis found a significant positive relationship between the saturation of such listings and mean rent levels across boroughs. We recommend borough-specific regulations to limit commercial entire-home STRs while protect individual hosts. These measures aim to help alleviate the rent crisis by returning properties to the LTR market. 
+
 
 ## Sustainable Authorship Tools
 
@@ -1760,3 +1636,4 @@ Your QMD file should automatically download your BibTeX and CLS files and any ot
 Written in Markdown and generated from [Quarto](https://quarto.org/). Fonts used: [Spectral](https://fonts.google.com/specimen/Spectral) (mainfont), [Roboto](https://fonts.google.com/specimen/Roboto) (<span style="font-family:Sans-Serif;">sansfont</span>) and [JetBrains Mono](https://fonts.google.com/specimen/JetBrains%20Mono) (`monofont`). 
 
 ## References
+
