@@ -47,6 +47,45 @@ jupyter:
     name: base
 ---
 
+```{python}
+#| results: hide
+#Explanation: Import initial libraries
+import os
+import pandas as pd
+import requests
+```
+
+```{python}
+#Explanation: This code chunk is a simple function to download files from url, which will let us download the bib files.
+def download_bib(url, out_path):
+    """
+    Downloads a remote file locally.
+    
+    Parameters
+    ----------
+    url : str
+        The link of the file, any valid URL should work.
+    out_path : str
+        The *destination* location to save the downloaded file.
+        
+    """
+    if not os.path.exists(out_path):
+        try:
+            response = requests.get(url)
+            response.raise_for_status()
+            with open(out_path, 'w', encoding='utf-8') as file:
+                file.write(response.text)
+        except requests.exceptions.RequestException as e:
+            print(f"Failed to get document: {e}")
+
+download_bib("https://raw.githubusercontent.com/hanxiang270/CASA_novas/refs/heads/main/CASA_novas_bib.bib", "CASA_novas_bib.bib")
+
+download_bib("https://raw.githubusercontent.com/hanxiang270/CASA_novas/refs/heads/main/harvard-cite-them-right.csl", "harvard-cite-them-right.csl")
+```
+
+
+# Response to Questions
+
 ## 1. Who collected the InsideAirbnb data?
 
 
@@ -91,7 +130,7 @@ About privacy and consent, although the data is scraped from publicly available 
 
 On rights to use the data, Airbnb's Terms of Service prohibit the downloading or scraping of data from its site, but this obligation only binds the parties to the agreement and not third parties who use the data [@scassa_ownership_2019]. This raises questions about who owns and controls the data and whether researchers should be allowed to use it without explicit permission. 
 
-Finally, bias is an ethical issue to consider when using the data for research purposes and evidence-based policymaking. While the InsideAirbnb data may appear unbiased, the way it is analysed and interpreted can introduce significant biases emerging from the diverse perspectives and methodologies of the institutions conducting the analysis, that may also result on a reductionist way of assessing the phenomena. For example, [@Quattrone:2018] mentions that municipalities often approach Airbnb regulation through a “false dichotomy,” either allowing the platform to operate without restrictions or banning it entirely. Such reductionist approaches can disproportionately harm small-scale hosts who are not misusing the platform and rely on it to cover living costs, which according to [Airbnb News (2002)](https://news.airbnb.com/en-uk/third-of-hosts-use-airbnb-income-to-afford-rising-living-costs/), might represent up to a third of UK hosts.  
+Finally, bias is an ethical issue to consider when using the data for research purposes and evidence-based policymaking. While the InsideAirbnb data may appear unbiased, the way it is analysed and interpreted can introduce significant biases emerging from the diverse perspectives and methodologies of the institutions conducting the analysis, that may result on a reductionist way of assessing the phenomena. For example, [@Quattrone:2018] mentions that municipalities often approach Airbnb regulation through a “false dichotomy,” either allowing the platform to operate without restrictions or banning it entirely. Such reductionist approaches can disproportionately harm small-scale hosts who are not misusing the platform and rely on it to cover living costs, which according to [Airbnb News (2002)](https://news.airbnb.com/en-uk/third-of-hosts-use-airbnb-income-to-afford-rising-living-costs/), might represent up to a third of UK hosts.  
 
 To avoid ethical issues arising from biased analysis, according to D’Ignazio [@dignazio_data_2020], it is important acknowledging that data is not raw, and analysis is not fully neutral and requires transparency about context and methods. Also, it’s necessary to keep in mind that behind numbers on the data there are people whose livelihoods may be directly impacted by policy decisions, so quantitative analysis is not enough to address this kind of phenomenon and must be complemented with qualitative research, consent from those whose data is used, and a critical approach of the data. 
 
@@ -99,42 +138,6 @@ To avoid ethical issues arising from biased analysis, according to D’Ignazio [
 
 
 ( 15 points)
-
-```{python}
-#| results: hide
-#Explanation: Import initial libraries
-import os
-import pandas as pd
-import requests
-```
-
-```{python}
-#Explanation: This code chunk is a simple function to download files from url, which will let us download the bib files.
-def download_bib(url, out_path):
-    """
-    Downloads a remote file locally.
-    
-    Parameters
-    ----------
-    url : str
-        The link of the file, any valid URL should work.
-    out_path : str
-        The *destination* location to save the downloaded file.
-        
-    """
-    if not os.path.exists(out_path):
-        try:
-            response = requests.get(url)
-            response.raise_for_status()
-            with open(out_path, 'w', encoding='utf-8') as file:
-                file.write(response.text)
-        except requests.exceptions.RequestException as e:
-            print(f"Failed to get document: {e}")
-
-download_bib("https://raw.githubusercontent.com/hanxiang270/CASA_novas/refs/heads/main/CASA_novas_bib.bib", "CASA_novas_bib.bib")
-
-download_bib("https://raw.githubusercontent.com/hanxiang270/CASA_novas/refs/heads/main/harvard-cite-them-right.csl", "harvard-cite-them-right.csl")
-```
 
 ```{python}
 #Explanation: This code chunk defines a function that downloads a file from a given URL and saves it locally to a specified destination,
@@ -477,18 +480,24 @@ As of December 2023, InsideAirbnb reports approximately 66,000 active listings i
 
 ```{python}
 #| output: true
+#Explanation: Creation of figure showing a ranking of boroughs categorized by room type and ordered from higher to 
+#lower values of Entire home listings 
 
 import geopandas as gpd
 import pandas as pd
 import matplotlib.pyplot as plt
 
+#Reproject to the same crs
 boros = boros.to_crs("EPSG:4326") 
 gdf = gdf.to_crs("EPSG:4326")
 
+#Perform a spatial join
 gdf_with_boros = gpd.sjoin(gdf, boros[['NAME', 'geometry']], how='left', predicate='within')
 
+#Drop NAs
 gdf_with_boros = gdf_with_boros.dropna(subset=['NAME'])
 
+#Define categories for map
 def categorize_room(row):
     if row['room_type'] == 'Entire home/apt':
         return 'Entire home/apt'
@@ -498,7 +507,7 @@ def categorize_room(row):
         return 'Others'
     return 'Other'
 
-
+#Apply categories
 gdf_with_boros['room_category'] = gdf_with_boros.apply(categorize_room, axis=1)
 
 #Count the listings by room category and borough
@@ -507,7 +516,7 @@ room_counts = gdf_with_boros.groupby(['NAME', 'room_category']).size().unstack(f
 #Only keep the relevant room types
 room_counts = room_counts[['Entire home/apt', 'Private room', 'Others']]
 
-#Sort by the "Entire home/apt" column in ascending order
+#Sort by the "Entire home/apt" column in descending order
 room_counts = room_counts.sort_values('Entire home/apt', ascending=True)
 
 #Plot the bar chart
@@ -561,7 +570,7 @@ ax.axvline(x=90, color='black', linestyle='--', linewidth=2, label="90 Days")
 #Add a vertical line for the median value
 ax.axvline(x=median_value, color='red', linestyle='-.', linewidth=2, label=f"Median Day ({int(median_value)} days)")
 
-#Add annotation for percentage of data beyond 90 days (split into two lines)
+#Add annotation for percentage of data beyond 90 days
 ax.text(95, max(hist) * 1, f"{percentage_beyond_90:.2f}%\nabove 90 days",
         fontsize=10, color='black', va='top', bbox=dict(facecolor='white', alpha=0.7, edgecolor='none'))
 
@@ -748,23 +757,23 @@ These figures suggest that Airbnb in London has shifted from sharing underutiliz
 entire_home_apt_90 = entire_home_apt_90.to_crs('epsg:27700') 
 boros=boros.to_crs('epsg:27700')
 
-# Spatially join listings to boroughs to determine which borough each listing falls within
+#Spatially join listings to boroughs to determine which borough each listing falls within
 joined = gpd.sjoin(entire_home_apt_90, boros, how='left', predicate='within')
 
-# Group by 'GSS_CODE' and count the number of points in each group
+#Group by 'GSS_CODE' and count the number of points in each group
 gss_code_counts = joined.groupby('GSS_CODE').size().reset_index(name='no_entire_home_apt_90')
 
-# Merge the count back to the 'boros' GeoDataFrame
+#Merge the count back to the 'boros' GeoDataFrame
 boros = boros.merge(gss_code_counts, on='GSS_CODE', how='left')
 
-# Display the first 5 rows
+#Display the first 5 rows
 print(boros.head())  
 ```
 
 ```{python}
 #Dependent Variable: Mean monthly rent per bedroom (in entire properties, excluding rooms in shared houses) by borough.
 
-# Define the cache_data function to always re-download the file
+#Define the cache_data function to always re-download the file
 def cache_data(url, directory):
     os.makedirs(directory, exist_ok=True)
     file_path = os.path.join(directory, os.path.basename(url))
@@ -774,7 +783,7 @@ def cache_data(url, directory):
         file.write(response.content)
     return file_path
 
-# Remote downloading 
+#Remote downloading 
 url1 = "https://www.ons.gov.uk/file?uri=/economy/inflationandpriceindices/adhocs/2417privaterentalmarketinlondonoctober2023toseptember2024/londonrentalstatsaccessibleq32024.xlsx"
 file_path1 = cache_data(url1, os.path.join('Data', 'Regression'))
 
@@ -783,24 +792,24 @@ print("Sheet names:", sheet_names)
 sheet_data = pd.read_excel(file_path1, sheet_name='2', skiprows=2) if '2' in sheet_names else pd.read_excel(file_path3, sheet_name=4, skiprows=2)
 print(sheet_data.head())
 
-# Load the sheet '2' with skiprows=2
+#Load the sheet '2' with skiprows=2
 sheet_data = pd.read_excel(file_path1, sheet_name='2', skiprows=2)
 sheet_data['Mean'] = pd.to_numeric(sheet_data['Mean'], errors='coerce')
 
-# Loop through each borough to calculate mean_rent
+#Loop through each borough to calculate mean_rent
 results = []
 
 for borough in sheet_data['Borough'].unique():
     borough_data = sheet_data[sheet_data['Borough'] == borough]
     
-# Extract mean values for each category
+#Extract mean values for each category
     studio_mean = borough_data.loc[borough_data['Bedroom Category'] == 'Studio', 'Mean'].dropna().values
     one_bedroom_mean = borough_data.loc[borough_data['Bedroom Category'] == 'One Bedroom', 'Mean'].dropna().values
     two_bedrooms_mean = borough_data.loc[borough_data['Bedroom Category'] == 'Two Bedrooms', 'Mean'].dropna().values / 2
     three_bedrooms_mean = borough_data.loc[borough_data['Bedroom Category'] == 'Three Bedrooms', 'Mean'].dropna().values / 3
     four_or_more_mean = borough_data.loc[borough_data['Bedroom Category'] == 'Four or More Bedrooms', 'Mean'].dropna().values / 4
 
-# Calculate the mean_rent
+#Calculate the mean_rent
     mean_rent = (
         (studio_mean[0] if len(studio_mean) > 0 else 0) +
         (one_bedroom_mean[0] if len(one_bedroom_mean) > 0 else 0) +
@@ -809,7 +818,7 @@ for borough in sheet_data['Borough'].unique():
         (four_or_more_mean[0] if len(four_or_more_mean) > 0 else 0)
     ) / 5
 
-# Append the result
+#Append the result
     results.append({
         'Name': borough,
         'mean_rent': mean_rent
@@ -818,7 +827,7 @@ for borough in sheet_data['Borough'].unique():
 boros_rent = pd.DataFrame(results)
 print(boros_rent)
 
-# Left join to boros
+#Left join to boros
 boros = boros.merge(
     boros_rent,
     left_on='NAME',
@@ -826,7 +835,7 @@ boros = boros.merge(
     how='left'
 )
 
-# Drop the redundant column
+#Drop the redundant column
 boros.drop(columns=['Name'], inplace=True)
 print(boros.head())
 ```
@@ -840,7 +849,7 @@ Also, we find that, as of 2024, the average monthly rent for a single room in Lo
 
 from matplotlib import cm
 
-#Create a colormap based on the 'mean_rent' field
+#Create a colormap based on the 'mean_rent' 
 norm = plt.Normalize(vmin=boros['mean_rent'].min(), vmax=boros['mean_rent'].max())
 cmap = cm.get_cmap('YlOrRd', 9)  # Reverse the palette and use 9 colors
 
@@ -853,7 +862,7 @@ boros.plot(ax=ax, column='mean_rent', cmap=cmap, linewidth=0.5, edgecolor='#4F4F
 #Set the title
 ax.set_title("Map 1. Mean Monthly Rent per Bedroom by London Borough (2023)", fontsize=12)
 
-#Hide axes for a cleaner look
+#Hide axes
 ax.set_axis_off()
 
 #Add a color bar
@@ -862,7 +871,7 @@ sm.set_array([])  # Empty array, only for color bar
 cbar = plt.colorbar(sm, ax=ax, orientation='horizontal', fraction=0.035, pad=0.002)
 cbar.set_label('Mean Rent (£)', fontsize=12)
 
-# Show the plot
+#Plot
 plt.tight_layout()
 plt.show()
 ```
@@ -949,6 +958,7 @@ print(boros.head())
 
 url2 = "https://data.london.gov.uk/download/housing-tenure-borough/785f6f0e-cc4b-42fd-8093-597b009555f2/tenure-households-borough.xlsx"
 
+#Define function to get files
 def cache_data(url, cache_path):
     if not os.path.exists(cache_path):
         os.makedirs(cache_path)
@@ -959,24 +969,24 @@ def cache_data(url, cache_path):
         urllib.request.urlretrieve(url, local_file)
     return local_file
 
-# Extract the sheet and load it
+#Extract the sheet and load it
 boros_household_raw = pd.read_excel(
     cache_data(url2, os.path.join('Data', 'Regression')),
     sheet_name='2020', 
     header=[0, 1, 2]
 )
 
-# Flatten multi-level column names
+#Flatten multi-level column names
 boros_household_raw.columns = ['_'.join(col).strip() for col in boros_household_raw.columns.values]
 print("Flattened columns:", boros_household_raw.columns)
 
-# Select relevant columns (first and seventh)
+#Select relevant columns (first and seventh)
 boros_household = boros_household_raw.iloc[:, [0, 6]]
 
-# Rename columns for clarity
+#Rename columns for clarity
 boros_household.columns = ['Unnamed_0', 'no_household']
 
-# Merge boros_household with boros
+#Merge boros_household with boros
 boros = boros.merge(
     boros_household,
     left_on='GSS_CODE',
@@ -984,7 +994,7 @@ boros = boros.merge(
     how='left'
 )
 
-# Drop the redundant column
+#Drop the redundant column
 boros.drop(columns=['Unnamed_0'], inplace=True)
 print(boros.head())
 ```
@@ -994,34 +1004,24 @@ print(boros.head())
 
 url2 = "https://data.london.gov.uk/download/housing-tenure-borough/785f6f0e-cc4b-42fd-8093-597b009555f2/tenure-households-borough.xlsx"
 
-def cache_data(url, cache_path):
-    if not os.path.exists(cache_path):
-        os.makedirs(cache_path)
-    local_file = os.path.join(cache_path, os.path.basename(url))
-    if not os.path.exists(local_file):
-        # Download the file if not cached
-        import urllib.request
-        urllib.request.urlretrieve(url, local_file)
-    return local_file
-
-# Extract the sheet and load it
+#Extract the sheet and load it
 boros_household_raw = pd.read_excel(
     cache_data(url2, os.path.join('Data', 'Regression')),
     sheet_name='2020', 
     header=[0, 1, 2]
 )
 
-# Flatten multi-level column names
+#Flatten multi-level column names
 boros_household_raw.columns = ['_'.join(col).strip() for col in boros_household_raw.columns.values]
 print("Flattened columns:", boros_household_raw.columns)
 
-# Select relevant columns (first and seventh)
+#Select relevant columns (first and seventh)
 boros_household = boros_household_raw.iloc[:, [0, 6]]
 
-# Rename columns for clarity
+#Rename columns for clarity
 boros_household.columns = ['Unnamed_0', 'no_household']
 
-# Merge boros_household with boros
+#Merge boros_household with boros
 boros = boros.merge(
     boros_household,
     left_on='GSS_CODE',
@@ -1030,19 +1030,19 @@ boros = boros.merge(
     suffixes=('', '_household')
 )
 
-# Drop the redundant column
+#Drop the redundant column
 boros.drop(columns=['Unnamed_0'], inplace=True)
 print(boros.head())
 
-# Check and convert columns to numeric
+#Check and convert columns to numeric
 boros['no_entire_home_apt_90'] = pd.to_numeric(boros['no_entire_home_apt_90'], errors='coerce')
 boros['no_household'] = pd.to_numeric(boros['no_household'], errors='coerce')
 
-# Create the new column
+#Create the new column
 boros['entire_1000_household'] = (boros['no_entire_home_apt_90'] / boros['no_household']) * 1000
 boros['log_entire_1000_household'] = np.log(boros['entire_1000_household'] + 1)
 
-# Display the first few rows to verify
+#Display the first few rows to verify
 print(boros.head())
 ```
 
@@ -1362,7 +1362,7 @@ from statsmodels.tools.tools import add_constant
 import pandas as pd
 import statsmodels.api as sm
 
-# Define VIF Function
+#Define VIF Function
 def drop_column_using_vif_(df, thresh=5, protect=[]): 
     while True:
         df_with_const = add_constant(df)
@@ -1383,27 +1383,34 @@ def drop_column_using_vif_(df, thresh=5, protect=[]):
             break
     return df
 
-# Select predictors and remove non-numeric columns
+#Select predictors and remove non-numeric columns
 predictors = boros.drop(columns=['NAME', 'GSS_CODE', 'HECTARES', 'geometry', 'Population', 'log_mean_rent'])
 predictors = predictors.apply(pd.to_numeric, errors='coerce')  
 
-# Run VIF test
+#Run VIF test
 df_predictors_selected_VIF = drop_column_using_vif_(predictors, thresh=5, protect=['log_entire_1000_household'])
 
 print("The columns remaining after VIF selection are:")
 print(df_predictors_selected_VIF.columns)
 
-# Dependent variable
+#Dependent variable
 endog = boros.loc[df_predictors_selected_VIF.index, 'log_mean_rent']
 
-# Independent variables with constant added
+#Independent variables with constant added
 exog = sm.add_constant(df_predictors_selected_VIF)
 
-# Perform the OLS regression
+#Perform the OLS regression
 OLS_regression_data = sm.OLS(endog=endog, exog=exog).fit()
 
-# Print the regression summary
+#Print the regression summary
 print(OLS_regression_data.summary())
+```
+
+```{python}
+#Explanation: Unlog the column (assuming log transformation was natural log: log(x + 1))
+
+boros['entire_1000_household'] = np.exp(boros['log_entire_1000_household']) - 1
+print(boros)
 ```
 
 To understand how much are those listings impacting the LTR market, we analysed Airbnb entire-home listings operating over 90 days a year, using InsideAirbnb’s December 2023 London's dataset. The analysis accounts for borough-level factors such as socio-demographics, LTR demand and supply, and local amenities. Below are these factors with links to their data sources:
@@ -1423,27 +1430,20 @@ First, since most London hosts [do not display registration numbers](https://air
 Following that, we propose place-based regulations tailored to borough-specific saturation levels of entire-home listings exceeding 90 days per 1,000 households (Map 2). Boroughs are classified by saturation using clustering: red (high), orange (medium), and yellow (low).   
 
 ```{python}
-#Explanation: Unlog the column (assuming log transformation was natural log: log(x + 1))
-
-boros['entire_1000_household'] = np.exp(boros['log_entire_1000_household']) - 1
-print(boros)
-```
-
-```{python}
 #Explanation: Conduct Elbow Test & Clustering
 
-# Prepare the data for clustering
+#Prepare the data for clustering
 from sklearn.cluster import KMeans
 X = boros[['entire_1000_household']].values  # Use the unlogged column for clustering
 
-# Perform the elbow test
+#Perform the elbow test
 wcss = []
 for k in range(1, 11):  # Test cluster sizes from 1 to 10
     kmeans = KMeans(n_clusters=k, random_state=42)
     kmeans.fit(X)
     wcss.append(kmeans.inertia_)
 
-# Plot the elbow curve
+#Plot the elbow curve
 plt.figure(figsize=(8, 5))
 plt.plot(range(1, 11), wcss, marker='o', linestyle='--')
 plt.title('Elbow Method for Optimal Clusters')
@@ -1482,26 +1482,25 @@ custom_colors = {0: '#eb6238',  # Custom color for cluster 0 (highest saturation
 #Plot the map
 fig, ax = plt.subplots(figsize=(10, 8))
 
-# Assign colors to each polygon based on the 'cluster_ranked' value
+#Assign colors to each polygon based on 'cluster_ranked'
 for cluster, color in custom_colors.items():
     subset = boros[boros['cluster_ranked'] == cluster]
     subset.plot(ax=ax, color=color, edgecolor='#4F4F4F', linewidth=0.5)
 
-# Map cluster ranks to descriptions
+#Add descriptions to clusters
 cluster_descriptions = {
     0: "High Saturation",
     1: "Medium Saturation",
     2: "Low Saturation"
 }
 
-#Set the title
 ax.set_title("Map 2: Saturation of Entire Home/Apt Over 90 Days by London Borough (2023)", fontsize=12)
 
-#Hide the axis for a cleaner look
+#Hide axis
 ax.set_axis_off()
 
 
-# Add a manual legend to describe clusters with saturation labels
+#Add a legend
 legend_patches = [
     mpatches.Patch(color=color, label=f"Cluster {rank} - {cluster_descriptions[rank]}")
     for rank, color in custom_colors.items()
@@ -1517,13 +1516,12 @@ ax.legend(
 )
 
 
-#Align the label of the color bar
 cbar.ax.yaxis.set_label_position('left')
 
 cbar.set_ticks([0, 1, 2])
 cbar.ax.tick_params(labelsize=12)
 
-#Show the plot
+#Plot
 plt.tight_layout()
 plt.show()
 ```
@@ -1633,7 +1631,7 @@ svg_data = diagram.pipe(format="svg")
 display(SVG(svg_data))
 ```
 
-After our analysis, one of the main limitations of our data analysis is the potential inaccuracy of the InsideAirbnb dataset. As mentioned in Question 4, the property type information provided by hosts on the Airbnb platform may not accurately reflect the actual property type, potentially biasing the number of listings included in our analysis. 
+After our analysis, one of the main limitations is the potential inaccuracy of the InsideAirbnb dataset. As mentioned in Question 4, the property type information provided by hosts on the Airbnb platform may not accurately reflect the actual property type, potentially biasing the number of listings included in our analysis. 
 
 Regarding policy implementation, effective enforcement is a pressing issue pending further discussion and proposals, and depends on a smooth agreement between the Greater London Authority and Airbnb for host verification. However, this may be challenging, given that [Airbnb sued San Francisco](https://www.nytimes.com/2017/05/01/technology/airbnb-san-francisco-settle-registration-lawsuit.htmlhttps://www.nytimes.com/2017/05/01/technology/airbnb-san-francisco-settle-registration-lawsuit.html ) in 2016 over a law requiring STR platforms to verify host registration before allowing property listings. 
 
