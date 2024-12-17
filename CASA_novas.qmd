@@ -203,6 +203,18 @@ Regarding the methods of collection of InsideAirbnb it’s worth start mentionin
 
 ( 11 points; Answer due Week 9 )
 
+**Data Completeness**
+
+The scraping method used by Inside Airbnb captures a complete snapshot of Airbnb listings on a quarterly basis for a given city. The dataset for London, scraped in December 2023, contains 91,778 listings, providing extensive coverage. However, some of these listings may no longer be available or were never intended for booking, serving instead as “bait and switch” listings [@Gurran:2017].  
+
+The dataset is also constrained by the city's geographical boundary. For example, properties outside the Greater London Authority boundary may still be actively used by travelers visiting London, impacting housing dynamics and tourism patterns. Excluding these properties can underestimate Airbnb's overall impact on the local rental market and urban economy.  
+
+**Data Accuracy**
+
+Inside Airbnb states that it is [not responsible for the accuracy of its data](https://insideairbnb.com/data-assumptions/), as the scraped information accuracy relies on Airbnb and host-generated content. One of the issues is that Airbnb anonymizes location data, causing the scraped locations to appear scattered around the actual addresses. This creates challenges for local authorities attempting to regulate unregistered hosts in London [@ferreri_platform_2018] and introduces errors in studies analyzing Airbnb’s impact on specific neighborhoods.  
+
+Also, hosts may misrepresent listing characteristics, such as misclassifying room types as *Entire Home* or *Private Room* (https://community.withairbnb.com/t5/Ask-about-your-listing/Entire-home-or-private-room-ANY-THOUGHTS/m-p/421087). This can lead to incorrect conclusions about the distribution of Airbnb listings across property types and their overall impact on housing availability and market dynamics.
+
 :::
 
 ## 5. What ethical considerations does the use of the InsideAirbnb data raise? 
@@ -1624,7 +1636,7 @@ This kind of measure aims to protect individuals using Airbnb responsibly, while
 from graphviz import Digraph
 from IPython.display import SVG, display
 
-# Create a Digraph object
+#Create a Digraph object
 diagram = Digraph(
     format="svg",
     graph_attr={
@@ -1640,14 +1652,21 @@ diagram = Digraph(
         "penwidth": "2.0"
     },
 )
-# Add nodes and edges
+
+#Add a title node
+diagram.node(
+    "Title", "Figure 3: Tree Chart of Proposed Regulation                          ", 
+    fontsize="13", fontcolor="black", shape="plaintext"
+)
+
+#Add nodes and edges
 diagram.node(
     "A", "LONDON'S AIRBNB LISTINGS", fontsize="14", penwidth="3.0"
 )
 diagram.node(
     "B",
     "Host needs to be the real owner \n(landlord/legal occupant)",
-    fontsize="8",
+    fontsize="9",
     fontcolor="grey",
     color="grey",
 )
@@ -1691,15 +1710,16 @@ diagram.node(
 diagram.node(
     "K",
     "Permit and business taxes like hotels apply",
-    fontsize="8",
+    fontsize="9",
     fontcolor="grey",
     color="grey",
 )
-diagram.node("L", "Not allowed", fontsize="10", fontcolor="grey", color="grey")
+diagram.node("L", "Not allowed", fontsize="9", fontcolor="grey", color="grey")
+
 diagram.node(
     "M",
     "Permit and business taxes like hotels apply \n + \n A revenue cap per each property is required, \nequivalent to the boroughs' average long-term rent",
-    fontsize="8",
+    fontsize="9",
     fontcolor="grey",
     color="grey",
 )
@@ -1719,7 +1739,7 @@ diagram.edge("I", "M", dir="none", color="grey")
 
 # Render and display the diagram in the notebook
 svg_data = diagram.pipe(format="svg") 
-display(SVG(svg_data))  
+display(SVG(svg_data))
 ```
 
 One of the main limitations in our data analysis is the data accuracy of the Inside Airbnb dataset, especially if hosts intentionally avoid platform rules. 
