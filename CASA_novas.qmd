@@ -47,15 +47,81 @@ jupyter:
     name: base
 ---
 
+## 1. Who collected the InsideAirbnb data?
+
+
+( 2 points; Answer due Week 7 )
+
+The InsideAirbnb data was primarily collected by [Murray Cox](https://twitter.com/murrayscox), a Brooklyn-based independent researcher who started the project in 2015. While Cox leads the initiative, a network of activists and researchers supports the data collection by providing local context, refining scraping tools, and organizing the raw data.
+
+
+
+## 2. Why did they collect the InsideAirbnb data?
+
+
+( 4 points; Answer due Week 7 )
+
+InsideAirbnb collected data to reveal the impact of short-term rentals (STR) on residential communities, often obscured by Airbnb’s PR-driven data. For instance, in 2015, Airbnb purged over 1,000 listings from multi-listing hosts before presenting a manipulated snapshot under its ‘transparency initiative’ [@cox_how_2020]. If this scandal had not been exposed, Airbnb’s harm to local housing markets would have been downplayed. As a grassroots project, InsideAirbnb aims to challenge this issue by providing transparent data that highlights Airbnb’s role in gentrification, eviction, and the housing crisis. This empowers researchers, policymakers, and marginalized communities to collectively advocate for fair STR regulations and social justice — exemplifying 'data for co-liberation' [@dignazio_data_2020].
+
+
+## 3. How did they collect it?
+
+
+( 5 points; Answer due Week 8 )
+
+Regarding the methods of collection of InsideAirbnb, “the website only provides minimal information on the data collection process” [@Alsudais:2021]. From their [website](https://insideairbnb.com/data-assumptions/) we can see that they compile, in a quarterly basis, public information from the Airbnb website using python scripts for web-scraping. According to Alsudais, “these scripts included ones that have been “copied and pasted” from other online resources” [@Alsudais:2021]. Through this method of collection, they gather different data variables from each listing including numeric (e.g., host listings count, minimum nights, price per night), categorical (e.g., host ID), spatial (e.g.,  longitude and latitude), and textual (e.g., description) data, which is later cleansed and aggregated in files open to the public. 
+
+## 4. How does the method of collection (Q3) impact the completeness and/or accuracy of the InsideAirbnb data? How well does it represent the process it seeks to study, and what wider issues does this raise?
+
+( 11 points; Answer due Week 9 )
+
+Although InsideAirbnb states that it is [not responsible for the accuracy of its data](https://insideairbnb.com/data-assumptions/), its automated scraping method is susceptible to “systemic errors” [@Alsudais:2021]. For instance, manual inspection has confirmed that the scraper incorrectly collects all reviews associated with a listing ID, regardless of whether the listing is categorized as a "place" (e.g., apartments) or an "experience" (e.g., tours). This issue may introduce bias into Natural Language Processing (NLP) studies analyzing reviews, potentially distorting insights into guest preferences and neighborhood characteristics. 
+
+Also, InsideAirbnb data accuracy is compromised as the scraped information relies on Airbnb and host-generated content that may be inaccurate. For instance, Airbnb anonymizes location data, causing the scraped locations to appear scattered around the actual addresses. This creates challenges for local authorities attempting to regulate unregistered hosts in London [@ferreri_platform_2018] and introduces errors in studies analyzing Airbnb’s impact on specific neighborhoods.  
+
+Furthermore, hosts may misrepresent listing characteristics, such as misclassifying room types as [Entire Home or Private Room](https://community.withairbnb.com/t5/Ask-about-your-listing/Entire-home-or-private-room-ANY-THOUGHTS/m-p/421087). This can lead to incorrect conclusions about the distribution of Airbnb listings across property types and their overall impact on housing availability and market dynamics.  
+
+## 5. What ethical considerations does the use of the InsideAirbnb data raise? 
+
+( 18 points)
+
+While the InsideAirbnb data provides insights on the STR's effects, its use raises several ethical concerns, particularly around privacy, consent, rights to use the data, and bias. 
+
+About privacy and consent, although the data is scraped from publicly available information on the Airbnb website, researchers using the data do not seek explicit consent from the individuals whose data is included. Even though hosts have accepted Airbnb’s Terms of Service to make their data public to offer their listings, they often are not able to understand the implications of their consent effectively [@solove_privacy_2012] and they didn’t give consent for other purposes like research [@scassa_ownership_2019]. Moreover, because of the “aggregation effect” [@solove_privacy_2012], combining seemingly simple data, represents risks of exposing sensitive information or personally identifying data, for example when combining photos from the listings with locations and personal details exposed on the reviews. 
+
+On rights to use the data, Airbnb's Terms of Service prohibit the downloading or scraping of data from its site, but this obligation only binds the parties to the agreement and not third parties who use the data [@scassa_ownership_2019]. This raises questions about who owns and controls the data and whether researchers should be allowed to use it without explicit permission. 
+
+Finally, bias is an ethical issue to consider when using the data for research purposes and evidence-based policymaking. While the InsideAirbnb data may appear unbiased, the way it is analysed and interpreted can introduce significant biases emerging from the diverse perspectives and methodologies of the institutions conducting the analysis, that may also result on a reductionist way of assessing the phenomena. For example, [@Quattrone:2018] mentions that municipalities often approach Airbnb regulation through a “false dichotomy,” either allowing the platform to operate without restrictions or banning it entirely. Such reductionist approaches can disproportionately harm small-scale hosts who are not misusing the platform and rely on it to cover living costs, which according to [Airbnb News (2002)](https://news.airbnb.com/en-uk/third-of-hosts-use-airbnb-income-to-afford-rising-living-costs/), might represent up to a third of UK hosts.  
+
+To avoid ethical issues arising from biased analysis, according to D’Ignazio [@dignazio_data_2020], it is important acknowledging that data is not raw, and analysis is not fully neutral and requires transparency about context and methods. Also, it’s necessary to keep in mind that behind numbers on the data there are people whose livelihoods may be directly impacted by policy decisions, so quantitative analysis is not enough to address this kind of phenomenon and must be complemented with qualitative research, consent from those whose data is used, and a critical approach of the data. 
+
+## 6. With reference to the InsideAirbnb data (*i.e.* using numbers, figures, maps, and descriptive statistics), what does an analysis of Hosts and the types of properties that they list suggest about the nature of Airbnb lettings in London? 
+
+
+( 15 points)
+
 ```{python}
 #| results: hide
-#Explanation: Import libraries
+#Explanation: Import initial libraries
 import os
 import pandas as pd
 import requests
+```
 
-#Explanation: Download bib files
+```{python}
+#Explanation: This code chunk is a simple function to download files from url, which will let us download the bib files.
 def download_bib(url, out_path):
+    """
+    Downloads a remote file locally.
+    
+    Parameters
+    ----------
+    url : str
+        The link of the file, any valid URL should work.
+    out_path : str
+        The *destination* location to save the downloaded file.
+        
+    """
     if not os.path.exists(out_path):
         try:
             response = requests.get(url)
@@ -71,7 +137,8 @@ download_bib("https://raw.githubusercontent.com/hanxiang270/CASA_novas/refs/head
 ```
 
 ```{python}
-#Explanation: This code chunk downloads a file from a given URL and saves it locally to a specified destination, caching it if it doesn't already exist or is too small, and returns the local file path.
+#Explanation: This code chunk defines a function that downloads a file from a given URL and saves it locally to a specified destination,
+#caching it if it doesn't already exist or is too small,and returns the local file path. We will use this for downloading the data sets
 
 from urllib.parse import urlparse
 import requests  
@@ -158,59 +225,6 @@ if not os.path.exists(os.path.join(path, fn)):
     listings_raw.to_csv(os.path.join(path, fn), index=False) 
     print("Done.")
 ```
-
-## 1. Who collected the InsideAirbnb data?
-
-
-( 2 points; Answer due Week 7 )
-
-The InsideAirbnb data was primarily collected by [Murray Cox](https://twitter.com/murrayscox), a Brooklyn-based independent researcher who started the project in 2015. While Cox leads the initiative, a network of activists and researchers supports the data collection by providing local context, refining scraping tools, and organizing the raw data.
-
-
-
-## 2. Why did they collect the InsideAirbnb data?
-
-
-( 4 points; Answer due Week 7 )
-
-InsideAirbnb collected data to reveal the impact of short-term rentals (STR) on residential communities, often obscured by Airbnb’s PR-driven data. For instance, in 2015, Airbnb purged over 1,000 listings from multi-listing hosts before presenting a manipulated snapshot under its ‘transparency initiative’ [@cox_how_2020]. If this scandal had not been exposed, Airbnb’s harm to local housing markets would have been downplayed. As a grassroots project, InsideAirbnb aims to challenge this issue by providing transparent data that highlights Airbnb’s role in gentrification, eviction, and the housing crisis. This empowers researchers, policymakers, and marginalized communities to collectively advocate for fair STR regulations and social justice — exemplifying 'data for co-liberation' [@dignazio_data_2020].
-
-
-## 3. How did they collect it?
-
-
-( 5 points; Answer due Week 8 )
-
-Regarding the methods of collection of InsideAirbnb, “the website only provides minimal information on the data collection process” [@Alsudais:2021]. From their [website](https://insideairbnb.com/data-assumptions/) we can see that they compile, in a quarterly basis, public information from the Airbnb website using python scripts for web-scraping. According to Alsudais, “these scripts included ones that have been “copied and pasted” from other online resources” [@Alsudais:2021]. Through this method of collection, they gather different data variables from each listing including numeric (e.g., host listings count, minimum nights, price per night), categorical (e.g., host ID), spatial (e.g.,  longitude and latitude), and textual (e.g., description) data, which is later cleansed and aggregated in files open to the public. 
-
-## 4. How does the method of collection (Q3) impact the completeness and/or accuracy of the InsideAirbnb data? How well does it represent the process it seeks to study, and what wider issues does this raise?
-
-( 11 points; Answer due Week 9 )
-
-Although InsideAirbnb states that it is [not responsible for the accuracy of its data](https://insideairbnb.com/data-assumptions/), its automated scraping method is susceptible to “systemic errors” [@Alsudais:2021]. For instance, manual inspection has confirmed that the scraper incorrectly collects all reviews associated with a listing ID, regardless of whether the listing is categorized as a "place" (e.g., apartments) or an "experience" (e.g., tours). This issue may introduce bias into Natural Language Processing (NLP) studies analyzing reviews, potentially distorting insights into guest preferences and neighborhood characteristics. 
-
-Also, InsideAirbnb data accuracy is compromised as the scraped information relies on Airbnb and host-generated content that may be inaccurate. For instance, Airbnb anonymizes location data, causing the scraped locations to appear scattered around the actual addresses. This creates challenges for local authorities attempting to regulate unregistered hosts in London [@ferreri_platform_2018] and introduces errors in studies analyzing Airbnb’s impact on specific neighborhoods.  
-
-Furthermore, hosts may misrepresent listing characteristics, such as misclassifying room types as [Entire Home or Private Room](https://community.withairbnb.com/t5/Ask-about-your-listing/Entire-home-or-private-room-ANY-THOUGHTS/m-p/421087). This can lead to incorrect conclusions about the distribution of Airbnb listings across property types and their overall impact on housing availability and market dynamics.  
-
-## 5. What ethical considerations does the use of the InsideAirbnb data raise? 
-
-( 18 points)
-
-While the InsideAirbnb data provides insights on the STR's effects, its use raises several ethical concerns, particularly around privacy, consent, rights to use the data, and bias. 
-
-About privacy and consent, although the data is scraped from publicly available information on the Airbnb website, researchers using the data do not seek explicit consent from the individuals whose data is included. Even though hosts have accepted Airbnb’s Terms of Service to make their data public to offer their listings, they often are not able to understand the implications of their consent effectively [@solove_privacy_2012] and they didn’t give consent for other purposes like research [@scassa_ownership_2019]. Moreover, because of the “aggregation effect” [@solove_privacy_2012], combining seemingly simple data, represents risks of exposing sensitive information or personally identifying data, for example when combining photos from the listings with locations and personal details exposed on the reviews. 
-
-On rights to use the data, Airbnb's Terms of Service prohibit the downloading or scraping of data from its site, but this obligation only binds the parties to the agreement and not third parties who use the data [@scassa_ownership_2019]. This raises questions about who owns and controls the data and whether researchers should be allowed to use it without explicit permission. 
-
-Finally, bias is an ethical issue to consider when using the data for research purposes and evidence-based policymaking. While the InsideAirbnb data may appear unbiased, the way it is analysed and interpreted can introduce significant biases emerging from the diverse perspectives and methodologies of the institutions conducting the analysis, that may also result on a reductionist way of assessing the phenomena. For example, [@Quattrone:2018] mentions that municipalities often approach Airbnb regulation through a “false dichotomy,” either allowing the platform to operate without restrictions or banning it entirely. Such reductionist approaches can disproportionately harm small-scale hosts who are not misusing the platform and rely on it to cover living costs, which according to [Airbnb News (2002)](https://news.airbnb.com/en-uk/third-of-hosts-use-airbnb-income-to-afford-rising-living-costs/), might represent up to a third of UK hosts.  
-
-To avoid ethical issues arising from biased analysis, according to D’Ignazio [@dignazio_data_2020], it is important acknowledging that data is not raw, and analysis is not fully neutral and requires transparency about context and methods. Also, it’s necessary to keep in mind that behind numbers on the data there are people whose livelihoods may be directly impacted by policy decisions, so quantitative analysis is not enough to address this kind of phenomenon and must be complemented with qualitative research, consent from those whose data is used, and a critical approach of the data. 
-
-## 6. With reference to the InsideAirbnb data (*i.e.* using numbers, figures, maps, and descriptive statistics), what does an analysis of Hosts and the types of properties that they list suggest about the nature of Airbnb lettings in London? 
-
-
-( 15 points)
 
 ```{python}
 #Explanation: Import packages
@@ -1408,7 +1422,6 @@ First, since most London hosts [do not display registration numbers](https://air
 
 Following that, we propose place-based regulations tailored to borough-specific saturation levels of entire-home listings exceeding 90 days per 1,000 households (Map 2). Boroughs are classified by saturation using clustering: red (high), orange (medium), and yellow (low).   
 
-
 ```{python}
 #Explanation: Unlog the column (assuming log transformation was natural log: log(x + 1))
 
@@ -1636,4 +1649,3 @@ Your QMD file should automatically download your BibTeX and CLS files and any ot
 Written in Markdown and generated from [Quarto](https://quarto.org/). Fonts used: [Spectral](https://fonts.google.com/specimen/Spectral) (mainfont), [Roboto](https://fonts.google.com/specimen/Roboto) (<span style="font-family:Sans-Serif;">sansfont</span>) and [JetBrains Mono](https://fonts.google.com/specimen/JetBrains%20Mono) (`monofont`). 
 
 ## References
-
