@@ -194,6 +194,7 @@ Inside Airbnb collected data to reveal the impact of short-term lets (STL) on re
 
 ( 5 points; Answer due Week 8 )
 
+Regarding the methods of collection of InsideAirbnb it’s worth start mentioning that “the website only provides minimal information on the data collection process” [@Alsudais:2021]. From their [website](https://insideairbnb.com/data-assumptions/) we can see that they compile, in a quarterly basis, public information from the Airbnb website using python scripts for web-scraping. According to Alsudais, “these scripts included ones that have been “copied and pasted” from other online resources” [@Alsudais:2021]. Through this method of collection, they gather different data variables from each listing including numeric (e.g., host listings count, minimum nights, price per night), categorical (e.g., host ID), spatial (e.g.,  longitude and latitude), and textual (e.g., description) data, which is later anonymised, cleansed and aggregated in files open to the public. 
 :::
 
 ## 4. How does the method of collection (Q3) impact the completeness and/or accuracy of the InsideAirbnb data? How well does it represent the process it seeks to study, and what wider issues does this raise?
@@ -469,12 +470,9 @@ print(gdf.geometry.crs) #Reprojection
 
 num_rows = listings_clean.shape[0]
 print(f"Number of rows: {num_rows}")
-````
+```
 
 ```{python}
-#| echo: false
-#| results: hide
-
 #Explanation: Calculate the number of listings for each room type and the proportion of 'Entire home/apt'.
 
 room_type_counts = listings_clean['room_type'].value_counts()
@@ -489,6 +487,7 @@ entire_home_proportion = room_type_counts['Entire home/apt'] / room_type_counts.
 
 print(f"Proportion of 'Entire home/apt' listings: {entire_home_proportion:.4f}")
 ```
+
 ```{python}
 #| echo: false
 #| results: hide
@@ -504,6 +503,7 @@ entire_ratio = entire_more_than_1_hosts / entire_total_hosts
 
 print(f"Entire home/apt multiple listing host ratio: {entire_ratio:.2%}")
 ```
+
 ```{python}
 #| echo: false
 #| results: hide
@@ -518,9 +518,10 @@ entire_home_apt_90 = gdf[(gdf['room_type'] == 'Entire home/apt') &
 As of December 2023, Inside Airbnb reports approximately 66,000 active listings in London, with 43,000 (64.01%) categorized as Entire home/apartment. Most boroughs have a higher proportion of Entire home/apartment listings compared to other room types (Fig 1), with Westminster leading at over 5,000 listings, followed by Kensington and Chelsea, and Camden.
 
 ```{python}
-#fig 1.
 #| echo: false
-#| output: asis
+#| output: true
+
+#fig 1.
 import geopandas as gpd
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -568,12 +569,67 @@ plt.show()
 These entire-home listings in London are highly commercialized, with 65.23% available for over 90 days annually and a median availability of 167 days (Fig 2). Some hosts manage an exceptionally high number of properties, with a maximum of 2,475 listings, indicating commercial operations rather than traditional hosting. Among entire-home hosts with 0 to 20 listings (Fig 3), only 40% manage a single property.
 
 ```{python}
-#fig 2
+import matplotlib.pyplot as plt
+import numpy as np
+
+#Figure 2 in Matplotlib (for pdf rendering)
+
+availability_365_data = entire_home_apt[entire_home_apt['availability_365'] > 0]['availability_365']
+
+#Get the histogram data
+hist, edges = np.histogram(availability_365_data, bins=30)
+
+#Calculate the percentage of data beyond 90
+count_beyond_90 = (availability_365_data > 90).sum()
+valid_rows = len(availability_365_data)
+percentage_beyond_90 = (count_beyond_90 / valid_rows) * 100
+
+#Calculate the median value
+median_value = availability_365_data.median()
+
+#Create the Matplotlib figure
+fig, ax = plt.subplots(figsize=(10, 6))
+
+#Plot the histogram bars
+ax.bar(edges[:-1], hist, width=np.diff(edges), color='orange', alpha=0.7, edgecolor="#4F4F4F", label="Frequency")
+
+#Add a vertical line at 90 days
+ax.axvline(x=90, color='black', linestyle='--', linewidth=2, label="90 Days")
+
+#Add a vertical line for the median value
+ax.axvline(x=median_value, color='red', linestyle='-.', linewidth=2, label=f"Median Day ({int(median_value)} days)")
+
+#Add annotation for percentage of data beyond 90 days (split into two lines)
+ax.text(95, max(hist) * 1, f"{percentage_beyond_90:.2f}%\nabove 90 days",
+        fontsize=10, color='black', va='top', bbox=dict(facecolor='white', alpha=0.7, edgecolor='none'))
+
+#Add annotation for median value
+ax.text(median_value + 5, max(hist) * 1, f"Median: {int(median_value)} days",
+        fontsize=10, color='red', va='top', bbox=dict(facecolor='white', alpha=0.7, edgecolor='none'))
+
+#Customize grid, title, and axis labels
+ax.grid(False)
+ax.set_title("Fig 2. Distribution of Available Days for Entire Home/Apt in London", fontsize=14)
+ax.set_xlabel("Available Days in the Next Calendar Year from December 10, 2023", fontsize=12)
+ax.set_ylabel("Frequency", fontsize=12)
+ax.legend()
+
+#Adjust y-axis range
+ax.set_ylim(0, max(hist) * 1.1)
+
+#Show the figure
+plt.tight_layout()
+plt.show()
+```
+
+```{python}
 #| echo: false
-#| output: asis
-#Explanation: Create the histogram showing the distribution of 'availability_365' for 'Entire home/apt' in London
+
+#Explanation: We decided to also do figure 2 in Bokeh as we consider it would be useful for an html rendering of the file.
 
 from bokeh.models import ColumnDataSource, Label
+from bokeh.plotting import figure
+from bokeh.io import output_notebook, show
 
 # Assuming entire_home_apt is available in your environment
 availability_365_data = entire_home_apt[entire_home_apt['availability_365'] > 0]['availability_365']
@@ -632,9 +688,47 @@ show(p)  # Display the plot
 ```
 
 ```{python}
-#fig3.
 #| echo: false
-#| output: asis
+#| output: true
+
+#Figure 3 in maplotlib
+
+multiple_listings = entire_home_apt_90[entire_home_apt_90['host_listings_count'] >= 1]
+multiple_listings = multiple_listings[multiple_listings['host_listings_count'] <= 20]
+
+host_counts = multiple_listings['host_listings_count']
+
+#Get the histogram data
+bins = np.arange(1, host_counts.max() + 2)  
+hist, edges = np.histogram(host_counts, bins=bins, density=True)
+
+#Create the Matplotlib figure
+fig, ax = plt.subplots(figsize=(10, 6))
+
+#Plot the histogram bars
+ax.bar(edges[:-1], hist, width=np.diff(edges), color='orange', edgecolor="black", alpha=0.7)
+
+#Set the x-axis ticks to match the bins
+ax.set_xticks(bins[:-1])
+
+#Add title and axis labels
+ax.set_title("Fig 3. Distribution of Listings Owned by Hosts of Entire Home/Apt", fontsize=14)
+ax.set_xlabel("Number of Listings per Host", fontsize=12)
+ax.set_ylabel("Proportion", fontsize=12)
+
+#Customize grid
+ax.grid(True, linestyle='--', alpha=0.5)
+
+#Show the plot
+plt.tight_layout()
+plt.show()
+```
+
+```{python}
+#| echo: false
+
+#fig3 in bokeh, for html rendering 
+
 from bokeh.plotting import figure, show
 from bokeh.models import ColumnDataSource
 import numpy as np
@@ -673,7 +767,6 @@ p.grid.grid_line_alpha = 0.5
 show(p)
 ```
 
-
 ```{python}
 #| echo: false
 
@@ -681,7 +774,9 @@ show(p)
 
 num_rows = listings_clean.shape[0]
 print(f"Number of rows: {num_rows}")
-````
+
+print(boros.columns)
+```
 
 These figures suggest that Airbnb in London has shifted from sharing underutilized spaces to a profit-driven model dominated by entire homes, which may negatively impact the local rental market, a topic discussed in the next section.
 
@@ -693,18 +788,14 @@ These figures suggest that Airbnb in London has shifted from sharing underutiliz
 
 ( 45 points; Answer due {{< var assess.group-date >}} )
 
-
-
-```{python}
-#| echo: false
-
-print(boros.columns)
-```
-
 ```{python}
 #| echo: false
 
 #Explanation: Perform a spatial join to assign borough information to listings and count entire home/apt listings per borough
+
+#Reproject to British National Grid
+entire_home_apt_90 = entire_home_apt_90.to_crs('epsg:27700') 
+boros=boros.to_crs('epsg:27700')
 
 # Spatially join listings to boroughs to determine which borough each listing falls within
 joined = gpd.sjoin(entire_home_apt_90, boros, how='left', predicate='within')
@@ -795,8 +886,41 @@ As of 2024, the average monthly rent for a single room in London is £1,013, whi
 
 ```{python}
 #| echo: false
-#| output: asis
-# Map 1
+#| output: true
+
+from matplotlib import cm
+
+#Create a colormap based on the 'mean_rent' field
+norm = plt.Normalize(vmin=boros['mean_rent'].min(), vmax=boros['mean_rent'].max())
+cmap = cm.get_cmap('YlOrRd', 9)  # Reverse the palette and use 9 colors
+
+#Plot the map
+fig, ax = plt.subplots(figsize=(10, 8))
+
+#Plot the geometries of the boroughs with colors based on 'mean_rent'
+boros.plot(ax=ax, column='mean_rent', cmap=cmap, linewidth=0.5, edgecolor='#4F4F4F', alpha=1)
+
+#Set the title
+ax.set_title("Map 1. Mean Monthly Rent per Bedroom by London Borough (2023)", fontsize=12)
+
+#Hide axes for a cleaner look
+ax.set_axis_off()
+
+#Add a color bar
+sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+sm.set_array([])  # Empty array, only for color bar
+cbar = plt.colorbar(sm, ax=ax, orientation='horizontal', fraction=0.035, pad=0.002)
+cbar.set_label('Mean Rent (£)', fontsize=12)
+
+# Show the plot
+plt.tight_layout()
+plt.show()
+```
+
+```{python}
+#| echo: false
+
+# Map 1 in bokeh, for html
 from bokeh.io import output_notebook, show
 from bokeh.models import GeoJSONDataSource, ColorBar, LinearColorMapper, HoverTool, PrintfTickFormatter
 from bokeh.plotting import figure
@@ -877,7 +1001,7 @@ plt.ylabel('Frequency', fontsize=14)
 plt.grid(axis='y', linestyle='--', alpha=0.7)
 plt.show()
 
-# Log-transformation
+#We see that data is skewed so we applied  Log-transformation
 boros['log_mean_rent'] = np.log(boros['mean_rent'] + 1)  # Add 1 to avoid log(0)
 print(boros.head())
 ```
@@ -1419,78 +1543,79 @@ Between these two kinds of hosts, the first group could be understood as people 
 For hosts with more listings, stricter regulations should be included as they act as businesses. They should also obtain permits and pay hotel level taxes, which will help address unfair competition concerns of traditional short term rental businesses (Reyes, 2015). Other specific regulations can be informed by our clustering analysis (Map 2), where we identified boroughs where Airbnb saturation significantly impacts the housing market. In these areas, we recommend banning such businesses. In those where there is lower Airbnb density, they will be able to operate but with a revenue cap equivalent to the boroughs’ average long-term rent. This would reduce financial incentives for prioritizing STL over long-term rentals, gradually returning properties to the housing market. 
 
 ```{python}
-# Map 2
 #| echo: false
-#| output: asis
-from sklearn.cluster import KMeans
-from bokeh.models import GeoJSONDataSource, ColorBar, LinearColorMapper, HoverTool, FixedTicker
-from bokeh.palettes import Set2
-from bokeh.plotting import figure, show, output_notebook
-import geopandas as gpd
-import json
+#| output: true
 
-# Step 1: Perform KMeans clustering
+import matplotlib.patches as mpatches
+
+#Perform KMeans clustering
 optimal_clusters = 3
 X = boros[['entire_1000_household']].values
 kmeans = KMeans(n_clusters=optimal_clusters, random_state=42)
 boros['cluster'] = kmeans.fit_predict(X)
 
-# Step 2: Convert GeoDataFrame to GeoJSON
-geojson = boros.to_json()
-geo_source = GeoJSONDataSource(geojson=geojson)
+#Calculate the average saturation for each cluster
+cluster_avg_saturation = boros.groupby('cluster')['entire_1000_household'].mean()
 
-# Step 3: Create a color mapper for clusters
-palette = Set2[optimal_clusters]  # Use Set2 palette
-color_mapper = LinearColorMapper(palette=palette, low=0, high=optimal_clusters - 1)
+#Sort the clusters based on average saturation in descending order
+sorted_clusters = cluster_avg_saturation.sort_values(ascending=False)
 
-# Step 4: Create Bokeh figure
-p = figure(
-    title="Map2 Saturation of Entire Home/apt Over 90 Days by London Borough (2023)",
-    width=800,
-    height=600,
-    toolbar_location="right",
-    tools="pan,wheel_zoom,reset,hover"
-)
+#Reassign cluster labels based on the ranking of saturation
+cluster_rank = {cluster: rank for rank, cluster in enumerate(sorted_clusters.index)}
+boros['cluster_ranked'] = boros['cluster'].map(cluster_rank)
 
-# Add polygon patches for boroughs
-p.patches(
-    'xs', 'ys',
-    source=geo_source,
-    fill_color={'field': 'cluster', 'transform': color_mapper},  # Cluster-based coloring
-    line_color="black",
-    line_width=0.5,
-    fill_alpha=0.7,
-)
+#Define individual colors for each ranked cluster
+custom_colors = {0: '#eb6238',  # Custom color for cluster 0 (highest saturation)
+                 1: '#eba038',  # Custom color for cluster 1
+                 2: '#fff8d6'}  # Custom color for cluster 2 (lowest saturation)
 
-# Step 5: Add hover tool
-hover = HoverTool()
-hover.tooltips = [
-    ("Borough", "@NAME"),
-    ("Cluster", "@cluster"),
-    ("Entire/1000 HH", "@entire_1000_household"),
+#Plot the map
+fig, ax = plt.subplots(figsize=(10, 8))
+
+# Assign colors to each polygon based on the 'cluster_ranked' value
+for cluster, color in custom_colors.items():
+    subset = boros[boros['cluster_ranked'] == cluster]
+    subset.plot(ax=ax, color=color, edgecolor='#4F4F4F', linewidth=0.5)
+
+# Map cluster ranks to descriptions
+cluster_descriptions = {
+    0: "High Saturation",
+    1: "Medium Saturation",
+    2: "Low Saturation"
+}
+
+#Set the title
+ax.set_title("Map 2: Saturation of Entire Home/Apt Over 90 Days by London Borough (2023)", fontsize=12)
+
+#Hide the axis for a cleaner look
+ax.set_axis_off()
+
+
+# Add a manual legend to describe clusters with saturation labels
+legend_patches = [
+    mpatches.Patch(color=color, label=f"Cluster {rank} - {cluster_descriptions[rank]}")
+    for rank, color in custom_colors.items()
 ]
-p.add_tools(hover)
-
-# Step 6: Add a color bar with fixed integer ticks
-color_bar = ColorBar(
-    color_mapper=color_mapper,
-    ticker=FixedTicker(ticks=[0, 1, 2]),  
-    label_standoff=8,
-    width=20,
-    height=300,
-    location=(0, 0),
-    orientation="vertical",
-    title="Cluster"
+ax.legend(
+    handles=legend_patches,
+    loc='lower left',  # Base position
+    bbox_to_anchor=(0, -0.02),  # Move the legend downward
+    title="Clusters Ranked by Saturation",
+    fontsize=10,
+    title_fontsize=11,
+    ncol=1  # Optional: Controls the number of columns in the legend
 )
-p.add_layout(color_bar, 'right')
 
-# Customize grid and axis
-p.axis.visible = False
-p.grid.grid_line_color = None
 
-# Step 7: Display the dynamic map
-output_notebook()  # For Jupyter Notebook visualization
-show(p)
+#Align the label of the color bar
+cbar.ax.yaxis.set_label_position('left')
+
+cbar.set_ticks([0, 1, 2])
+cbar.ax.tick_params(labelsize=12)
+
+#Show the plot
+plt.tight_layout()
+plt.show()
 ```
 
 This kind of measure aims to protect individuals using Airbnb responsibly, while applying stricter rules to those using the platform as a business at the expense of long-term housing. Ultimately, the goal would be to ease the rising housing prices by reducing the number of homes lost to short-term lets and restoring them to the long-term market. 
@@ -1502,76 +1627,79 @@ from IPython.display import SVG, display
 # Create a Digraph object
 diagram = Digraph(
     format="svg",
-    graph_attr={"rankdir": "TB"},
-    node_attr={"shape": "box", "fontsize": "12", "fontname": "Roboto Flex"},
+    graph_attr={
+        "rankdir": "TB",       # Top to Bottom layout
+        "splines": "polyline",    # Orthogonal lines (L-shaped)
+        "nodesep": "0.6",      # Horizontal spacing between nodes
+        "ranksep": "0.70",     # Vertical spacing between ranks
+    },
+    node_attr={
+        "shape": "box",
+        "fontsize": "12",
+        "fontname": "Helvetica",
+        "penwidth": "2.0"
+    },
 )
-
 # Add nodes and edges
 diagram.node(
-    "A", "ALL AIRBNB LISTINGS", fontsize="24", shape="none"
+    "A", "LONDON'S AIRBNB LISTINGS", fontsize="14", penwidth="3.0"
 )
 diagram.node(
     "B",
     "Host needs to be the real owner \n(landlord/legal occupant)",
-    fontsize="10",
+    fontsize="8",
     fontcolor="grey",
     color="grey",
 )
 diagram.node(
     "C",
     "Hosts with 1 or 2 listings",
-    fontsize="14",
+    fontsize="12",
     penwidth="3.0",
 )
 diagram.node(
     "D",
     "Renting ≤ 90 days in a year",
-    fontsize="14",
+    fontsize="12",
     penwidth="3.0",
 )
 diagram.node(
     "E",
     "Renting > 90 days in a year",
-    fontsize="14",
+    fontsize="12",
     penwidth="3.0",
 )
 diagram.node(
-    "F", "Hosts with > 2 listings", fontsize="14", penwidth="3.0"
+    "F", "Hosts with > 2 listings", fontsize="12", penwidth="3.0"
 )
-diagram.node(
-    "G",
-    "Permit and business taxes like hotels apply",
-    fontsize="10",
-    fontcolor="grey",
-    color="grey",
-)
+
 diagram.node(
     "H",
-    "In green (clustered) boroughs",
-    fontsize="14",
+    "Saturated boroughs",
+    fontsize="12",
     penwidth="3.0",
 )
 diagram.node(
     "I",
-    "In grey (non-clustered) boroughs",
-    fontsize="14",
+    "Non-saturated boroughs",
+    fontsize="12",
     penwidth="3.0",
 )
 diagram.node(
-    "J", "up to £7,500 tax-free income", fontsize="10", fontcolor="grey", color="grey"
+    "J", "up to £7,500 tax-free income", fontsize="8", fontcolor="grey", color="grey"
 )
 diagram.node(
     "K",
     "Permit and business taxes like hotels apply",
-    fontsize="10",
+    fontsize="8",
     fontcolor="grey",
     color="grey",
 )
 diagram.node("L", "Not allowed", fontsize="10", fontcolor="grey", color="grey")
 diagram.node(
     "M",
-    "Allowed under the revenue cap per each property, \nequivalent to the boroughs' average long-term rent",
-    fontsize="10",
+    "Permit and business taxes like hotels apply \n + \n A revenue cap per each property is required, \nequivalent to the boroughs' average long-term rent",
+    fontsize="8",
     fontcolor="grey",
     color="grey",
 )
@@ -1582,9 +1710,8 @@ diagram.edge("B", "C")
 diagram.edge("B", "F")
 diagram.edge("C", "D", weight="0.5")
 diagram.edge("C", "E", weight="0.5")
-diagram.edge("F", "G", dir="none", color="grey")
-diagram.edge("G", "H")
-diagram.edge("G", "I")
+diagram.edge("F", "H")
+diagram.edge("F", "I")
 diagram.edge("D", "J", dir="none", color="grey")
 diagram.edge("E", "K", dir="none", color="grey")
 diagram.edge("H", "L", dir="none", color="grey")
