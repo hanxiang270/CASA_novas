@@ -515,8 +515,12 @@ entire_home_apt_90 = gdf[(gdf['room_type'] == 'Entire home/apt') &
                           (gdf['availability_365'].notna())]
 ```
 
+As of December 2023, Inside Airbnb reports approximately 66,000 active listings in London, with 43,000 (64.01%) categorized as Entire home/apartment. Most boroughs have a higher proportion of Entire home/apartment listings compared to other room types (Fig 1), with Westminster leading at over 5,000 listings, followed by Kensington and Chelsea, and Camden.
+
 ```{python}
 #fig 1.
+#| echo: false
+#| output: asis
 import geopandas as gpd
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -560,6 +564,8 @@ plt.text(x_max, y_min, "Others:Sum of Shared room and Hotel room",
 
 plt.show()
 ```
+
+These entire-home listings in London are highly commercialized, with 65.23% available for over 90 days annually and a median availability of 167 days (Fig 2). Some hosts manage an exceptionally high number of properties, with a maximum of 2,475 listings, indicating commercial operations rather than traditional hosting. Among entire-home hosts with 0 to 20 listings (Fig 3), only 40% manage a single property.
 
 ```{python}
 #fig 2
@@ -627,6 +633,8 @@ show(p)  # Display the plot
 
 ```{python}
 #fig3.
+#| echo: false
+#| output: asis
 from bokeh.plotting import figure, show
 from bokeh.models import ColumnDataSource
 import numpy as np
@@ -665,7 +673,6 @@ p.grid.grid_line_alpha = 0.5
 show(p)
 ```
 
-As of December 2023, data from Inside Airbnb shows approximately 66,000 active listings in London. These listings are categorized into types such as Entire home/apartment, Private room, Shared room, and Hotel room, with Entire home/apartment listings having the most significant impact on the local rental market. Such properties are often removed from the long-term rental (LTR) market and converted into short-term rentals (STRs), reducing housing supply and contributing to rising rents. In London, about 43,000 listings are categorized as Entire home/apartment, accounting for approximately 64.01% of all Airbnb listings. This constitutes a substantial share compared to other room types, as illustrated in the bar chart below (Fig 1), which compares the counts of each listing type. Furthermore, 40.09% of Entire home/apartment hosts manage more than one listing, highlighting the commercial and speculative nature of Airbnb lettings in London and their potential to disrupt the local LTR market.
 
 ```{python}
 #| echo: false
@@ -676,9 +683,7 @@ num_rows = listings_clean.shape[0]
 print(f"Number of rows: {num_rows}")
 ````
 
-Although London's [90-day rule](https://www.london.gov.uk/programmes-strategies/housing-and-land/improving-private-rented-sector/guidance-short-term-and-holiday-lets-london) restricts STRs of entire homes to 90 nights per calendar year, enforcement remains weak. The histogram below (Fig. 2) shows the distribution of available days for Entire home/apartment listings in London in the next calendar year (starting from December 10, 2023). 65.23% of these listings exceed the 90-day limit. The median number of available days in the next calendar year is 167 days, with the maximum availability being for the entire year. These figures showcase widespread non-compliance with the 90-day rule among Entire home/apartment hosts. One contributing factor is that fewer than [5%](https://airbtics.com/airbnb-rules-in-greater-london-united-kingdom/) of Airbnb listings in London display a registration number, meaning most hosts operate without regulation. This highlights the regulatory gaps in London's STR market.
-
-This section highlights the speculative and unregulated nature of Entire home/apartment Airbnb listings in London, where weak enforcement of existing regulations may incentivize speculative behavior. This raises the question of what might happen if the "90-day rule" were strictly enforced. The next section will explore this scenario in greater detail.
+These figures suggest that Airbnb in London has shifted from sharing underutilized spaces to a profit-driven model dominated by entire homes, which may negatively impact the local rental market, a topic discussed in the next section.
 
 :::
 
@@ -785,10 +790,13 @@ boros = boros.merge(
 boros.drop(columns=['Name'], inplace=True)
 print(boros.head())
 ```
+
+As of 2024, the average monthly rent for a single room in London is £1,013, which accounts for approximately [**52%**](https://www.thetimes.com/article/graduates-spend-more-than-half-their-wages-on-rent-2d5sxwvv2) of a graduate’s monthly income. The map below (Map 1) illustrates the average monthly rent per bedroom in entire properties (excluding shared accommodations) across London boroughs. **Kensington and Chelsea** has the highest average rent at £1,982 per month, followed by **Westminster** (£1,868) and the **City of London** (£1,460).
+
 ```{python}
 #| echo: false
 #| output: asis
-
+# Map 1
 from bokeh.io import output_notebook, show
 from bokeh.models import GeoJSONDataSource, ColorBar, LinearColorMapper, HoverTool, PrintfTickFormatter
 from bokeh.plotting import figure
@@ -842,9 +850,6 @@ p.grid.grid_line_color = None
 output_notebook()
 show(p)
 ```
-
-
-As of 2024, the average monthly rent for a single room in London is £1,013, which accounts for approximately [**52%**](https://www.thetimes.com/article/graduates-spend-more-than-half-their-wages-on-rent-2d5sxwvv2) of a graduate’s monthly income. The map below illustrates the average monthly rent per bedroom in entire properties (excluding shared accommodations) across London boroughs. **Kensington and Chelsea** has the highest average rent at £1,982 per month, followed by **Westminster** (£1,868) and the **City of London** (£1,460).
 
 Airbnb listings for entire homes are often criticized for driving up rents in the LTR market by converting properties into STRs, reducing LTR housing availability. As noted earlier, most Airbnb hosts in London with entire-home listings manage multiple properties and rent them for over 90 days per year, reflecting a shift from optimizing underutilized properties to profit-driven operations that disrupt the LTR market [@duso_airbnb_2024]. To address this, London’s [90-day rule](https://www.london.gov.uk/programmes-strategies/housing-and-land/improving-private-rented-sector/guidance-short-term-and-holiday-lets-london) limits STRs of entire homes to 90 days annually without planning permission. However, less than [5%](https://airbtics.com/airbnb-rules-in-greater-london-united-kingdom/#:~:text=Less%20than%205%25%20of%20Airbnb,space%20for%20short%2Dterm%20rentals.) of Airbnb listings display a registration number, making enforcement difficult for local authorities.
 
@@ -1405,8 +1410,18 @@ plt.ylabel('Within-Cluster Sum of Squares (WCSS)')
 plt.show()
 ```
 
+After analysing the InsideAirbnb dataset we consider that it provides insights to establish regulations tailored specifically to London. This approach will help avoid too generic rules that may affect users that are not misusing the platform or fail to address those exploiting the platform and therefore affecting London’s housing crisis. 
+
+For instance, our analysis reveals that only 5% of London hosts include their registration numbers on the platform, making it difficult to identify those accumulating multiple properties. To address this, and as a first step on defining regulations, we propose requiring Airbnb to verify that hosts are the actual legal representants of the properties they list. This step would improve transparency, allowing regulators to distinguish between small-scale hosts and larger ones, ensuring that regulations are enforced fairly and targeted effectively. 
+
+Between these two kinds of hosts, the first group could be understood as people who genuinely use Airbnb as a means of generating income from spare rooms or temporarily unoccupied properties, so regulations should aim to minimize affecting them as discussed in Question 5. For instance, we suggest maintaining the 90-day rental limit and the “Rent a room” scheme which allows up to £7,500 tax-free income (KeyNest, 2019). However, those renting for more than 90 days would need to apply for a permit and pay business taxes like hotels, following San Francisco practices.
+
+For hosts with more listings, stricter regulations should be included as they act as businesses. They should also obtain permits and pay hotel level taxes, which will help address unfair competition concerns of traditional short term rental businesses (Reyes, 2015). Other specific regulations can be informed by our clustering analysis (Map 2), where we identified boroughs where Airbnb saturation significantly impacts the housing market. In these areas, we recommend banning such businesses. In those where there is lower Airbnb density, they will be able to operate but with a revenue cap equivalent to the boroughs’ average long-term rent. This would reduce financial incentives for prioritizing STL over long-term rentals, gradually returning properties to the housing market. 
+
 ```{python}
 # Map 2
+#| echo: false
+#| output: asis
 from sklearn.cluster import KMeans
 from bokeh.models import GeoJSONDataSource, ColorBar, LinearColorMapper, HoverTool, FixedTicker
 from bokeh.palettes import Set2
@@ -1477,15 +1492,6 @@ p.grid.grid_line_color = None
 output_notebook()  # For Jupyter Notebook visualization
 show(p)
 ```
-
-
-After analysing the InsideAirbnb dataset we consider that it provides insights to establish regulations tailored specifically to London. This approach will help avoid too generic rules that may affect users that are not misusing the platform or fail to address those exploiting the platform and therefore affecting London’s housing crisis. 
-
-For instance, our analysis reveals that only 5% of London hosts include their registration numbers on the platform, making it difficult to identify those accumulating multiple properties. To address this, and as a first step on defining regulations, we propose requiring Airbnb to verify that hosts are the actual legal representants of the properties they list. This step would improve transparency, allowing regulators to distinguish between small-scale hosts and larger ones, ensuring that regulations are enforced fairly and targeted effectively. 
-
-Between these two kinds of hosts, the first group could be understood as people who genuinely use Airbnb as a means of generating income from spare rooms or temporarily unoccupied properties, so regulations should aim to minimize affecting them as discussed in Question 5. For instance, we suggest maintaining the 90-day rental limit and the “Rent a room” scheme which allows up to £7,500 tax-free income (KeyNest, 2019). However, those renting for more than 90 days would need to apply for a permit and pay business taxes like hotels, following San Francisco practices.
-
-For hosts with more listings, stricter regulations should be included as they act as businesses. They should also obtain permits and pay hotel level taxes, which will help address unfair competition concerns of traditional short term rental businesses (Reyes, 2015). Other specific regulations can be informed by our clustering analysis, where we identified boroughs where Airbnb density significantly impacts the housing market. In these areas, we recommend banning such businesses. In those where there is lower Airbnb density, they will be able to operate but with a revenue cap equivalent to the boroughs’ average long-term rent. This would reduce financial incentives for prioritizing STL over long-term rentals, gradually returning properties to the housing market. 
 
 This kind of measure aims to protect individuals using Airbnb responsibly, while applying stricter rules to those using the platform as a business at the expense of long-term housing. Ultimately, the goal would be to ease the rising housing prices by reducing the number of homes lost to short-term lets and restoring them to the long-term market. 
 
