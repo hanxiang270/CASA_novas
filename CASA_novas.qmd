@@ -83,7 +83,6 @@ download_bib("https://raw.githubusercontent.com/hanxiang270/CASA_novas/refs/head
 download_bib("https://raw.githubusercontent.com/hanxiang270/CASA_novas/refs/heads/main/harvard-cite-them-right.csl", "harvard-cite-them-right.csl")
 ```
 
-
 # Response to Questions
 
 ## 1. Who collected the InsideAirbnb data?
