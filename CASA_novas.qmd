@@ -947,6 +947,64 @@ boros = boros.merge(
 boros.drop(columns=['Name'], inplace=True)
 print(boros.head())
 ```
+```{python}
+#| echo: false
+#| output: asis
+
+from bokeh.io import output_notebook, show
+from bokeh.models import GeoJSONDataSource, ColorBar, LinearColorMapper, HoverTool, PrintfTickFormatter
+from bokeh.plotting import figure
+from bokeh.palettes import YlOrRd
+import json
+
+merged_json = boros.to_json()
+
+geo_source = GeoJSONDataSource(geojson=merged_json)
+
+color_mapper = LinearColorMapper(palette=YlOrRd[9][::-1], low=boros['mean_rent'].min(), high=boros['mean_rent'].max())
+
+p = figure(
+    title="Map 1. Mean Montly Rent per Bedroom by London Borough (2023)",
+    width=800,  
+    height=600, 
+    toolbar_location="right",
+    tools="pan,wheel_zoom,reset",
+)
+
+p.patches(
+    'xs', 'ys', 
+    source=geo_source,
+    fill_color={'field': 'mean_rent', 'transform': color_mapper},
+    line_color="black",
+    line_width=0.5,
+    fill_alpha=0.7,
+)
+
+hover = HoverTool()
+hover.tooltips = [
+    ("Borough", "@NAME"),
+    ("Mean Rent", "£@mean_rent{0.0}"),
+]
+p.add_tools(hover)
+
+color_bar = ColorBar(
+    color_mapper=color_mapper,
+    label_standoff=8,
+    width=500,
+    height=20,
+    location=(0, 0),
+    orientation='horizontal',
+    formatter=PrintfTickFormatter(format="£%0.0f")  
+)
+p.add_layout(color_bar, 'below')
+
+p.axis.visible = False
+p.grid.grid_line_color = None
+
+output_notebook()
+show(p)
+```
+
 
 As of 2024, the average monthly rent for a single room in London is £1,013, which accounts for approximately [**52%**](https://www.thetimes.com/article/graduates-spend-more-than-half-their-wages-on-rent-2d5sxwvv2) of a graduate’s monthly income. The map below illustrates the average monthly rent per bedroom in entire properties (excluding shared accommodations) across London boroughs. **Kensington and Chelsea** has the highest average rent at £1,982 per month, followed by **Westminster** (£1,868) and the **City of London** (£1,460).
 
