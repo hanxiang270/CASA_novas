@@ -1568,17 +1568,78 @@ plt.show()
 ```
 
 ```{python}
-#| echo: false
+# Map 2
+from sklearn.cluster import KMeans
+from bokeh.models import GeoJSONDataSource, ColorBar, LinearColorMapper, HoverTool, FixedTicker
+from bokeh.palettes import Set2
+from bokeh.plotting import figure, show, output_notebook
+import geopandas as gpd
+import json
 
-#Explanation: Plot
-
+# Step 1: Perform KMeans clustering
 optimal_clusters = 3
+X = boros[['entire_1000_household']].values
 kmeans = KMeans(n_clusters=optimal_clusters, random_state=42)
 boros['cluster'] = kmeans.fit_predict(X)
-boros.plot(column='cluster', cmap='Set2', legend=False, figsize=(12, 8))
-plt.title('Clusters of Entire Home/Apt Listings per 1000 Households by Borough')
-plt.show()
+
+# Step 2: Convert GeoDataFrame to GeoJSON
+geojson = boros.to_json()
+geo_source = GeoJSONDataSource(geojson=geojson)
+
+# Step 3: Create a color mapper for clusters
+palette = Set2[optimal_clusters]  # Use Set2 palette
+color_mapper = LinearColorMapper(palette=palette, low=0, high=optimal_clusters - 1)
+
+# Step 4: Create Bokeh figure
+p = figure(
+    title="Map2 Saturation of Entire Home/apt Over 90 Days by London Borough (2023)",
+    width=800,
+    height=600,
+    toolbar_location="right",
+    tools="pan,wheel_zoom,reset,hover"
+)
+
+# Add polygon patches for boroughs
+p.patches(
+    'xs', 'ys',
+    source=geo_source,
+    fill_color={'field': 'cluster', 'transform': color_mapper},  # Cluster-based coloring
+    line_color="black",
+    line_width=0.5,
+    fill_alpha=0.7,
+)
+
+# Step 5: Add hover tool
+hover = HoverTool()
+hover.tooltips = [
+    ("Borough", "@NAME"),
+    ("Cluster", "@cluster"),
+    ("Entire/1000 HH", "@entire_1000_household"),
+]
+p.add_tools(hover)
+
+# Step 6: Add a color bar with fixed integer ticks
+color_bar = ColorBar(
+    color_mapper=color_mapper,
+    ticker=FixedTicker(ticks=[0, 1, 2]),  
+    label_standoff=8,
+    width=20,
+    height=300,
+    location=(0, 0),
+    orientation="vertical",
+    title="Cluster"
+)
+p.add_layout(color_bar, 'right')
+
+# Customize grid and axis
+p.axis.visible = False
+p.grid.grid_line_color = None
+
+# Step 7: Display the dynamic map
+output_notebook()  # For Jupyter Notebook visualization
+show(p)
 ```
+
 
 After analysing the InsideAirbnb dataset we consider that it provides insights to establish regulations tailored specifically to London. This approach will help avoid too generic rules that may affect users that are not misusing the platform or fail to address those exploiting the platform and therefore affecting London’s housing crisis. 
 
