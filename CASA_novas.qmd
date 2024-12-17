@@ -625,7 +625,7 @@ output_notebook()  # Output to Jupyter notebook
 show(p)  # Display the plot
 ```
 
-````{python}
+```{python}
 #fig3.
 from bokeh.plotting import figure, show
 from bokeh.models import ColumnDataSource
@@ -663,6 +663,7 @@ p.xaxis.ticker = bins[:-1]
 p.grid.grid_line_alpha = 0.5
 
 show(p)
+```
 
 As of December 2023, data from Inside Airbnb shows approximately 66,000 active listings in London. These listings are categorized into types such as Entire home/apartment, Private room, Shared room, and Hotel room, with Entire home/apartment listings having the most significant impact on the local rental market. Such properties are often removed from the long-term rental (LTR) market and converted into short-term rentals (STRs), reducing housing supply and contributing to rising rents. In London, about 43,000 listings are categorized as Entire home/apartment, accounting for approximately 64.01% of all Airbnb listings. This constitutes a substantial share compared to other room types, as illustrated in the bar chart below (Fig 1), which compares the counts of each listing type. Furthermore, 40.09% of Entire home/apartment hosts manage more than one listing, highlighting the commercial and speculative nature of Airbnb lettings in London and their potential to disrupt the local LTR market.
 
@@ -675,125 +676,7 @@ num_rows = listings_clean.shape[0]
 print(f"Number of rows: {num_rows}")
 ````
 
-```{python}
-#| echo: false
-
-#Explanation: Calculate the number of listings for each room type and the proportion of 'Entire home/apt'.
-
-room_type_counts = listings_clean['room_type'].value_counts()
-
-print(room_type_counts)
-
-# Count the total number of listings for each room type
-room_type_counts = listings_raw['room_type'].value_counts()
-
-# Calculate the proportion of 'Entire home/apt' relative to the total
-entire_home_proportion = room_type_counts['Entire home/apt'] / room_type_counts.sum()
-
-print(f"Proportion of 'Entire home/apt' listings: {entire_home_proportion:.4f}")
-```
-
-```{python}
-#| echo: false
-#| output: asis
-
-#Explanation: Plot the bar chart of the distribution of listings by room type.
-
-from bokeh.io import output_notebook, show
-from bokeh.plotting import figure
-from bokeh.models import ColumnDataSource, HoverTool
-from bokeh.palettes import Spectral4
-
-room_types = room_type_counts.index.to_list()
-counts = room_type_counts.values.tolist()
-
-source = ColumnDataSource(data=dict(
-    rt=room_types,
-    count=counts,
-))
-
-# Hover tool
-TOOLTIPS = [
-    ("Room Type", "@rt"),
-    ("Number of Listings", "@count{,}"),
-]
-
-# Bokeh bar chart customisation
-p = figure(x_range=room_types, height=400, tooltips=TOOLTIPS, 
-           title="Fig 1. Count of Airbnb Listings by Room Type in London (Up to December 10, 2023)",
-           toolbar_location=None)
-p.vbar(x='rt', top='count', width=0.9, source=source, color='purple',alpha=0.5)
-p.line([-0.5, len(room_types)-0.5], [expected[0], expected[0]], 
-       line_width=2, color="black", line_dash="dashed", legend_label="Mean")
-p.xgrid.grid_line_color = None
-p.y_range.start = 0
-p.legend.location = "top_right"
-p.legend.orientation = "horizontal"
-p.xaxis.axis_label = "Room Type"
-p.yaxis.axis_label = "Count"
-
-# Show the plot
-output_notebook()  
-show(p)  
-```
-
-```{python}
-#| echo: false
-
-#Explanation: Calculate the proportion of 'Entire home/apt' hosts as multiple-listing hosts
-
-entire_home_apt = listings_clean[listings_clean['room_type'] == 'Entire home/apt']
-more_than_1_entire = entire_home_apt[entire_home_apt['calculated_host_listings_count'] != 1]
-
-entire_total_hosts = len(entire_home_apt['host_name'].unique())
-entire_more_than_1_hosts = len(more_than_1_entire['host_name'].unique())
-entire_ratio = entire_more_than_1_hosts / entire_total_hosts
-
-print(f"Entire home/apt multiple listing host ratio: {entire_ratio:.2%}")
-```
-
 Although London's [90-day rule](https://www.london.gov.uk/programmes-strategies/housing-and-land/improving-private-rented-sector/guidance-short-term-and-holiday-lets-london) restricts STRs of entire homes to 90 nights per calendar year, enforcement remains weak. The histogram below (Fig. 2) shows the distribution of available days for Entire home/apartment listings in London in the next calendar year (starting from December 10, 2023). 65.23% of these listings exceed the 90-day limit. The median number of available days in the next calendar year is 167 days, with the maximum availability being for the entire year. These figures showcase widespread non-compliance with the 90-day rule among Entire home/apartment hosts. One contributing factor is that fewer than [5%](https://airbtics.com/airbnb-rules-in-greater-london-united-kingdom/) of Airbnb listings in London display a registration number, meaning most hosts operate without regulation. This highlights the regulatory gaps in London's STR market.
-
-```{python}
-#| echo: false
-#| output: asis
-
-#Explanation: Create the histogram showing the distribution of 'availability_365' for 'Entire home/apt' in London
-
-from bokeh.models import ColumnDataSource, Label
-
-availability_365_data = entire_home_apt[entire_home_apt['availability_365'] > 0]['availability_365']
-
-hist, edges = np.histogram(availability_365_data, bins=30)
-
-source = ColumnDataSource(data=dict(
-    top=hist,
-    left=edges[:-1],  
-    right=edges[1:],  
-))
-
-# Calculate the percentage of data beyond 90
-count_beyond_90 = (availability_365_data > 90).sum()
-valid_rows = len(availability_365_data)
-percentage_beyond_90 = (count_beyond_90 / valid_rows) * 100
-
-# Bokeh bar chart customisation
-p = figure(title="Fig 2. Distribution of Annual Available Days for Entire Home/Apt in London",
-           x_axis_label="Available Days in the Next Calendar Year from December 10, 2023",
-           y_axis_label="Frequency",
-           tools="pan,box_zoom,reset,hover")
-p.quad(top='top', bottom=0, left='left', right='right', source=source, color='purple', alpha=0.7)
-p.line([90, 90], [0, max(hist)], line_width=2, color="black", line_dash="dashed", legend_label="90 Days")
-label = Label(x=95, y=max(hist) * 0.8, text=f'{percentage_beyond_90:.2f}% above 90 days', 
-              text_font_size="12px", text_color="black")
-p.add_layout(label)
-p.xgrid.grid_line_color = None
-p.y_range.start = 0
-p.tools = []  # Clear hover
-
-output_notebook()  
-show(p)
-```
 
 This section highlights the speculative and unregulated nature of Entire home/apartment Airbnb listings in London, where weak enforcement of existing regulations may incentivize speculative behavior. This raises the question of what might happen if the "90-day rule" were strictly enforced. The next section will explore this scenario in greater detail.
 
@@ -805,52 +688,7 @@ This section highlights the speculative and unregulated nature of Entire home/ap
 
 ( 45 points; Answer due {{< var assess.group-date >}} )
 
-```{python}
-#| echo: false
-#| output: asis
 
-#Explanation: Mapping the spatial distribution of Entire home/apt with more than 90 days available in the next calendar year.
-
-import geopandas as gpd
-from bokeh.plotting import figure, show
-from bokeh.models import GeoJSONDataSource, HoverTool
-import json
-
-# Reproject the GeoDataFrames to EPSG:4326 (WGS84, lat/lon)
-boros = boros.to_crs('EPSG:4326')  # Reproject boroughs to WGS84 (lat/lon)
-entire_home_apt_90 = entire_home_apt_90.to_crs('EPSG:4326')  # Reproject points to WGS84 (lat/lon)
-
-# Convert GeoDataFrames into GeoJSONDataSource
-def get_geodatasource(gdf):    
-    """Convert a GeoDataFrame into GeoJSONDataSource for Bokeh"""
-    json_data = json.dumps(json.loads(gdf.to_json()))
-    return GeoJSONDataSource(geojson=json_data)
-
-# Prepare the data for GeoJSON plotting
-boros_geojson = get_geodatasource(boros)  # GeoJSON for borough polygons
-entire_home_apt_90_geojson = get_geodatasource(entire_home_apt_90)  # GeoJSON for points
-
-# Create a Bokeh figure
-p = figure(title='Map 1. Entire Home/Apt Listings With More Than 90 Available Days in London (2023-2024)',
-           height=700, width=850, toolbar_location='right', tools='wheel_zoom,pan,reset,hover')
-p.patches('xs', 'ys', source=boros_geojson, fill_alpha=0.5, line_width=0.5, line_color='black', fill_color='grey')
-p.scatter(x='longitude', y='latitude', source=entire_home_apt_90_geojson, size=2, color='purple', legend_label='Entire home/apt > 90 days')
-
-# Add hover tool for the points showing the number of available days
-hover = p.select(dict(type=HoverTool))
-hover.tooltips = [("Available Days", "@availability_365")]
-
-# Add labels, title, and legend
-p.title.text_font_size = '16pt'
-p.legend.title = 'Listings'
-p.xaxis.visible = False
-p.yaxis.visible = False
-p.xgrid.grid_line_color = None
-p.ygrid.grid_line_color = None
-
-output_notebook()
-show(p, notebook_handle=True)
-```
 
 ```{python}
 #| echo: false
